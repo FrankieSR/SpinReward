@@ -1,23 +1,50 @@
 <?xml version="1.0"?>
 <schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
-    <table name="wishreward_wishes" resource="default" engine="innodb" comment="WishReward Wishes Table">
-        <!-- Column Definitions -->
-        <column name="wish_id" xsi:type="int" unsigned="true" nullable="false" identity="true" comment="Wish ID"/>
-        <column name="customer_id" xsi:type="int" unsigned="true" nullable="true" comment="Customer ID"/>
-        <column name="wish_message" xsi:type="text" nullable="false" comment="Wish Message"/>
-        <column name="created_at" xsi:type="timestamp" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At"/>
+    <table name="wishreward_wheel" resource="default" engine="innodb" comment="Wish Reward Wheels of Fortune">
+        <!-- Основные поля -->
+        <column xsi:type="int" name="wheel_id" unsigned="true" nullable="false" identity="true" comment="Wheel ID"/>
+        <column xsi:type="varchar" name="title" nullable="false" length="255" comment="Wheel Title"/>
+        <column xsi:type="boolean" name="is_active" nullable="false" default="1" comment="Is Active Flag"/>
 
-        <!-- Primary Key Constraint -->
+        <!-- Период действия -->
+        <column xsi:type="datetime" name="start_date" nullable="true" comment="Start Date"/>
+        <column xsi:type="datetime" name="end_date" nullable="true" comment="End Date"/>
+
+        <!-- Новая колонка для хранения настроек отображения -->
+        <column xsi:type="text" name="display_on_pages" nullable="true" comment="Display on Pages (comma-separated values, e.g. all,homepage,except_checkout)"/>
+
+        <!-- Сообщения -->
+        <column xsi:type="text" name="win_message" nullable="true" comment="Win Message"/>
+        <column xsi:type="text" name="no_win_message" nullable="true" comment="No Win Message"/>
+
+        <!-- Конфигурация колеса -->
+        <column xsi:type="text" name="wheel_config" nullable="true" comment="Wheel Configuration (JSON)"/>
+
+        <!-- Storeviews и группы -->
+        <column xsi:type="text" name="storeviews" nullable="true" comment="Store Views (comma-separated)"/>
+        <column xsi:type="text" name="allowed_customer_groups" nullable="true" comment="Allowed Customer Groups (comma-separated)"/>
+
+        <!-- CTA настройки -->
+        <column xsi:type="boolean" name="is_cta_enabled" nullable="false" default="0" comment="Is CTA Enabled"/>
+        <column xsi:type="varchar" name="cta_label" nullable="true" length="255" comment="CTA Label"/>
+        <column xsi:type="varchar" name="cta_button_text" nullable="true" length="255" comment="CTA Button Text"/>
+        <column xsi:type="varchar" name="cta_image" nullable="true" length="255" comment="CTA Image Path"/>
+        <column xsi:type="varchar" name="cta_position" nullable="true" length="50" default="bottom-right" comment="CTA Position"/>
+        <column xsi:type="text" name="cta_custom_css" nullable="true" comment="Custom CSS for CTA Button"/>
+
+        <!-- Popup настройки (обновлено) -->
+        <column xsi:type="varchar" name="popup_title" nullable="true" length="255" comment="Popup Title"/>
+        <column xsi:type="text" name="popup_description" nullable="true" comment="Popup Description"/>
+        <column xsi:type="boolean" name="is_wish_area_enabled" nullable="false" default="0" comment="Enable Wish Area"/>
+        <column xsi:type="boolean" name="is_email_input_enabled" nullable="false" default="0" comment="Enable Email Input"/>
+
+        <!-- Временные метки -->
+        <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" comment="Creation Time"/>
+        <column xsi:type="timestamp" name="updated_at" nullable="true" on_update="true" comment="Update Time"/>
+
+        <!-- Primary Key -->
         <constraint xsi:type="primary" referenceId="PRIMARY">
-            <column name="wish_id"/>
-        </constraint>
-
-        <!-- Foreign Key Constraint -->
-        <constraint xsi:type="foreign" referenceId="FK_WISHREWARD_WISHES_CUSTOMER_ID" column="customer_id" referenceTable="customer_entity" referenceColumn="entity_id" onDelete="SET NULL"/>
-
-        <!-- Unique Constraint -->
-        <constraint xsi:type="unique" referenceId="UNQ_WISHREWARD_WISHES_CUSTOMER_ID">
-            <column name="customer_id"/>
+            <column name="wheel_id"/>
         </constraint>
     </table>
 </schema>

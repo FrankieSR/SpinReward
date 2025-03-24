@@ -6,6 +6,7 @@
     <body>
         <referenceContainer name="content">
             <uiComponent name="wishreward_wishes_listing"/>
+            <uiComponent name="wishreward_wheel_listing"/>
         </referenceContainer>
     </body>
 </page>

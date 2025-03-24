@@ -1,0 +1,43 @@
+{
+    "wishreward_wishes": {
+        "column": {
+            "wish_id": true,
+            "customer_id": true,
+            "wish_message": true,
+            "created_at": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "WISHREWARD_WISHES_CUSTOMER_ID_CUSTOMER_ENTITY_ENTITY_ID": true,
+            "WISHREWARD_WISHES_CUSTOMER_ID": true
+        }
+    },
+    "wishreward_wheel": {
+        "column": {
+            "wheel_id": true,
+            "title": true,
+            "is_active": true,
+            "start_date": true,
+            "end_date": true,
+            "win_message": true,
+            "no_win_message": true,
+            "wheel_config": true,
+            "storeviews": true,
+            "allowed_customer_groups": true,
+            "created_at": true,
+            "updated_at": true,
+            "is_cta_enabled": true,
+            "cta_label": true,
+            "cta_button_text": true,
+            "cta_image": true,
+            "cta_position": true,
+            "cta_custom_css": true,
+            "popup_description": true,
+            "is_wish_area_enabled": true,
+            "is_email_input_enabled": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    }
+}

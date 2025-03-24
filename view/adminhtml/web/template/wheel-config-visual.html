@@ -1,0 +1,147 @@
+<div class="admin__field field-config-visual">
+  <!-- Кнопка "Add Sector" -->
+  <div class="admin__field-control">
+    <button
+      class="action-secondary"
+      type="button"
+      data-bind="click: addSector"
+    >
+      <!-- ko i18n: 'Add Sector' -->
+      <!-- /ko -->
+    </button>
+  </div>
+
+  <!-- Контейнер для секторов -->
+  <div
+    class="sectors-container"
+    data-bind="foreach: { data: sectors, as: 'sector' }"
+  >
+    <fieldset class="admin__fieldset sector-item">
+      <legend class="admin__legend">
+        <span data-bind="i18n: 'Sector'"></span>
+      </legend>
+
+      <!-- Label -->
+      <div class="admin__field">
+        <label
+          class="admin__field-label"
+          for="sector-label-${$index()}"
+        >
+          <span data-bind="i18n: 'Label'"></span>
+        </label>
+        <div class="admin__field-control">
+          <input
+            class="admin__control-text"
+            type="text"
+            data-bind="value: sector.label, valueUpdate: 'input', attr: { id: 'sector-label-' + $index() }"
+            placeholder="Enter sector label"
+          />
+        </div>
+      </div>
+
+      <!-- Cart Price Rule -->
+      <div class="admin__field">
+        <label
+          class="admin__field-label"
+          for="sector-rule-${$index()}"
+        >
+          <span data-bind="i18n: 'Cart Price Rule'"></span>
+        </label>
+        <div class="admin__field-control">
+          <select
+            class="admin__control-select"
+            data-bind="
+                                options: $parent.ruleOptions,
+                                optionsValue: 'value',
+                                optionsText: 'label',
+                                value: sector.rule_id,
+                                optionsCaption: $t('Select a Cart Price Rule...'),
+                                attr: { id: 'sector-rule-' + $index() }
+                            "
+          ></select>
+        </div>
+      </div>
+
+      <!-- Probability -->
+      <div class="admin__field">
+        <label
+          class="admin__field-label"
+          for="sector-probability-${$index()}"
+        >
+          <span data-bind="i18n: 'Probability (%)'"></span>
+        </label>
+        <div class="admin__field-control">
+          <input
+            class="admin__control-text"
+            type="number"
+            data-bind="value: sector.probability, valueUpdate: 'input', attr: { id: 'sector-probability-' + $index(), min: 0, max: 100 }"
+            placeholder="Enter probability (0-100)"
+          />
+        </div>
+      </div>
+
+      <!-- Text Color -->
+      <div class="admin__field">
+        <label
+          class="admin__field-label"
+          for="sector-text-color-${$index()}"
+        >
+          <span data-bind="i18n: 'Text Color'"></span>
+        </label>
+        <div class="admin__field-control">
+          <input
+            class="admin__control-color"
+            type="color"
+            data-bind="value: sector.text_color, attr: { id: 'sector-text-color-' + $index() }"
+          />
+        </div>
+      </div>
+
+      <!-- Background Color -->
+      <div class="admin__field">
+        <label
+          class="admin__field-label"
+          for="sector-bg-color-${$index()}"
+        >
+          <span data-bind="i18n: 'Background Color'"></span>
+        </label>
+        <div class="admin__field-control">
+          <input
+            class="admin__control-color"
+            type="color"
+            data-bind="value: sector.background_color, attr: { id: 'sector-bg-color-' + $index() }"
+          />
+        </div>
+      </div>
+
+      <!-- Border Color -->
+      <div class="admin__field">
+        <label
+          class="admin__field-label"
+          for="sector-border-color-${$index()}"
+        >
+          <span data-bind="i18n: 'Border Color'"></span>
+        </label>
+        <div class="admin__field-control">
+          <input
+            class="admin__control-color"
+            type="color"
+            data-bind="value: sector.border_color, attr: { id: 'sector-border-color-' + $index() }"
+          />
+        </div>
+      </div>
+
+      <!-- Кнопка "Remove" -->
+      <div class="admin__field-control">
+        <button
+          class="action-delete"
+          type="button"
+          data-bind="click: function() { $parent.removeSector(sector); }"
+        >
+          <!-- ko i18n: 'Remove' -->
+          <!-- /ko -->
+        </button>
+      </div>
+    </fieldset>
+  </div>
+</div>

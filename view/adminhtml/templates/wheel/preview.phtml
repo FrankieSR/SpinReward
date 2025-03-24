@@ -1,0 +1,21 @@
+<div id="wheel-preview-container" data-bind="scope: 'wishreward_wheel_form.wishreward_wheel_form'">
+    <!-- ko template: { name: 'Doroshko_WishReward/wheel-preview' } --><!-- /ko -->
+</div>
+
+<script type="text/x-magento-init">
+    {
+    "#wheel-preview-container": {
+        "Magento_Ui/js/core/app": {
+            "components": {
+                "wishreward_wheel_form": {
+                    "children": {
+                        "wheel_config_visual": {
+                            "component": "Doroshko_WishReward/js/wheel-config-visual"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+</script>

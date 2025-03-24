@@ -14,17 +14,34 @@
         </arguments>
     </type>
 
-    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+    <!-- <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
         <arguments>
             <argument name="collections" xsi:type="array">
                 <item name="wishreward_wishes_data_source" xsi:type="string">Doroshko\WishReward\Model\ResourceModel\Wish\Collection</item>
             </argument>
         </arguments>
-    </type>
+    </type> -->
 
     <type name="Doroshko\WishReward\Model\Wishes\DataProvider">
         <arguments>
             <argument name="collectionFactory" xsi:type="object">Doroshko\WishReward\Model\ResourceModel\Wish\CollectionFactory</argument>
         </arguments>
     </type>
+
+    <type name="Doroshko\WishReward\Model\Wheel\DataProvider">
+        <arguments>
+            <argument name="request" xsi:type="object">Magento\Framework\App\Request\Http</argument>
+        </arguments>
+    </type>
+
+    <type name="Doroshko\WishReward\Model\WheelRepository">
+        <arguments>
+            <argument name="layout" xsi:type="object">Magento\Framework\View\LayoutInterface\Proxy</argument>
+        </arguments>
+    </type>
+
+    <!-- Предпочтение для модели Wheel -->
+    <preference for="Doroshko\WishReward\Api\Data\WheelInterface" type="Doroshko\WishReward\Model\Wheel" />
+    <!-- Предпочтение для репозитория -->
+    <preference for="Doroshko\WishReward\Api\WheelRepositoryInterface" type="Doroshko\WishReward\Model\WheelRepository" />
 </config>

@@ -1,0 +1,39 @@
+.wheel-configuration-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.wheel-configuration-container .settings_container {
+    width: 50%;
+    padding-right: 20px;
+}
+
+.wheel-configuration-container .preview_container {
+    width: 50%;
+    text-align: center;
+}
+
+.wheel-preview svg {
+    max-width: 100%;
+}
+
+.sector-item {
+    border: 1px solid #e3e3e3;
+    padding: 10px;
+    margin-bottom: 10px;
+    background: #fafafa;
+}
+
+.sector-item .admin__field {
+    margin-bottom: 10px;
+}
+
+.sector-item .admin__field-label {
+    width: 150px;
+    display: inline-block;
+}
+
+.sector-item .admin__field-control {
+    display: inline-block;
+    vertical-align: top;
+}

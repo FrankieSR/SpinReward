@@ -22,5 +22,13 @@
             parent="Doroshko_WishReward::main"
             action="wishreward/wishes/index"
             resource="Doroshko_WishReward::wishes" />
+
+        <add id="Doroshko_WishReward::wheels" 
+            title="Wheels of Fortune"
+            module="Doroshko_WishReward"
+            sortOrder="40"
+            parent="Doroshko_WishReward::main"
+            action="wishreward/wheel/index"
+            resource="Doroshko_WishReward::wheels"/>
     </menu>
 </config>

@@ -1,0 +1,27 @@
+<?php
+/** @var \Doroshko\WishReward\Block\CtaButton $block */
+$wheelData = $block->getWheelData();
+if (!$wheelData || !$wheelData['is_cta_enabled']) {
+    return;
+}
+?>
+
+<div class="wishreward-cta-button <?= $block->escapeHtmlAttr($wheelData['cta_position']) ?>" style="<?= $block->escapeHtmlAttr($wheelData['cta_custom_css']) ?>">
+    <?php if ($wheelData['cta_image']): ?>
+        <img src="<?= $block->escapeUrl($wheelData['cta_image']) ?>" alt="<?= $block->escapeHtml($wheelData['cta_label']) ?>">
+    <?php endif; ?>
+    <button type="button" class="cta-button" data-wheel-id="<?= $block->escapeHtml($wheelData['wheel_id']) ?>">
+        <?= $block->escapeHtml($wheelData['cta_button_text'] ?: 'Spin the Wheel') ?>
+    </button>
+</div>
+
+<script type="text/x-magento-init">
+{
+    ".wishreward-cta-button .cta-button": {
+        "Doroshko_WishReward/js/cta-button": {
+            "ajaxUrl": "<?= $block->escapeUrl($block->getAjaxUrl()) ?>",
+            "wheelId": "<?= $block->escapeHtml($wheelData['wheel_id']) ?>"
+        }
+    }
+}
+</script>

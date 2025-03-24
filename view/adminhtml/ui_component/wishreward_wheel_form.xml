@@ -1,0 +1,384 @@
+<?xml version="1.0"?>
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+
+    <!-- General Form Arguments -->
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">wishreward_wheel_form.wishreward_wheel_form_data_source</item>
+        </item>
+        <item name="label" xsi:type="string" translate="true">Wheel of Fortune</item>
+        <item name="template" xsi:type="string">templates/form/collapsible</item>
+    </argument>
+    <settings>
+        <buttons>
+            <button name="save">
+                <url path="wishreward/wheel/save"/>
+                <class>save primary</class>
+                <label translate="true">Save Wheel</label>
+            </button>
+            <button name="back">
+                <url path="wishreward/wheel/index"/>
+                <class>back</class>
+                <label translate="true">Back</label>
+            </button>
+            <button name="delete">
+                <url path="wishreward/wheel/delete"/>
+                <class>delete</class>
+                <label translate="true">Delete</label>
+            </button>
+        </buttons>
+        <namespace>wishreward_wheel_form</namespace>
+        <dataScope>data</dataScope>
+        <deps>
+            <dep>wishreward_wheel_form.wishreward_wheel_form_data_source</dep>
+        </deps>
+    </settings>
+
+    <!-- DataSource -->
+    <dataSource name="wishreward_wheel_form_data_source">
+        <argument name="dataProvider" xsi:type="configurableObject">
+            <argument name="class" xsi:type="string">Doroshko\WishReward\Model\Wheel\FormDataProvider</argument>
+            <argument name="name" xsi:type="string">wishreward_wheel_form_data_source</argument>
+            <argument name="primaryFieldName" xsi:type="string">wheel_id</argument>
+            <argument name="requestFieldName" xsi:type="string">wheel_id</argument>
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="submit_url" xsi:type="url" path="wishreward/wheel/save"/>
+                </item>
+            </argument>
+        </argument>
+        <argument name="data" xsi:type="array">
+            <item name="js_config" xsi:type="array">
+                <item name="component" xsi:type="string">Magento_Ui/js/form/provider</item>
+            </item>
+        </argument>
+    </dataSource>
+
+    <!-- Fieldset: General Settings (updated) -->
+    <fieldset name="general" sortOrder="10">
+        <settings>
+            <label translate="true">General Settings</label>
+        </settings>
+
+        <!-- Hidden ID -->
+        <field name="wheel_id" formElement="hidden">
+            <settings>
+                <dataScope>wheel_id</dataScope>
+            </settings>
+        </field>
+
+        <!-- Title -->
+        <field name="title" formElement="input">
+            <settings>
+                <label translate="true">Title</label>
+                <dataScope>title</dataScope>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+            </settings>
+        </field>
+
+        <!-- Is Active -->
+        <field name="is_active" formElement="checkbox">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="number">1</item>
+                    <item name="prefer" xsi:type="string">toggle</item>
+                    <item name="valueMap" xsi:type="array">
+                        <item name="true" xsi:type="string">1</item>
+                        <item name="false" xsi:type="string">0</item>
+                    </item>
+                </item>
+            </argument>
+            <settings>
+                <label translate="true">Is Active</label>
+                <dataScope>is_active</dataScope>
+                <dataType>boolean</dataType>
+            </settings>
+        </field>
+
+        <!-- Win Message -->
+        <field name="win_message" formElement="textarea">
+            <settings>
+                <label translate="true">Win Message</label>
+                <dataScope>win_message</dataScope>
+            </settings>
+        </field>
+
+        <!-- No Win Message -->
+        <field name="no_win_message" formElement="textarea">
+            <settings>
+                <label translate="true">No Win Message</label>
+                <dataScope>no_win_message</dataScope>
+            </settings>
+        </field>
+
+        <!-- Storeviews -->
+        <field name="storeviews" formElement="multiselect" class="Magento\Store\Ui\Component\Form\Field\StoreView">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="source" xsi:type="string">block</item>
+                    <item name="default" xsi:type="number">0</item>
+                </item>
+            </argument>
+            <settings>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>int</dataType>
+                <label translate="true">Store View</label>
+                <dataScope>storeviews</dataScope>
+            </settings>
+            <formElements>
+                <multiselect>
+                    <settings>
+                        <options class="Magento\Cms\Ui\Component\Listing\Column\Cms\Options"/>
+                    </settings>
+                </multiselect>
+            </formElements>
+        </field>
+
+        <!-- Allowed Customer Groups -->
+        <field name="allowed_customer_groups" formElement="multiselect">
+            <settings>
+                <label translate="true">Allowed Customer Groups</label>
+                <dataScope>allowed_customer_groups</dataScope>
+                <dataType>text</dataType>
+            </settings>
+            <formElements>
+                <multiselect>
+                    <settings>
+                        <options class="Magento\Customer\Model\Customer\Source\GroupSourceInterface"/>
+                    </settings>
+                </multiselect>
+            </formElements>
+        </field>
+
+        <!-- Start Date -->
+        <field name="start_date" formElement="date">
+            <settings>
+                <label translate="true">Start Date</label>
+                <dataScope>start_date</dataScope>
+                <dataType>datetime</dataType>
+            </settings>
+        </field>
+
+        <!-- End Date -->
+        <field name="end_date" formElement="date">
+            <settings>
+                <label translate="true">End Date</label>
+                <dataScope>end_date</dataScope>
+                <dataType>datetime</dataType>
+            </settings>
+        </field>
+
+        <!-- Display Configuration (moved into General) -->
+        <field name="display_on_pages" formElement="multiselect">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="source" xsi:type="string">popup</item>
+                </item>
+            </argument>
+            <settings>
+                <label translate="true">Display on Pages</label>
+                <dataScope>display_on_pages</dataScope>
+                <dataType>text</dataType>
+            </settings>
+            <formElements>
+                <multiselect>
+                    <settings>
+                        <options>
+                            <option name="all" xsi:type="array">
+                                <item name="value" xsi:type="string">all</item>
+                                <item name="label" xsi:type="string" translate="true">Display on All Pages</item>
+                            </option>
+                            <option name="except_checkout" xsi:type="array">
+                                <item name="value" xsi:type="string">except_checkout</item>
+                                <item name="label" xsi:type="string" translate="true">Display Everywhere Except Checkout</item>
+                            </option>
+                            <option name="homepage" xsi:type="array">
+                                <item name="value" xsi:type="string">homepage</item>
+                                <item name="label" xsi:type="string" translate="true">Homepage</item>
+                            </option>
+                            <option name="pdp" xsi:type="array">
+                                <item name="value" xsi:type="string">pdp</item>
+                                <item name="label" xsi:type="string" translate="true">Product Page (PDP)</item>
+                            </option>
+                            <option name="plp" xsi:type="array">
+                                <item name="value" xsi:type="string">plp</item>
+                                <item name="label" xsi:type="string" translate="true">Category Page (PLP)</item>
+                            </option>
+                        </options>
+                    </settings>
+                </multiselect>
+            </formElements>
+        </field>
+    </fieldset>
+
+    <!-- Fieldset: Wheel Configuration -->
+    <fieldset name="wheel_configuration" sortOrder="20">
+        <settings>
+            <label translate="true">Wheel Configuration</label>
+            <collapsible>true</collapsible>
+        </settings>
+        <field name="wheel_config" formElement="text">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="component" xsi:type="string">Doroshko_WishReward/js/wheel-config-visual</item>
+                    <item name="componentType" xsi:type="string">field</item>
+                    <item name="elementTmpl" xsi:type="string">Doroshko_WishReward/wheel-config-visual</item>
+                </item>
+            </argument>
+            <settings>
+                <label translate="true">Wheel Configuration</label>
+                <dataScope>wheel_config</dataScope>
+                <dataType>text</dataType>
+            </settings>
+        </field>
+    </fieldset>
+
+    <!-- Fieldset: CTA Configuration -->
+    <fieldset name="cta_configuration" sortOrder="30">
+        <settings>
+            <label translate="true">CTA Configuration</label>
+            <collapsible>true</collapsible>
+        </settings>
+        <field name="is_cta_enabled" formElement="checkbox">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="number">0</item>
+                    <item name="prefer" xsi:type="string">toggle</item>
+                    <item name="valueMap" xsi:type="array">
+                        <item name="true" xsi:type="string">1</item>
+                        <item name="false" xsi:type="string">0</item>
+                    </item>
+                </item>
+            </argument>
+            <settings>
+                <label translate="true">Enable CTA Popup</label>
+                <dataScope>is_cta_enabled</dataScope>
+                <dataType>boolean</dataType>
+            </settings>
+        </field>
+        <field name="cta_label" formElement="input">
+            <settings>
+                <label translate="true">CTA Label</label>
+                <dataScope>cta_label</dataScope>
+            </settings>
+        </field>
+        <field name="cta_button_text" formElement="input">
+            <settings>
+                <label translate="true">CTA Button Text</label>
+                <dataScope>cta_button_text</dataScope>
+            </settings>
+        </field>
+
+        <field name="cta_image" formElement="imageUploader">
+            <settings>
+                <label translate="true">Image</label>
+                <componentType>imageUploader</componentType>
+            </settings>
+            <formElements>
+                <imageUploader>
+                    <settings>
+                        <allowedExtensions>jpg jpeg gif png</allowedExtensions>
+                        <maxFileSize>4194304</maxFileSize>
+                        <uploaderConfig>
+                            <param xsi:type="string" name="url">pagebuilder/contenttype/image_upload</param>
+                        </uploaderConfig>
+                        <previewTmpl>Magento_PageBuilder/form/element/uploader/preview</previewTmpl>
+                    </settings>
+                </imageUploader>
+            </formElements>
+        </field>
+        <field name="cta_position" formElement="select">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="string">bottom-right</item>
+                    <item name="options" xsi:type="array">
+                        <item name="top-left" xsi:type="array">
+                            <item name="value" xsi:type="string">top-left</item>
+                            <item name="label" xsi:type="string" translate="true">Top Left</item>
+                        </item>
+                        <item name="top-right" xsi:type="array">
+                            <item name="value" xsi:type="string">top-right</item>
+                            <item name="label" xsi:type="string" translate="true">Top Right</item>
+                        </item>
+                        <item name="bottom-left" xsi:type="array">
+                            <item name="value" xsi:type="string">bottom-left</item>
+                            <item name="label" xsi:type="string" translate="true">Bottom Left</item>
+                        </item>
+                        <item name="bottom-right" xsi:type="array">
+                            <item name="value" xsi:type="string">bottom-right</item>
+                            <item name="label" xsi:type="string" translate="true">Bottom Right</item>
+                        </item>
+                    </item>
+                </item>
+            </argument>
+            <settings>
+                <label translate="true">CTA Position</label>
+                <dataScope>cta_position</dataScope>
+            </settings>
+        </field>
+        <field name="cta_custom_css" formElement="textarea">
+            <settings>
+                <label translate="true">CTA Custom CSS</label>
+                <dataScope>cta_custom_css</dataScope>
+            </settings>
+        </field>
+    </fieldset>
+
+    <!-- Fieldset: Popup Configuration -->
+    <fieldset name="popup_configuration" sortOrder="40">
+        <settings>
+            <label translate="true">Popup Configuration</label>
+            <collapsible>true</collapsible>
+        </settings>
+        <field name="popup_title" formElement="input">
+            <settings>
+                <label translate="true">Popup Title</label>
+                <dataScope>popup_title</dataScope>
+            </settings>
+        </field>
+        <field name="popup_description" formElement="textarea">
+            <settings>
+                <label translate="true">Popup Description</label>
+                <dataScope>popup_description</dataScope>
+            </settings>
+        </field>
+        <field name="is_wish_area_enabled" formElement="checkbox">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="number">0</item>
+                    <item name="prefer" xsi:type="string">toggle</item>
+                    <item name="valueMap" xsi:type="array">
+                        <item name="true" xsi:type="string">1</item>
+                        <item name="false" xsi:type="string">0</item>
+                    </item>
+                </item>
+            </argument>
+            <settings>
+                <label translate="true">Enable Wish Area</label>
+                <dataScope>is_wish_area_enabled</dataScope>
+                <dataType>boolean</dataType>
+            </settings>
+        </field>
+        <field name="is_email_input_enabled" formElement="checkbox">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="number">0</item>
+                    <item name="prefer" xsi:type="string">toggle</item>
+                    <item name="valueMap" xsi:type="array">
+                        <item name="true" xsi:type="string">1</item>
+                        <item name="false" xsi:type="string">0</item>
+                    </item>
+                </item>
+            </argument>
+            <settings>
+                <label translate="true">Enable Email Input</label>
+                <dataScope>is_email_input_enabled</dataScope>
+                <dataType>boolean</dataType>
+            </settings>
+        </field>
+    </fieldset>
+</form>
