@@ -1,0 +1,163 @@
+<?php
+declare(strict_types=1);
+
+namespace Doroshko\WishReward\ViewModel;
+
+use Magento\Framework\View\Element\Block\ArgumentInterface;
+use Doroshko\WishReward\Api\Data\WheelInterface;
+
+class WheelPopupViewModel implements ArgumentInterface
+{
+    private ?WheelInterface $wheel = null;
+
+    public function setWheel(WheelInterface $wheel): void
+    {
+        $this->wheel = $wheel;
+    }
+
+    public function getWheel(): ?WheelInterface
+    {
+        return $this->wheel;
+    }
+
+    public function getWheelId(): ?int
+    {
+        return $this->wheel ? $this->wheel->getWheelId() : null;
+    }
+
+    public function getTitle(): string
+    {
+        return $this->wheel ? $this->wheel->getTitle() : '';
+    }
+
+    public function isActive(): bool
+    {
+        return $this->wheel ? $this->wheel->isActive() : false;
+    }
+
+    public function getStartDate(): ?string
+    {
+        return $this->wheel ? $this->wheel->getStartDate() : null;
+    }
+
+    public function getEndDate(): ?string
+    {
+        return $this->wheel ? $this->wheel->getEndDate() : null;
+    }
+
+    public function getDisplayOnPages(): array
+    {
+        return $this->wheel && $this->wheel->getDisplayOnPages() 
+            ? explode(',', $this->wheel->getDisplayOnPages()) 
+            : [];
+    }
+
+    public function getWinMessage(): ?string
+    {
+        return $this->wheel ? $this->wheel->getWinMessage() : null;
+    }
+
+    public function getNoWinMessage(): ?string
+    {
+        return $this->wheel ? $this->wheel->getNoWinMessage() : null;
+    }
+
+    public function getWheelConfig(): ?string
+    {
+        return $this->wheel ? $this->wheel->getWheelConfig() : null;
+    }
+
+    public function getStoreviews(): array
+    {
+        return $this->wheel && $this->wheel->getStoreviews() 
+            ? explode(',', $this->wheel->getStoreviews()) 
+            : [];
+    }
+
+    public function getAllowedCustomerGroups(): array
+    {
+        return $this->wheel && $this->wheel->getAllowedCustomerGroups() 
+            ? explode(',', $this->wheel->getAllowedCustomerGroups()) 
+            : [];
+    }
+
+    public function getIsCtaEnabled(): bool
+    {
+        return $this->wheel ? $this->wheel->getIsCtaEnabled() : false;
+    }
+
+    public function getCtaLabel(): ?string
+    {
+        return $this->wheel ? $this->wheel->getCtaLabel() : null;
+    }
+
+    public function getCtaButtonText(): ?string
+    {
+        return $this->wheel ? $this->wheel->getCtaButtonText() : null;
+    }
+
+    public function getCtaImage(): ?string
+    {
+        return $this->wheel ? $this->wheel->getCtaImage() : null;
+    }
+
+    public function getCtaPosition(): ?string
+    {
+        return $this->wheel ? $this->wheel->getCtaPosition() : null;
+    }
+
+    public function getCtaCustomCss(): ?string
+    {
+        return $this->wheel ? $this->wheel->getCtaCustomCss() : null;
+    }
+
+    public function getPopupTitle(): ?string
+    {
+        return $this->wheel ? $this->wheel->getPopupTitle() : null;
+    }
+
+    public function getPopupDescription(): ?string
+    {
+        return $this->wheel ? $this->wheel->getPopupDescription() : null;
+    }
+
+    public function getIsWishAreaEnabled(): bool
+    {
+        return $this->wheel ? $this->wheel->getIsWishAreaEnabled() : false;
+    }
+
+    public function getIsEmailInputEnabled(): bool
+    {
+        return $this->wheel ? $this->wheel->getIsEmailInputEnabled() : false;
+    }
+
+    public function getRotationDuration(): ?int
+    {
+        return $this->wheel ? $this->wheel->getRotationDuration() : null;
+    }
+
+    public function getWheelRadius(): ?int
+    {
+        return $this->wheel ? $this->wheel->getWheelRadius() : null;
+    }
+
+    public function getWheelPosition(): ?string
+    {
+        return $this->wheel ? $this->wheel->getWheelPosition() : null;
+    }
+
+    public function getPopupDelay(): ?int
+    {
+        return $this->wheel ? $this->wheel->getPopupDelay() : null;
+    }
+
+    public function getPopupScrollTrigger(): ?string
+    {
+        return $this->wheel ? $this->wheel->getPopupScrollTrigger() : null;
+    }
+
+    public function getPopupOncePerSession(): bool
+    {
+        return $this->wheel ? $this->wheel->getPopupOncePerSession() : false;
+    }
+}

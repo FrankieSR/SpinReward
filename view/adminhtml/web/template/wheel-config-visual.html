@@ -1,147 +1,119 @@
-<div class="admin__field field-config-visual">
-  <!-- Кнопка "Add Sector" -->
-  <div class="admin__field-control">
-    <button
-      class="action-secondary"
-      type="button"
-      data-bind="click: addSector"
-    >
-      <!-- ko i18n: 'Add Sector' -->
-      <!-- /ko -->
-    </button>
-  </div>
-
-  <!-- Контейнер для секторов -->
-  <div
-    class="sectors-container"
-    data-bind="foreach: { data: sectors, as: 'sector' }"
-  >
-    <fieldset class="admin__fieldset sector-item">
-      <legend class="admin__legend">
-        <span data-bind="i18n: 'Sector'"></span>
-      </legend>
-
-      <!-- Label -->
-      <div class="admin__field">
-        <label
-          class="admin__field-label"
-          for="sector-label-${$index()}"
-        >
-          <span data-bind="i18n: 'Label'"></span>
-        </label>
-        <div class="admin__field-control">
-          <input
-            class="admin__control-text"
-            type="text"
-            data-bind="value: sector.label, valueUpdate: 'input', attr: { id: 'sector-label-' + $index() }"
-            placeholder="Enter sector label"
-          />
-        </div>
-      </div>
-
-      <!-- Cart Price Rule -->
-      <div class="admin__field">
-        <label
-          class="admin__field-label"
-          for="sector-rule-${$index()}"
-        >
-          <span data-bind="i18n: 'Cart Price Rule'"></span>
-        </label>
-        <div class="admin__field-control">
-          <select
-            class="admin__control-select"
-            data-bind="
-                                options: $parent.ruleOptions,
-                                optionsValue: 'value',
-                                optionsText: 'label',
-                                value: sector.rule_id,
-                                optionsCaption: $t('Select a Cart Price Rule...'),
-                                attr: { id: 'sector-rule-' + $index() }
-                            "
-          ></select>
-        </div>
-      </div>
-
-      <!-- Probability -->
-      <div class="admin__field">
-        <label
-          class="admin__field-label"
-          for="sector-probability-${$index()}"
-        >
-          <span data-bind="i18n: 'Probability (%)'"></span>
-        </label>
-        <div class="admin__field-control">
-          <input
-            class="admin__control-text"
-            type="number"
-            data-bind="value: sector.probability, valueUpdate: 'input', attr: { id: 'sector-probability-' + $index(), min: 0, max: 100 }"
-            placeholder="Enter probability (0-100)"
-          />
-        </div>
-      </div>
-
-      <!-- Text Color -->
-      <div class="admin__field">
-        <label
-          class="admin__field-label"
-          for="sector-text-color-${$index()}"
-        >
-          <span data-bind="i18n: 'Text Color'"></span>
-        </label>
-        <div class="admin__field-control">
-          <input
-            class="admin__control-color"
-            type="color"
-            data-bind="value: sector.text_color, attr: { id: 'sector-text-color-' + $index() }"
-          />
-        </div>
-      </div>
-
-      <!-- Background Color -->
-      <div class="admin__field">
-        <label
-          class="admin__field-label"
-          for="sector-bg-color-${$index()}"
-        >
-          <span data-bind="i18n: 'Background Color'"></span>
-        </label>
-        <div class="admin__field-control">
-          <input
-            class="admin__control-color"
-            type="color"
-            data-bind="value: sector.background_color, attr: { id: 'sector-bg-color-' + $index() }"
-          />
-        </div>
-      </div>
-
-      <!-- Border Color -->
-      <div class="admin__field">
-        <label
-          class="admin__field-label"
-          for="sector-border-color-${$index()}"
-        >
-          <span data-bind="i18n: 'Border Color'"></span>
-        </label>
-        <div class="admin__field-control">
-          <input
-            class="admin__control-color"
-            type="color"
-            data-bind="value: sector.border_color, attr: { id: 'sector-border-color-' + $index() }"
-          />
-        </div>
-      </div>
-
-      <!-- Кнопка "Remove" -->
-      <div class="admin__field-control">
-        <button
-          class="action-delete"
-          type="button"
-          data-bind="click: function() { $parent.removeSector(sector); }"
-        >
-          <!-- ko i18n: 'Remove' -->
-          <!-- /ko -->
+<div class="wheel-config-visual">
+    <div class="sectors-list">
+        <h3>Sectors</h3>
+        <table class="admin__table-secondary">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Label</th>
+                    <th>Probability</th>
+                    <th>Cart Rule Price ID</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody data-bind="foreach: { data: sectors, as: 'sector' }">
+                <tr>
+                    <td data-bind="text: sector.id"></td>
+                    <td data-bind="text: sector.label"></td>
+                    <td data-bind="text: sector.probability"></td>
+                    <td data-bind="text: sector.rule_id"></td>
+                    <td>
+                        <button class="action-secondary" data-bind="click: $parent.editSector.bind($parent, sector)">
+                            Edit
+                        </button>
+                        <button class="action-delete" data-bind="click: $parent.removeSector.bind($parent, sector)">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <button class="action-primary" data-bind="click: openAddSectorPopup">
+            Add Sector
         </button>
-      </div>
-    </fieldset>
-  </div>
+    </div>
+    
+    <!-- Модальное окно -->
+    <div class="modal" data-bind="visible: isPopupVisible, with: popupSector">
+        <div class="modal-inner">
+            <h2 data-bind="text: $parent.isEditing() ? 'Edit Sector' : 'Add Sector'"></h2>
+            <form data-bind="submit: $parent.savePopupSector.bind($parent, $data)">
+                <div class="field">
+                    <label>Label</label>
+                    <input type="text" data-bind="value: label, valueUpdate: 'input'" required />
+                </div>
+                <div class="field">
+                    <label>Probability (%)</label>
+                    <input type="number" min="0" max="100" data-bind="value: probability, valueUpdate: 'input'" required />
+                </div>
+                <div class="field">
+                    <label>Cart Rule Price ID</label>
+                    <input type="text" data-bind="value: rule_id, valueUpdate: 'input'" placeholder="Enter rule ID manually" />
+                </div>
+                <div class="field">
+                    <label>Text Color</label>
+                    <input type="color" data-bind="value: text_color, valueUpdate: 'input'" />
+                </div>
+                <div class="field">
+                    <label>Background Color</label>
+                    <input type="color" data-bind="value: background_color, valueUpdate: 'input'" />
+                </div>
+                <div class="field">
+                    <label>Border Color</label>
+                    <input type="color" data-bind="value: border_color, valueUpdate: 'input'" />
+                </div>
+                <div class="actions">
+                    <button type="submit" class="action-primary">
+                        Save
+                    </button>
+                    <button type="button" class="action-secondary" data-bind="click: $parent.closePopup">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
+
+<style>
+    .wheel-config-visual .sectors-list {
+        margin-bottom: 20px;
+    }
+
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+    }
+
+    .modal-inner {
+        background: #fff;
+        padding: 20px;
+        margin: 50px auto;
+        width: 400px;
+        max-width: 90%;
+        border-radius: 5px;
+    }
+
+    .field {
+        margin-bottom: 15px;
+    }
+
+    .field label {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .actions {
+        margin-top: 20px;
+        text-align: right;
+    }
+
+    .actions button {
+        margin-left: 10px;
+    }
+</style>

@@ -11,11 +11,5 @@ interface WheelRepositoryInterface
     public function getById(int $wheelId): WheelInterface;
     public function delete(WheelInterface $wheel): bool;
     public function deleteById(int $wheelId): bool;
-
-    /**
-     * Returns the eligible popup according to business rules.
-     *
-     * @return WheelInterface|null
-     */
     public function getEligiblePopup(): ?WheelInterface;
 }

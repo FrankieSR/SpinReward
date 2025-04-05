@@ -250,4 +250,72 @@ class Wheel extends AbstractModel implements WheelInterface
         $this->setData('display_on_pages', $pages);
         return $this;
     }
+    
+    // Visual settings for the wheel
+    public function getRotationDuration(): ?int
+    {
+        return $this->getData('rotation_duration') !== null ? (int)$this->getData('rotation_duration') : null;
+    }
+    
+    public function setRotationDuration(?int $duration): self
+    {
+        $this->setData('rotation_duration', $duration);
+        return $this;
+    }
+    
+    public function getWheelRadius(): ?int
+    {
+        return $this->getData('wheel_radius') !== null ? (int)$this->getData('wheel_radius') : null;
+    }
+    
+    public function setWheelRadius(?int $radius): self
+    {
+        $this->setData('wheel_radius', $radius);
+        return $this;
+    }
+    
+    public function getWheelPosition(): ?string
+    {
+        return $this->getData('wheel_position');
+    }
+    
+    public function setWheelPosition(?string $position): self
+    {
+        $this->setData('wheel_position', $position);
+        return $this;
+    }
+    
+    // Popup trigger settings
+    public function getPopupDelay(): ?int
+    {
+        return $this->getData('popup_delay') !== null ? (int)$this->getData('popup_delay') : null;
+    }
+    
+    public function setPopupDelay(?int $delay): self
+    {
+        $this->setData('popup_delay', $delay);
+        return $this;
+    }
+    
+    public function getPopupScrollTrigger(): ?string
+    {
+        return $this->getData('popup_scroll_trigger');
+    }
+    
+    public function setPopupScrollTrigger(?string $trigger): self
+    {
+        $this->setData('popup_scroll_trigger', $trigger);
+        return $this;
+    }
+    
+    public function getPopupOncePerSession(): bool
+    {
+        return (bool)$this->getData('popup_once_per_session');
+    }
+    
+    public function setPopupOncePerSession(bool $once): self
+    {
+        $this->setData('popup_once_per_session', $once);
+        return $this;
+    }
 }

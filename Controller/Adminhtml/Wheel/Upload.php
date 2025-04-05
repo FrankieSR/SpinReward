@@ -3,59 +3,56 @@ declare(strict_types=1);
 
 namespace Doroshko\WishReward\Controller\Adminhtml\Wheel;
 
-use Magento\Backend\App\Action;
+use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\ResultFactory;
+use Magento\Backend\App\Action;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Filesystem;
+use Magento\MediaStorage\Model\File\UploaderFactory;
 
-class Upload extends Action
+class Upload extends Action implements HttpPostActionInterface
 {
-    /**
-     * @var \Magento\Catalog\Model\ImageUploader
-     */
-    protected $imageUploader;
+    private Filesystem $filesystem;
+    private UploaderFactory $uploaderFactory;
 
     public function __construct(
         Action\Context $context,
-        \Magento\Catalog\Model\ImageUploader $imageUploader
+        Filesystem $filesystem,
+        UploaderFactory $uploaderFactory
     ) {
         parent::__construct($context);
-        $this->imageUploader = $imageUploader;
+        $this->filesystem = $filesystem;
+        $this->uploaderFactory = $uploaderFactory;
     }
 
     public function execute()
     {
         try {
-            $result = $this->imageUploader->saveFileToTmpDir('cta_image');
-            $result['url'] = $this->_getUrlForFile($result['file']);
-            $result['name'] = $result['file']; // Для отображения имени файла в UI
-            $result['size'] = $result['size'] ?? filesize($this->imageUploader->getBaseTmpPath() . '/' . $result['file']);
-        } catch (LocalizedException $e) {
-            $result = ['error' => $e->getMessage(), 'errorcode' => $e->getCode()];
+            $uploader = $this->uploaderFactory->create(['fileId' => 'cta_image']);
+            $uploader->setAllowedExtensions(['jpg', 'jpeg', 'gif', 'png']);
+            $uploader->setAllowRenameFiles(true);
+            $uploader->setFilesDispersion(false);
+
+            $mediaDir = $this->filesystem->getDirectoryWrite(\Magento\Framework\App\Filesystem\DirectoryList::MEDIA);
+            $destinationPath = $mediaDir->getAbsolutePath('wysiwyg/wishreward');
+            $result = $uploader->save($destinationPath);
+
+            if (!$result) {
+                throw new LocalizedException(__('File cannot be saved to the destination folder.'));
+            }
+
+            $filePath = 'wysiwyg/wishreward/' . $result['file'];
+            $baseMediaUrl = $this->_url->getBaseUrl(['_type' => \Magento\Framework\UrlInterface::URL_TYPE_MEDIA]);
+            $result['file'] = $filePath; // Относительный путь для сохранения
+            $result['url'] = $baseMediaUrl . $filePath; // Полный URL для превью
+            $result['name'] = $result['file'];
+
+            return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData($result);
         } catch (\Exception $e) {
-            $result = [
-                'error' => __('Something went wrong while uploading the file: %1', $e->getMessage()),
+            return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData([
+                'error' => $e->getMessage(),
                 'errorcode' => $e->getCode()
-            ];
+            ]);
         }
-
-        return $this->resultFactory
-            ->create(ResultFactory::TYPE_JSON)
-            ->setData($result);
-    }
-
-    /**
-     * Get URL for the uploaded file
-     *
-     * @param string $file
-     * @return string
-     */
-    protected function _getUrlForFile($file)
-    {
-        return $this->getUrl('pub/media/wishreward/wheel/tmp') . '/' . $file;
-    }
-
-    protected function _isAllowed()
-    {
-        return $this->_authorization->isAllowed('Doroshko_WishReward::wheel_edit');
     }
 }

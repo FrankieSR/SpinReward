@@ -10,7 +10,7 @@
         <column xsi:type="datetime" name="start_date" nullable="true" comment="Start Date"/>
         <column xsi:type="datetime" name="end_date" nullable="true" comment="End Date"/>
 
-        <!-- Новая колонка для хранения настроек отображения -->
+        <!-- Настройки отображения -->
         <column xsi:type="text" name="display_on_pages" nullable="true" comment="Display on Pages (comma-separated values, e.g. all,homepage,except_checkout)"/>
 
         <!-- Сообщения -->
@@ -19,6 +19,9 @@
 
         <!-- Конфигурация колеса -->
         <column xsi:type="text" name="wheel_config" nullable="true" comment="Wheel Configuration (JSON)"/>
+        <column xsi:type="int" name="rotation_duration" nullable="true" default="6000" comment="Rotation Duration (milliseconds)"/>
+        <column xsi:type="int" name="wheel_radius" nullable="true" default="140" comment="Wheel Radius (pixels)"/>
+        <column xsi:type="varchar" name="wheel_position" nullable="true" length="50" default="center" comment="Wheel Position"/>
 
         <!-- Storeviews и группы -->
         <column xsi:type="text" name="storeviews" nullable="true" comment="Store Views (comma-separated)"/>
@@ -32,11 +35,16 @@
         <column xsi:type="varchar" name="cta_position" nullable="true" length="50" default="bottom-right" comment="CTA Position"/>
         <column xsi:type="text" name="cta_custom_css" nullable="true" comment="Custom CSS for CTA Button"/>
 
-        <!-- Popup настройки (обновлено) -->
+        <!-- Popup настройки -->
         <column xsi:type="varchar" name="popup_title" nullable="true" length="255" comment="Popup Title"/>
         <column xsi:type="text" name="popup_description" nullable="true" comment="Popup Description"/>
         <column xsi:type="boolean" name="is_wish_area_enabled" nullable="false" default="0" comment="Enable Wish Area"/>
         <column xsi:type="boolean" name="is_email_input_enabled" nullable="false" default="0" comment="Enable Email Input"/>
+
+        <!-- Настройки триггера показа Popup -->
+        <column xsi:type="int" name="popup_delay" nullable="true" default="0" comment="Popup Delay in seconds"/>
+        <column xsi:type="varchar" name="popup_scroll_trigger" nullable="true" length="50" default="none" comment="Popup Scroll Trigger"/>
+        <column xsi:type="boolean" name="popup_once_per_session" nullable="false" default="1" comment="Show Popup Once Per Session"/>
 
         <!-- Временные метки -->
         <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" comment="Creation Time"/>

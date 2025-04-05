@@ -135,29 +135,17 @@ class WheelRepository implements WheelRepositoryInterface
         $storeId = (int)$this->storeManager->getStore()->getId();
         $customerGroupId = (int)$this->customerSession->getCustomerGroupId();
         $currentDateTime = $this->timezone->date()->format('Y-m-d H:i:s');
-        $layoutHandles = $this->layout->getUpdate()->getHandles();
 
         $collection = $this->collectionFactory->create();
         $collection->addFieldToFilter('is_active', 1)
             ->addFieldToFilter('storeviews', ['finset' => $storeId])
             ->addFieldToFilter('allowed_customer_groups', ['finset' => $customerGroupId])
             ->addFieldToFilter('start_date', [['lteq' => $currentDateTime], ['null' => true]])
-            ->addFieldToFilter('end_date', [['gteq' => $currentDateTime], ['null' => true]]);
+            ->addFieldToFilter('end_date', [['gteq' => $currentDateTime], ['null' => true]])
+            ->setOrder('wheel_id', 'ASC')
+            ->setPageSize(1);
 
-        foreach ($collection as $popup) {
-            $allowedHandles = $popup->getDisplayOnPages();
-            if (!$allowedHandles) {
-                continue;
-            }
-
-            $allowedHandlesArray = array_map('trim', explode(',', strtolower($allowedHandles)));
-
-            if (in_array('all', $allowedHandlesArray, true) || $this->isHandleMatched($allowedHandlesArray, $layoutHandles)) {
-                return $popup;
-            }
-        }
-
-        return null;
+        return $collection->getFirstItem()->getId() ? $collection->getFirstItem() : null;
     }
 
     /**
@@ -178,67 +166,10 @@ class WheelRepository implements WheelRepositoryInterface
             ->addFieldToFilter('storeviews', ['finset' => $storeId])
             ->addFieldToFilter('allowed_customer_groups', ['finset' => $customerGroupId])
             ->addFieldToFilter('start_date', [['lteq' => $currentDateTime], ['null' => true]])
-            ->addFieldToFilter('end_date', [['gteq' => $currentDateTime], ['null' => true]]);
+            ->addFieldToFilter('end_date', [['gteq' => $currentDateTime], ['null' => true]])
+            ->setOrder('wheel_id', 'ASC')
+            ->setPageSize(1);
 
-        foreach ($collection as $popup) {
-            $allowedHandles = $popup->getDisplayOnPages();
-            if (!$allowedHandles) {
-                continue;
-            }
-
-            $allowedHandlesArray = array_map('trim', explode(',', strtolower($allowedHandles)));
-
-            if (
-                in_array('all', $allowedHandlesArray, true) ||
-                in_array(strtolower($pageHandle), $allowedHandlesArray, true) ||
-                $this->isUrlMatched($allowedHandlesArray, $pageUrl)
-            ) {
-                return $popup;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Check if any allowed handle matches current layout handles.
-     *
-     * @param array $allowedHandles
-     * @param array $currentHandles
-     * @return bool
-     */
-    private function isHandleMatched(array $allowedHandles, array $currentHandles): bool
-    {
-        foreach ($currentHandles as $handle) {
-            if (in_array(strtolower($handle), $allowedHandles, true)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Check if the URL matches any allowed handle pattern.
-     *
-     * @param array $allowedHandles
-     * @param string $pageUrl
-     * @return bool
-     */
-    private function isUrlMatched(array $allowedHandles, string $pageUrl): bool
-    {
-        $urlPatterns = [
-            'cms_index_index' => '/',
-            'catalog_product_view' => '/catalog/product/view',
-            'checkout_cart_index' => '/checkout/cart',
-            'catalog_category_view' => '/catalog/category/view',
-        ];
-
-        foreach ($allowedHandles as $handle) {
-            if (isset($urlPatterns[$handle]) && strpos($pageUrl, $urlPatterns[$handle]) !== false) {
-                return true;
-            }
-        }
-
-        return false;
+        return $collection->getFirstItem()->getId() ? $collection->getFirstItem() : null;
     }
 }

@@ -227,6 +227,8 @@
                     <item name="component" xsi:type="string">Doroshko_WishReward/js/wheel-config-visual</item>
                     <item name="componentType" xsi:type="string">field</item>
                     <item name="elementTmpl" xsi:type="string">Doroshko_WishReward/wheel-config-visual</item>
+                    <!-- Добавляем provider -->
+                    <item name="provider" xsi:type="string">wishreward_wheel_form.wishreward_wheel_form_data_source</item>
                 </item>
             </argument>
             <settings>
@@ -275,8 +277,36 @@
 
         <field name="cta_image" formElement="imageUploader">
             <settings>
+                <notice translate="true">Upload an image for the CTA popup (recommended size: 100x100px).</notice>
+                <label translate="true">CTA Image</label>
+                <componentType>imageUploader</componentType>
+                <dataScope>cta_image</dataScope>
+            </settings>
+            <formElements>
+                <imageUploader>
+                    <settings>
+                        <allowedExtensions>jpg jpeg gif png</allowedExtensions>
+                        <maxFileSize>2097152</maxFileSize>
+                        <uploaderConfig>
+                            <param xsi:type="string" name="url">wishreward/wheel/upload</param>                            <!-- Путь к контроллеру загрузки -->
+                        </uploaderConfig>
+                    </settings>
+                </imageUploader>
+            </formElements>
+        </field>
+
+        <field name="cta_image" formElement="imageUploader">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="component" xsi:type="string">Magento_Ui/js/form/element/image-uploader</item>
+                    <item name="elementTmpl" xsi:type="string">ui/form/element/uploader/uploader</item>
+                </item>
+            </argument>
+            <settings>
                 <label translate="true">Image</label>
                 <componentType>imageUploader</componentType>
+                <dataScope>cta_image</dataScope>
+                <elementTmpl>ui/form/element/uploader/uploader</elementTmpl>
             </settings>
             <formElements>
                 <imageUploader>
@@ -284,13 +314,15 @@
                         <allowedExtensions>jpg jpeg gif png</allowedExtensions>
                         <maxFileSize>4194304</maxFileSize>
                         <uploaderConfig>
-                            <param xsi:type="string" name="url">pagebuilder/contenttype/image_upload</param>
+                            <param xsi:type="string" name="url">cms/wysiwyg_images/upload</param>
                         </uploaderConfig>
-                        <previewTmpl>Magento_PageBuilder/form/element/uploader/preview</previewTmpl>
+                        <openDialogTitle>Media Gallery</openDialogTitle>
+                        <initialMediaGalleryOpenSubpath>wysiwyg</initialMediaGalleryOpenSubpath>
                     </settings>
                 </imageUploader>
             </formElements>
         </field>
+
         <field name="cta_position" formElement="select">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">

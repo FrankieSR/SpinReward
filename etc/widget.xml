@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<widgets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="urn:magento:framework:Widget/etc/widget.xsd">
+
+    <!-- Объявление виджета -->
+    <widget id="wishreward_wheel_widget" class="Doroshko\WishReward\Block\Widget\WheelPopup">
+        <label translate="true">WishReward: Wheel Popup Widget</label>
+        <description translate="true">Displays a Wheel Popup on selected pages</description>
+
+        <parameters>
+
+            <!-- ПАРАМЕТР 1 (wheel_id): Администратор вручную вводит ID -->
+            <parameter name="wheel_id" xsi:type="text">
+                <label translate="true">Wheel ID</label>
+                <description translate="true">Enter the numeric ID of the Wheel.</description>
+            </parameter>
+
+            <!-- ПАРАМЕТР 2 (display_trigger): тип select со статическими опциями -->
+            <parameter name="display_trigger" xsi:type="select">
+                <label translate="true">Display Trigger</label>
+                <description translate="true">How to trigger the popup on the page.</description>
+                <options>
+                    <option name="immediate" value="immediate">
+                        <label translate="true">Immediate</label>
+                    </option>
+
+                    <option name="on_scroll" value="on_scroll">
+                        <label translate="true">On Scroll</label>
+                    </option>
+
+                    <option name="on_click" value="on_click">
+                        <label translate="true">On Click</label>
+                    </option>
+                </options>
+            </parameter>
+
+            <!-- ПАРАМЕТР 3 (template): выбор шаблона для рендеринга виджета -->
+            <parameter name="template" xsi:type="select">
+                <label translate="true">Template</label>
+                <description translate="true">Select the template for Wheel Popup.</description>
+                <options>
+                    <option name="default" value="widget/wheel_popup.phtml">
+                        <label translate="true">Default Wheel Popup Template</label>
+                    </option>
+                </options>
+            </parameter>
+
+            <!-- ПАРАМЕТР 4 (allowed_customer_groups): выбор разрешенных групп покупателей -->
+            <parameter name="allowed_customer_groups" xsi:type="multiselect">
+                <label translate="true">Allowed Customer Groups</label>
+                <description translate="true">Select customer groups that can see this widget.</description>
+                <options>
+                    <option name="0" value="0">
+                        <label translate="true">NOT LOGGED IN</label>
+                    </option>
+                    <option name="1" value="1">
+                        <label translate="true">General</label>
+                    </option>
+                    <option name="2" value="2">
+                        <label translate="true">Wholesale</label>
+                    </option>
+                    <option name="3" value="3">
+                        <label translate="true">Retailer</label>
+                    </option>
+                </options>
+            </parameter>
+
+            <!-- ПАРАМЕТР 5 (start_date): дата начала отображения виджета -->
+            <parameter name="start_date" xsi:type="text">
+                <label translate="true">Start Date</label>
+                <description translate="true">Date when the widget should start being displayed (format: YYYY-MM-DD).</description>
+                <depends>
+                    <parameter name="wheel_id" value="*"/>
+                </depends>
+            </parameter>
+
+            <!-- ПАРАМЕТР 6 (end_date): дата окончания отображения виджета -->
+            <parameter name="end_date" xsi:type="text">
+                <label translate="true">End Date</label>
+                <description translate="true">Date when the widget should stop being displayed (format: YYYY-MM-DD).</description>
+                <depends>
+                    <parameter name="wheel_id" value="*"/>
+                </depends>
+            </parameter>
+
+        </parameters>
+    </widget>
+</widgets>

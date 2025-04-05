@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- Существующие конфигурации -->
     <type name="Doroshko\WishReward\Model\CouponGenerator">
         <arguments>
             <argument name="couponFactory" xsi:type="object">Magento\SalesRule\Model\CouponFactory</argument>
@@ -14,6 +15,7 @@
         </arguments>
     </type>
 
+    <!-- Закомментированная часть оставлена как есть -->
     <!-- <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
         <arguments>
             <argument name="collections" xsi:type="array">
@@ -40,8 +42,7 @@
         </arguments>
     </type>
 
-    <!-- Предпочтение для модели Wheel -->
+    <!-- Предпочтения -->
     <preference for="Doroshko\WishReward\Api\Data\WheelInterface" type="Doroshko\WishReward\Model\Wheel" />
-    <!-- Предпочтение для репозитория -->
     <preference for="Doroshko\WishReward\Api\WheelRepositoryInterface" type="Doroshko\WishReward\Model\WheelRepository" />
 </config>

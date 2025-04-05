@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Doroshko\WishReward\Api\Data;
@@ -32,7 +33,15 @@ interface WheelInterface
     public function getStoreviews(): ?string;
     public function setStoreviews(?string $storeviews): self;
 
-    // CTA Methods
+    public function getRotationDuration(): ?int;
+    public function setRotationDuration(?int $duration): self;
+
+    public function getWheelRadius(): ?int;
+    public function setWheelRadius(?int $radius): self;
+
+    public function getWheelPosition(): ?string;
+    public function setWheelPosition(?string $position): self;
+
     public function getIsCtaEnabled(): bool;
     public function setIsCtaEnabled(bool $enabled): self;
 
@@ -51,7 +60,6 @@ interface WheelInterface
     public function getCtaCustomCss(): ?string;
     public function setCtaCustomCss(?string $css): self;
 
-    // Popup Methods
     public function getPopupTitle(): ?string;
     public function setPopupTitle(?string $title): self;
 
@@ -64,11 +72,18 @@ interface WheelInterface
     public function getIsEmailInputEnabled(): bool;
     public function setIsEmailInputEnabled(bool $enabled): self;
 
-    // Wheel Configuration
+    public function getPopupDelay(): ?int;
+    public function setPopupDelay(?int $delay): self;
+
+    public function getPopupScrollTrigger(): ?string;
+    public function setPopupScrollTrigger(?string $trigger): self;
+
+    public function getPopupOncePerSession(): bool;
+    public function setPopupOncePerSession(bool $once): self;
+
     public function getWheelConfig(): ?string;
     public function setWheelConfig(?string $config): self;
 
-    // Display Configuration
     public function getDisplayOnPages(): ?string;
     public function setDisplayOnPages(?string $pages): self;
 }

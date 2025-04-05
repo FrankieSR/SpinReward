@@ -1,0 +1,205 @@
+& when (@media-common =true) {
+    .wishreward-popup {
+        .modal-inner-wrap {
+            background: transparent;
+            box-shadow: none;
+            width: fit-content;
+        }
+
+        .modal-popup.modal-slide {
+            margin: 0 auto;
+            border-radius: 8px;
+            background-color: transparent;
+        }
+
+        .modal-popup {
+            .modal-content {
+                background-color: transparent;
+                padding: 0;
+                box-shadow: none;
+                position: relative;
+            }
+        }
+
+        .modal-header {
+            display: none;
+        }
+
+        .modal-popup._inner-scroll {
+            .modal-content {
+                overflow: visible;
+            }
+        }
+    }
+
+    .wishreward-popup {
+        display: flex;
+        flex-wrap: wrap;
+        border-radius: 8px;
+        overflow: hidden;
+
+        .modal-inner-wrap {
+            width: fit-content;
+        }
+    }
+
+    .wishreward-wheel-section {
+        position: absolute;
+        left: 0;
+        transform: translateX(-45%);
+        width: 100%;
+        top: 0;
+        height: 100%;
+    }
+
+    .lottery-wishreward-container {
+        position: relative;
+        transform: rotate(-90deg);
+        height: 100%;
+    }
+
+    .wishreward-info-section {
+        background-color: #fff;
+        padding: 2rem 4rem;
+        text-align: center;
+        position: relative;
+        min-width: 300px;
+        max-width: 500px;
+        width: 30vw;
+    }
+
+    .wishreward-brand-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        color: #1a3c5e; // Темно-синий цвет, как на скриншоте
+    }
+
+    .wishreward-title {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 1.5rem;
+        color: #1a3c5e;
+    }
+
+    #wishreward-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    #wishreward-form input[type='email'],
+    #wishreward-form textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 1rem;
+        box-sizing: border-box;
+
+        &:focus {
+            outline: none;
+            border-color: #1a3c5e;
+        }
+    }
+
+    #wishreward-form button.submit-wheel {
+        background-color: #1a3c5e; // Темно-синий цвет кнопки, как на скриншоте
+        color: #fff;
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 25px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        text-transform: uppercase;
+    }
+
+    #wishreward-form button.submit-wheel:hover {
+        background-color: darken(#1a3c5e, 10%);
+    }
+
+    .wishreward-opt-out-link {
+        background: none;
+        border: none;
+        color: #1a3c5e;
+        text-decoration: underline;
+        cursor: pointer;
+        font-size: 0.875rem;
+        margin-top: 1rem;
+        transition: color 0.2s;
+
+        &:hover {
+            color: darken(#1a3c5e, 10%);
+        }
+    }
+
+    .wishreward-terms-text {
+        font-size: 0.75rem;
+        color: #666;
+        margin-top: 1rem;
+    }
+
+    .wishreward-message {
+        text-align: center;
+        padding: 2rem;
+        border-radius: 8px;
+        margin-top: 1rem;
+    }
+
+    .wishreward-message .success-message {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #1a3c5e;
+    }
+}
+
+// Медиа-запрос для десктопа (ширина больше 768px)
+.media-width(@extremum, @break) when (@extremum ='min') and (@break =@screen__m) {
+    .wishreward-popup {
+        flex-wrap: nowrap; // На десктопе две колонки рядом
+    }
+}
+
+// Медиа-запрос для мобильных устройств (ширина меньше 768px)
+.media-width(@extremum, @break) when (@extremum ='max') and (@break =@screen__m) {
+    .modal-popup.modal-slide {
+        max-width: 100%;
+        margin: 0;
+        border-radius: 0;
+    }
+
+    .wishreward-popup {
+        flex-direction: column; // На мобильных колесо сверху
+    }
+
+    .wishreward-wheel-section {
+        flex: 1 1 100%;
+        max-width: 100%;
+        padding: 1.5rem;
+    }
+
+    .wishreward-info-section {
+        flex: 1 1 100%;
+        max-width: 100%;
+        padding: 1.5rem;
+    }
+
+    .wishreward-title {
+        font-size: 1.5rem; // Уменьшаем заголовок на мобильных
+    }
+
+    #wishreward-form button.submit-wheel {
+        padding: 0.5rem 1.5rem;
+        font-size: 0.875rem;
+    }
+
+    .wishreward-opt-out-link {
+        font-size: 0.75rem;
+    }
+
+    .wishreward-terms-text {
+        font-size: 0.625rem;
+    }
+}

@@ -4,41 +4,67 @@ declare(strict_types=1);
 namespace Doroshko\WishReward\Block;
 
 use Magento\Framework\View\Element\Template;
-use Doroshko\WishReward\Api\Data\WheelInterface;
-use Magento\Customer\Model\Session as CustomerSession;
+use Doroshko\WishReward\ViewModel\WheelPopupViewModel;
+use Magento\Framework\Escaper;
 
 class WheelPopup extends Template
 {
-    protected $wheel;
-    protected $customerSession;
+    private WheelPopupViewModel $viewModel;
 
     public function __construct(
         Template\Context $context,
-        CustomerSession $customerSession,
+        WheelPopupViewModel $viewModel,
         array $data = []
     ) {
+        $this->viewModel = $viewModel;
         parent::__construct($context, $data);
-        $this->customerSession = $customerSession;
     }
 
-    public function setWheel(WheelInterface $wheel): self
+    /**
+     * Set Wheel object
+     *
+     * @param \Doroshko\WishReward\Api\Data\WheelInterface $wheel
+     * @return $this
+     */
+    public function setWheel(\Doroshko\WishReward\Api\Data\WheelInterface $wheel): self
     {
-        $this->wheel = $wheel;
+        $this->viewModel->setWheel($wheel);
         return $this;
     }
 
-    public function getWheel(): ?WheelInterface
+    /**
+     * Get ViewModel
+     *
+     * @return WheelPopupViewModel
+     */
+    public function getViewModel(): WheelPopupViewModel
     {
-        return $this->wheel;
+        return $this->viewModel;
     }
 
-    public function getSpinUrl(): string
+    /**
+     * Get Escaper instance
+     *
+     * @return Escaper
+     */
+    public function getEscaper(): Escaper
     {
-        return $this->getUrl('wishreward/wheel/spin');
+        return $this->_escaper;
     }
 
-    public function isCustomerLoggedIn(): bool
+    /**
+     * Prepare data before rendering
+     *
+     * @return $this
+     */
+    protected function _beforeToHtml(): self
     {
-        return $this->customerSession->isLoggedIn();
+        $wheel = $this->getData('wheel');
+        if ($wheel instanceof \Doroshko\WishReward\Api\Data\WheelInterface) {
+            $this->viewModel->setWheel($wheel);
+        } else {
+            $this->_logger->warning('Wheel data not set in WheelPopup block.');
+        }
+        return parent::_beforeToHtml();
     }
 }

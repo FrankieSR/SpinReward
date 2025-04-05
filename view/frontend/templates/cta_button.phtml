@@ -1,26 +1,47 @@
 <?php
+
 /** @var \Doroshko\WishReward\Block\CtaButton $block */
-$wheelData = $block->getWheelData();
-if (!$wheelData || !$wheelData['is_cta_enabled']) {
+/** @var \Magento\Framework\Escaper $escaper */
+
+$wheel = $block->getEligibleWheel();
+
+if (!$wheel || !$wheel->getIsCtaEnabled()) {
     return;
 }
+$escaper = $block->getEscaper();
 ?>
+<div class="wishreward-cta-wrapper <?= $escaper->escapeHtml($wheel->getCtaPosition()) ?>"
+    style="<?= $escaper->escapeHtmlAttr($wheel->getCtaCustomCss()) ?>">
+    <div class="wishreward-cta-inner">
+        <?php if ($wheel->getCtaImage()): ?>
+            <div class="wishreward-cta-image">
+                <img src="<?= $escaper->escapeUrl($block->getMediaUrl($wheel->getCtaImage())) ?>"
+                    alt="<?= $escaper->escapeHtmlAttr($wheel->getCtaLabel() ?: 'Promotion') ?>"
+                    loading="lazy">
+            </div>
+        <?php endif; ?>
 
-<div class="wishreward-cta-button <?= $block->escapeHtmlAttr($wheelData['cta_position']) ?>" style="<?= $block->escapeHtmlAttr($wheelData['cta_custom_css']) ?>">
-    <?php if ($wheelData['cta_image']): ?>
-        <img src="<?= $block->escapeUrl($wheelData['cta_image']) ?>" alt="<?= $block->escapeHtml($wheelData['cta_label']) ?>">
-    <?php endif; ?>
-    <button type="button" class="cta-button" data-wheel-id="<?= $block->escapeHtml($wheelData['wheel_id']) ?>">
-        <?= $block->escapeHtml($wheelData['cta_button_text'] ?: 'Spin the Wheel') ?>
-    </button>
+        <div class="wishreward-cta-content">
+            <?php if ($wheel->getCtaLabel()): ?>
+                <span class="wishreward-cta-label"><?= $escaper->escapeHtml($wheel->getCtaLabel()) ?></span>
+            <?php endif; ?>
+
+            <button class="wishreward-cta-button action primary"
+                id="wishreward-cta-button"
+                type="button"
+                aria-label="<?= $escaper->escapeHtmlAttr($wheel->getCtaButtonText() ?: 'Join Now') ?>">
+                <span><?= $escaper->escapeHtml($wheel->getCtaButtonText() ?: 'Join Now') ?></span>
+            </button>
+        </div>
+    </div>
 </div>
 
 <script type="text/x-magento-init">
-{
-    ".wishreward-cta-button .cta-button": {
+    {
+    ".wishreward-cta-wrapper": {
         "Doroshko_WishReward/js/cta-button": {
-            "ajaxUrl": "<?= $block->escapeUrl($block->getAjaxUrl()) ?>",
-            "wheelId": "<?= $block->escapeHtml($wheelData['wheel_id']) ?>"
+            "ajaxUrl": "<?= $escaper->escapeJs($block->getAjaxUrl()) ?>",
+            "wheelId": "<?= $escaper->escapeJs($wheel->getWheelId()) ?>"
         }
     }
 }

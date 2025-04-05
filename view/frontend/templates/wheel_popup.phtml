@@ -1,0 +1,106 @@
+<?php
+
+/** @var \Doroshko\WishReward\Block\WheelPopup $block */
+$viewModel = $block->getViewModel();
+$escaper = $block->getEscaper();
+$wheelConfigJson = $viewModel->getWheelConfig();
+$wheelConfig = $wheelConfigJson ? json_decode($wheelConfigJson, true) : [];
+?>
+
+<div class="wishreward-content" id="wishreward-content">
+    <!-- Контейнер для всего попапа -->
+    <div class="wishreward-popup">
+        <!-- Левая часть с колесом -->
+        <div class="wishreward-wheel-section">
+            <div id="wishreward-wheel" class="lottery-wishreward-container" role="region" aria-live="polite"></div>
+        </div>
+
+        <div class="wishreward-info-section">
+            <div class="wishreward-brand">
+                <h1 class="wishreward-brand-title">
+                    COMPANY
+                </h1>
+            </div>
+
+            <!-- Заголовок -->
+            <h2 class="wishreward-title">
+                <?= $escaper->escapeHtml($viewModel->getPopupTitle() ?: 'Spin for a Chance to Save') ?>
+            </h2>
+
+            <p><?= $escaper->escapeHtml($viewModel->getPopupDescription() ?: 'Spin for a Chance to Save') ?></p>
+
+            <!-- Форма -->
+            <form id="wishreward-form" method="post" class="wishreward-form" aria-label="Wheel of Fortune Form">
+                <input type="hidden" name="wheel_id" value="<?= (int)$block->getData('wheel')->getWheelId() ?>" />
+
+                <?php if ($viewModel->getIsWishAreaEnabled()): ?>
+                    <div class="form-field">
+                        <label for="wish-input" class="visually-hidden">
+                            <?= $escaper->escapeHtml(__('Enter your wish')) ?>
+                        </label>
+                        <textarea 
+                            id="wish-input" 
+                            name="wish" 
+                            required 
+                            placeholder="<?= $escaper->escapeHtml(__('Enter your wish')) ?>" 
+                            rows="4" 
+                            aria-required="true"
+                        ></textarea>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ($viewModel->getIsEmailInputEnabled()): ?>
+                    <div class="form-field">
+                        <label for="email-input" class="visually-hidden">
+                            <?= $escaper->escapeHtml(__('Enter your email')) ?>
+                        </label>
+                        <input 
+                            type="email" 
+                            id="email-input" 
+                            name="email" 
+                            required 
+                            placeholder="<?= $escaper->escapeHtml(__('Enter your email')) ?>" 
+                            aria-required="true"
+                        />
+                    </div>
+                <?php endif; ?>
+
+                <!-- Кнопка "Spin Now" -->
+                <button type="submit" class="submit-wheel primary-button" aria-label="Spin the Wheel">
+                    <?= $escaper->escapeHtml(__('Spin Now')) ?>
+                </button>
+            </form>
+
+            <div class="wishreward-opt-out">
+                <button type="button" class="wishreward-opt-out-link" aria-label="Decline offer">
+                    <?= $escaper->escapeHtml(__('No, Thanks')) ?>
+                </button>
+            </div>
+
+            <div class="wishreward-terms">
+                <p class="wishreward-terms-text">
+                    <?= $escaper->escapeHtml(__('Offer valid for first-time subscribers only')) ?>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Сообщение с улучшенной доступностью -->
+    <div class="wishreward-message" id="wishreward-message" role="alert" aria-live="assertive" style="display: none;">
+        <p class="success-message"></p>
+    </div>
+</div>
+
+<script type="text/x-magento-init">
+    {
+        "#wishreward-content": {
+            "Doroshko_WishReward/js/wheel-handler-new": {
+                "ajaxUrl": "<?= $escaper->escapeUrl($block->getUrl('wishreward/ajax/spinwheel')) ?>",
+                "wheelItems": <?= json_encode($wheelConfig ?? []) ?>,
+                "rotationDuration": <?= (int)$block->getData('wheel')->getRotationDuration() ?: 6000 ?>,
+                "wheelRadius": <?= (int)$block->getData('wheel')->getWheelRadius() ?: 140 ?>,
+                "wheelPosition": "<?= $escaper->escapeJs($block->getData('wheel')->getWheelPosition() ?: 'center') ?>"
+            }
+        }
+    }
+</script>
