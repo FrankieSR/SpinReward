@@ -40,11 +40,17 @@
         <column xsi:type="text" name="popup_description" nullable="true" comment="Popup Description"/>
         <column xsi:type="boolean" name="is_wish_area_enabled" nullable="false" default="0" comment="Enable Wish Area"/>
         <column xsi:type="boolean" name="is_email_input_enabled" nullable="false" default="0" comment="Enable Email Input"/>
-
-        <!-- Настройки триггера показа Popup -->
-        <column xsi:type="int" name="popup_delay" nullable="true" default="0" comment="Popup Delay in seconds"/>
+        <column xsi:type="int" name="popup_delay" nullable="true" default="0" comment="Popup Delay (milliseconds)"/>
         <column xsi:type="varchar" name="popup_scroll_trigger" nullable="true" length="50" default="none" comment="Popup Scroll Trigger"/>
         <column xsi:type="boolean" name="popup_once_per_session" nullable="false" default="1" comment="Show Popup Once Per Session"/>
+
+        <!-- Новые поля -->
+        <column xsi:type="boolean" name="is_delay_enabled" nullable="false" default="0" comment="Enable Delay Trigger"/>
+        <column xsi:type="varchar" name="time_of_day_start" nullable="true" length="5" comment="Time of Day Start (HH:MM, e.g. 08:00)"/>
+        <column xsi:type="varchar" name="time_of_day_end" nullable="true" length="5" comment="Time of Day End (HH:MM, e.g. 18:00)"/>
+        <column xsi:type="varchar" name="trigger_action" nullable="true" length="50" comment="Trigger Action (e.g. add_to_cart, register, login)"/>
+        <column xsi:type="text" name="conditions_serialized" nullable="true" comment="Serialized Conditions for Popup Trigger"/>
+        <column xsi:type="boolean" name="once_per_user" nullable="false" default="0" comment="Show Popup Once Per User"/>
 
         <!-- Временные метки -->
         <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" comment="Creation Time"/>

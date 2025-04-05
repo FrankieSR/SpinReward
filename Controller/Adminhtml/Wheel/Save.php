@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace Doroshko\WishReward\Controller\Adminhtml\Wheel;
@@ -47,12 +46,15 @@ class Save extends Action implements HttpPostActionInterface
     public function execute(): ResultInterface
     {
         $resultRedirect = $this->resultRedirectFactory->create();
-        $data           = $this->getRequest()->getPostValue();
+        $data = $this->getRequest()->getPostValue();
 
         if (!$data) {
             $this->messageManager->addErrorMessage(__('No data provided to save.'));
             return $resultRedirect->setPath('*/*/index');
         }
+
+        // Логируем входящие данные для отладки
+        $this->logger->debug('Form data received: ' . json_encode($data));
 
         try {
             $wheel = $this->loadOrCreateWheel((int)($data['wheel_id'] ?? 0));
@@ -70,7 +72,7 @@ class Save extends Action implements HttpPostActionInterface
             $this->messageManager->addErrorMessage($e->getMessage());
             return $resultRedirect->setPath('*/*/edit', ['wheel_id' => $data['wheel_id'] ?? null]);
         } catch (\Exception $e) {
-            $this->logger->critical('Unexpected error while saving wheel: ' . $e->getMessage());
+            $this->logger->critical('Unexpected error while saving wheel: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
             $this->messageManager->addErrorMessage(__('An unexpected error occurred: %1', $e->getMessage()));
             return $resultRedirect->setPath('*/*/edit', ['wheel_id' => $data['wheel_id'] ?? null]);
         }
@@ -133,11 +135,10 @@ class Save extends Action implements HttpPostActionInterface
      */
     private function processCtaImage(WheelInterface $wheel, array $data): void
     {
-        if (isset($data['cta_image'][0]['file']) && !empty($data['cta_image'][0]['file'])) {
-            $wheel->setCtaImage($data['cta_image'][0]['file']);
-        } elseif (isset($data['cta_image']) && empty($data['cta_image'])) {
-            $wheel->setCtaImage(null);
-        }
+        $ctaImage = $data['cta_image'] ?? null;
+        $wheel->setCtaImage(
+            is_array($ctaImage) && !empty($ctaImage[0]['name']) ? 'wysiwyg/' . $ctaImage[0]['name'] : $ctaImage
+        );
     }
 
     /**

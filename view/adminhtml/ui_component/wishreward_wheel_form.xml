@@ -288,36 +288,8 @@
                         <allowedExtensions>jpg jpeg gif png</allowedExtensions>
                         <maxFileSize>2097152</maxFileSize>
                         <uploaderConfig>
-                            <param xsi:type="string" name="url">wishreward/wheel/upload</param>                            <!-- Путь к контроллеру загрузки -->
+                            <param xsi:type="string" name="url">wishreward/wheel/upload</param>
                         </uploaderConfig>
-                    </settings>
-                </imageUploader>
-            </formElements>
-        </field>
-
-        <field name="cta_image" formElement="imageUploader">
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="component" xsi:type="string">Magento_Ui/js/form/element/image-uploader</item>
-                    <item name="elementTmpl" xsi:type="string">ui/form/element/uploader/uploader</item>
-                </item>
-            </argument>
-            <settings>
-                <label translate="true">Image</label>
-                <componentType>imageUploader</componentType>
-                <dataScope>cta_image</dataScope>
-                <elementTmpl>ui/form/element/uploader/uploader</elementTmpl>
-            </settings>
-            <formElements>
-                <imageUploader>
-                    <settings>
-                        <allowedExtensions>jpg jpeg gif png</allowedExtensions>
-                        <maxFileSize>4194304</maxFileSize>
-                        <uploaderConfig>
-                            <param xsi:type="string" name="url">cms/wysiwyg_images/upload</param>
-                        </uploaderConfig>
-                        <openDialogTitle>Media Gallery</openDialogTitle>
-                        <initialMediaGalleryOpenSubpath>wysiwyg</initialMediaGalleryOpenSubpath>
                     </settings>
                 </imageUploader>
             </formElements>

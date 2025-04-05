@@ -86,4 +86,22 @@ interface WheelInterface
 
     public function getDisplayOnPages(): ?string;
     public function setDisplayOnPages(?string $pages): self;
+
+    public function getIsDelayEnabled(): bool;
+    public function setIsDelayEnabled(bool $enabled): self;
+
+    public function getTimeOfDayStart(): ?string;
+    public function setTimeOfDayStart(?string $time): self;
+
+    public function getTimeOfDayEnd(): ?string;
+    public function setTimeOfDayEnd(?string $time): self;
+
+    public function getTriggerAction(): ?string;
+    public function setTriggerAction(?string $action): self;
+
+    public function getConditionsSerialized(): ?string;
+    public function setConditionsSerialized(?string $conditions): self;
+
+    public function getOncePerUser(): bool;
+    public function setOncePerUser(bool $once): self;
 }
