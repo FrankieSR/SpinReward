@@ -5,6 +5,7 @@
     <argument name="data" xsi:type="array">
         <item name="js_config" xsi:type="array">
             <item name="provider" xsi:type="string">wishreward_wheel_form.wishreward_wheel_form_data_source</item>
+            <item name="deps" xsi:type="string">wishreward_wheel_form.wishreward_wheel_form_data_source</item>
         </item>
         <item name="label" xsi:type="string" translate="true">Wheel of Fortune</item>
         <item name="template" xsi:type="string">templates/form/collapsible</item>
@@ -54,7 +55,7 @@
         </argument>
     </dataSource>
 
-    <!-- Fieldset: General Settings (updated) -->
+    <!-- Fieldset: General Settings -->
     <fieldset name="general" sortOrder="10">
         <settings>
             <label translate="true">General Settings</label>
@@ -64,6 +65,9 @@
         <field name="wheel_id" formElement="hidden">
             <settings>
                 <dataScope>wheel_id</dataScope>
+                <tooltip>
+                    <description translate="true">Unique identifier for the wheel configuration. Hidden field, automatically managed by the system.</description>
+                </tooltip>
             </settings>
         </field>
 
@@ -128,6 +132,9 @@
                 <dataType>int</dataType>
                 <label translate="true">Store View</label>
                 <dataScope>storeviews</dataScope>
+                <tooltip>
+                    <description translate="true">Select store views where the wheel will be available. Required field.</description>
+                </tooltip>
             </settings>
             <formElements>
                 <multiselect>
@@ -144,6 +151,9 @@
                 <label translate="true">Allowed Customer Groups</label>
                 <dataScope>allowed_customer_groups</dataScope>
                 <dataType>text</dataType>
+                <tooltip>
+                    <description translate="true">Choose customer groups that can interact with the wheel (e.g., General, Wholesale).</description>
+                </tooltip>
             </settings>
             <formElements>
                 <multiselect>
@@ -172,46 +182,30 @@
             </settings>
         </field>
 
-        <!-- Display Configuration (moved into General) -->
-        <field name="display_on_pages" formElement="multiselect">
+        <!-- Popup Theme -->
+        <field name="popup_theme">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
-                    <item name="source" xsi:type="string">popup</item>
+                    <item name="dataType" xsi:type="string">text</item>
+                    <item name="label" xsi:type="string" translate="true">Popup Theme</item>
+                    <item name="formElement" xsi:type="string">select</item>
+                    <item name="source" xsi:type="string">wheel</item>
+                    <item name="dataScope" xsi:type="string">popup_theme</item>
+                    <item name="validation" xsi:type="array">
+                        <item name="required-entry" xsi:type="boolean">true</item>
+                    </item>
+                    <item name="options" xsi:type="array">
+                        <item name="0" xsi:type="array">
+                            <item name="label" xsi:type="string" translate="true">Light</item>
+                            <item name="value" xsi:type="string">light</item>
+                        </item>
+                        <item name="1" xsi:type="array">
+                            <item name="label" xsi:type="string" translate="true">Dark</item>
+                            <item name="value" xsi:type="string">dark</item>
+                        </item>
+                    </item>
                 </item>
             </argument>
-            <settings>
-                <label translate="true">Display on Pages</label>
-                <dataScope>display_on_pages</dataScope>
-                <dataType>text</dataType>
-            </settings>
-            <formElements>
-                <multiselect>
-                    <settings>
-                        <options>
-                            <option name="all" xsi:type="array">
-                                <item name="value" xsi:type="string">all</item>
-                                <item name="label" xsi:type="string" translate="true">Display on All Pages</item>
-                            </option>
-                            <option name="except_checkout" xsi:type="array">
-                                <item name="value" xsi:type="string">except_checkout</item>
-                                <item name="label" xsi:type="string" translate="true">Display Everywhere Except Checkout</item>
-                            </option>
-                            <option name="homepage" xsi:type="array">
-                                <item name="value" xsi:type="string">homepage</item>
-                                <item name="label" xsi:type="string" translate="true">Homepage</item>
-                            </option>
-                            <option name="pdp" xsi:type="array">
-                                <item name="value" xsi:type="string">pdp</item>
-                                <item name="label" xsi:type="string" translate="true">Product Page (PDP)</item>
-                            </option>
-                            <option name="plp" xsi:type="array">
-                                <item name="value" xsi:type="string">plp</item>
-                                <item name="label" xsi:type="string" translate="true">Category Page (PLP)</item>
-                            </option>
-                        </options>
-                    </settings>
-                </multiselect>
-            </formElements>
         </field>
     </fieldset>
 
@@ -227,19 +221,136 @@
                     <item name="component" xsi:type="string">Doroshko_WishReward/js/wheel-config-visual</item>
                     <item name="componentType" xsi:type="string">field</item>
                     <item name="elementTmpl" xsi:type="string">Doroshko_WishReward/wheel-config-visual</item>
-                    <!-- Добавляем provider -->
                     <item name="provider" xsi:type="string">wishreward_wheel_form.wishreward_wheel_form_data_source</item>
+                    <item name="priceRuleOptions" xsi:type="object">Doroshko\WishReward\Model\Config\Source\CartPriceRules</item>
                 </item>
             </argument>
             <settings>
                 <label translate="true">Wheel Configuration</label>
                 <dataScope>wheel_config</dataScope>
                 <dataType>text</dataType>
+                <tooltip>
+                    <description translate="true">
+                    JSON configuration for the wheel's segments, prizes, and appearance.
+                    </description>
+                </tooltip>
             </settings>
         </field>
     </fieldset>
 
-    <!-- Fieldset: CTA Configuration -->
+    <!-- Fieldset: Popup Settings -->
+    <fieldset name="popup_settings" sortOrder="40">
+        <settings>
+            <label translate="true">Popup Settings</label>
+            <collapsible>true</collapsible>
+        </settings>
+
+        <field name="popup_title" formElement="input">
+            <settings>
+                <label translate="true">Popup Title</label>
+                <dataScope>popup_title</dataScope>
+            </settings>
+        </field>
+
+        <field name="popup_description" formElement="textarea">
+            <settings>
+                <label translate="true">Popup Description</label>
+                <dataScope>popup_description</dataScope>
+            </settings>
+        </field>
+
+        <field name="popup_company_logo" formElement="imageUploader">
+            <settings>
+                <notice translate="true">Upload company logo (recommended size: 200x50px).</notice>
+                <label translate="true">Company Logo</label>
+                <componentType>imageUploader</componentType>
+                <dataScope>popup_company_logo</dataScope>
+            </settings>
+            <formElements>
+                <imageUploader>
+                    <settings>
+                        <allowedExtensions>jpg jpeg gif png</allowedExtensions>
+                        <maxFileSize>2097152</maxFileSize>
+                        <uploaderConfig>
+                            <param xsi:type="string" name="url">wishreward/wheel/upload</param>
+                        </uploaderConfig>
+                    </settings>
+                </imageUploader>
+            </formElements>
+        </field>
+
+        <field name="popup_company_text" formElement="input">
+            <settings>
+                <label translate="true">Company Text</label>
+                <dataScope>popup_company_text</dataScope>
+            </settings>
+        </field>
+
+        <field name="popup_button_text" formElement="input">
+            <settings>
+                <label translate="true">Button Text</label>
+                <dataScope>popup_button_text</dataScope>
+            </settings>
+        </field>
+
+        <field name="popup_decline_text" formElement="input">
+            <settings>
+                <label translate="true">Decline Button Text</label>
+                <dataScope>popup_decline_text</dataScope>
+            </settings>
+        </field>
+
+        <field name="popup_close_text" formElement="input">
+            <settings>
+                <label translate="true">Close Button Text</label>
+                <dataScope>popup_close_text</dataScope>
+            </settings>
+        </field>
+
+        <field name="popup_terms_text" formElement="textarea">
+            <settings>
+                <label translate="true">Terms Text</label>
+                <dataScope>popup_terms_text</dataScope>
+            </settings>
+        </field>
+
+        <field name="is_wish_area_enabled" formElement="checkbox">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="number">0</item>
+                    <item name="prefer" xsi:type="string">toggle</item>
+                    <item name="valueMap" xsi:type="array">
+                        <item name="true" xsi:type="string">1</item>
+                        <item name="false" xsi:type="string">0</item>
+                    </item>
+                </item>
+            </argument>
+            <settings>
+                <label translate="true">Enable Wish Area</label>
+                <dataScope>is_wish_area_enabled</dataScope>
+                <dataType>boolean</dataType>
+            </settings>
+        </field>
+
+        <field name="is_email_input_enabled" formElement="checkbox">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="number">0</item>
+                    <item name="prefer" xsi:type="string">toggle</item>
+                    <item name="valueMap" xsi:type="array">
+                        <item name="true" xsi:type="string">1</item>
+                        <item name="false" xsi:type="string">0</item>
+                    </item>
+                </item>
+            </argument>
+            <settings>
+                <label translate="true">Enable Email Input</label>
+                <dataScope>is_email_input_enabled</dataScope>
+                <dataType>boolean</dataType>
+            </settings>
+        </field>
+    </fieldset>
+
     <fieldset name="cta_configuration" sortOrder="30">
         <settings>
             <label translate="true">CTA Configuration</label>
@@ -257,25 +368,21 @@
                 </item>
             </argument>
             <settings>
-                <label translate="true">Enable CTA Popup</label>
+                <label translate="true">Is CTA Enabled</label>
                 <dataScope>is_cta_enabled</dataScope>
                 <dataType>boolean</dataType>
             </settings>
         </field>
-        <field name="cta_label" formElement="input">
-            <settings>
-                <label translate="true">CTA Label</label>
-                <dataScope>cta_label</dataScope>
-            </settings>
-        </field>
-        <field name="cta_button_text" formElement="input">
-            <settings>
-                <label translate="true">CTA Button Text</label>
-                <dataScope>cta_button_text</dataScope>
-            </settings>
-        </field>
 
         <field name="cta_image" formElement="imageUploader">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="visible" xsi:type="boolean">false</item>
+                    <item name="imports" xsi:type="array">
+                        <item name="visible" xsi:type="string">ns = ${ $.ns }, index = is_cta_enabled:checked</item>
+                    </item>
+                </item>
+            </argument>
             <settings>
                 <notice translate="true">Upload an image for the CTA popup (recommended size: 100x100px).</notice>
                 <label translate="true">CTA Image</label>
@@ -295,10 +402,44 @@
             </formElements>
         </field>
 
+        <field name="cta_label" formElement="input">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="visible" xsi:type="boolean">false</item>
+                    <item name="imports" xsi:type="array">
+                        <item name="visible" xsi:type="string">ns = ${ $.ns }, index = is_cta_enabled:checked</item>
+                    </item>
+                </item>
+            </argument>
+            <settings>
+                <label translate="true">CTA Title</label>
+                <dataScope>cta_label</dataScope>
+            </settings>
+        </field>
+
+        <field name="cta_button_text" formElement="input">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="visible" xsi:type="boolean">false</item>
+                    <item name="imports" xsi:type="array">
+                        <item name="visible" xsi:type="string">ns = ${ $.ns }, index = is_cta_enabled:checked</item>
+                    </item>
+                </item>
+            </argument>
+            <settings>
+                <label translate="true">CTA Button Text</label>
+                <dataScope>cta_button_text</dataScope>
+            </settings>
+        </field>
+
         <field name="cta_position" formElement="select">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="default" xsi:type="string">bottom-right</item>
+                    <item name="visible" xsi:type="boolean">false</item>
+                    <item name="imports" xsi:type="array">
+                        <item name="visible" xsi:type="string">ns = ${ $.ns }, index = is_cta_enabled:checked</item>
+                    </item>
                     <item name="options" xsi:type="array">
                         <item name="top-left" xsi:type="array">
                             <item name="value" xsi:type="string">top-left</item>
@@ -324,33 +465,34 @@
                 <dataScope>cta_position</dataScope>
             </settings>
         </field>
+
         <field name="cta_custom_css" formElement="textarea">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="visible" xsi:type="boolean">false</item>
+                    <item name="imports" xsi:type="array">
+                        <item name="visible" xsi:type="string">ns = ${ $.ns }, index = is_cta_enabled:checked</item>
+                    </item>
+                </item>
+            </argument>
             <settings>
                 <label translate="true">CTA Custom CSS</label>
                 <dataScope>cta_custom_css</dataScope>
+                <tooltip>
+                    <description translate="true">Custom CSS to style the CTA popup (e.g., colors, sizes).</description>
+                </tooltip>
             </settings>
         </field>
     </fieldset>
 
-    <!-- Fieldset: Popup Configuration -->
-    <fieldset name="popup_configuration" sortOrder="40">
+    <fieldset name="popup_trigger_configuration" sortOrder="50">
         <settings>
-            <label translate="true">Popup Configuration</label>
+            <label translate="true">Popup Trigger Configuration</label>
             <collapsible>true</collapsible>
         </settings>
-        <field name="popup_title" formElement="input">
-            <settings>
-                <label translate="true">Popup Title</label>
-                <dataScope>popup_title</dataScope>
-            </settings>
-        </field>
-        <field name="popup_description" formElement="textarea">
-            <settings>
-                <label translate="true">Popup Description</label>
-                <dataScope>popup_description</dataScope>
-            </settings>
-        </field>
-        <field name="is_wish_area_enabled" formElement="checkbox">
+
+        <!-- Scroll Trigger -->
+        <field name="is_scroll_enabled" formElement="checkbox">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="default" xsi:type="number">0</item>
@@ -362,12 +504,50 @@
                 </item>
             </argument>
             <settings>
-                <label translate="true">Enable Wish Area</label>
-                <dataScope>is_wish_area_enabled</dataScope>
+                <label translate="true">Enable Scroll Trigger</label>
+                <dataScope>is_scroll_enabled</dataScope>
                 <dataType>boolean</dataType>
             </settings>
         </field>
-        <field name="is_email_input_enabled" formElement="checkbox">
+
+        <field name="scroll_percentage" formElement="select">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="visible" xsi:type="boolean">false</item>
+                    <item name="imports" xsi:type="array">
+                        <item name="visible" xsi:type="string">ns = ${ $.ns }, index = is_scroll_enabled:checked</item>
+                    </item>
+                </item>
+            </argument>
+            <settings>
+                <label translate="true">Scroll Percentage</label>
+                <dataScope>scroll_percentage</dataScope>
+                <dataType>number</dataType>
+            </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options>
+                            <option name="50" xsi:type="array">
+                                <item name="value" xsi:type="number">50</item>
+                                <item name="label" xsi:type="string">50%</item>
+                            </option>
+                            <option name="75" xsi:type="array">
+                                <item name="value" xsi:type="number">75</item>
+                                <item name="label" xsi:type="string">75%</item>
+                            </option>
+                            <option name="100" xsi:type="array">
+                                <item name="value" xsi:type="number">100</item>
+                                <item name="label" xsi:type="string">100% (Bottom of Page)</item>
+                            </option>
+                        </options>
+                    </settings>
+                </select>
+            </formElements>
+        </field>
+
+        <!-- Timeout Trigger -->
+        <field name="is_timeout_enabled" formElement="checkbox">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="default" xsi:type="number">0</item>
@@ -379,8 +559,66 @@
                 </item>
             </argument>
             <settings>
-                <label translate="true">Enable Email Input</label>
-                <dataScope>is_email_input_enabled</dataScope>
+                <label translate="true">Enable Timeout Trigger</label>
+                <dataScope>is_timeout_enabled</dataScope>
+                <dataType>boolean</dataType>
+            </settings>
+        </field>
+
+        <field name="timeout_duration" formElement="input">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="number">5000</item>
+                    <item name="visible" xsi:type="boolean">false</item>
+                    <item name="imports" xsi:type="array">
+                        <item name="visible" xsi:type="string">ns = ${ $.ns }, index = is_timeout_enabled:checked</item>
+                    </item>
+                </item>
+            </argument>
+            <settings>
+                <label translate="true">Timeout Duration (milliseconds)</label>
+                <dataScope>timeout_duration</dataScope>
+                <dataType>number</dataType>
+                <validation>
+                    <rule name="validate-number" xsi:type="boolean">true</rule>
+                    <rule name="greater-than-equals-to" xsi:type="number">0</rule>
+                </validation>
+            </settings>
+        </field>
+
+        <!-- Exit Intent Trigger -->
+        <field name="is_exit_enabled" formElement="checkbox">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="number">0</item>
+                    <item name="prefer" xsi:type="string">toggle</item>
+                    <item name="valueMap" xsi:type="array">
+                        <item name="true" xsi:type="string">1</item>
+                        <item name="false" xsi:type="string">0</item>
+                    </item>
+                </item>
+            </argument>
+            <settings>
+                <label translate="true">Enable Exit Intent Trigger</label>
+                <dataScope>is_exit_enabled</dataScope>
+                <dataType>boolean</dataType>
+            </settings>
+        </field>
+
+        <field name="once_per_user" formElement="checkbox">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="number">0</item>
+                    <item name="prefer" xsi:type="string">toggle</item>
+                    <item name="valueMap" xsi:type="array">
+                        <item name="true" xsi:type="string">1</item>
+                        <item name="false" xsi:type="string">0</item>
+                    </item>
+                </item>
+            </argument>
+            <settings>
+                <label translate="true">Show Only Once Per User</label>
+                <dataScope>once_per_user</dataScope>
                 <dataType>boolean</dataType>
             </settings>
         </field>

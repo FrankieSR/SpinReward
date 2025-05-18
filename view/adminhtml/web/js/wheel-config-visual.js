@@ -7,6 +7,7 @@ define(['Magento_Ui/js/form/element/abstract', 'ko', 'jquery'], (Abstract, ko, $
             id: ko.observable(data.id || generateUniqueId()),
             label: ko.observable(data.label || defaultSector.label),
             rule_id: ko.observable(data.rule_id || defaultSector.rule_id),
+            result_text: ko.observable(data.result_text || defaultSector.result_text),
             probability: ko.observable(data.probability || defaultSector.probability),
             text_color: ko.observable(data.text_color || defaultSector.text_color),
             background_color: ko.observable(data.background_color || defaultSector.background_color),
@@ -20,17 +21,20 @@ define(['Magento_Ui/js/form/element/abstract', 'ko', 'jquery'], (Abstract, ko, $
             defaultSector: {
                 id: null,
                 label: 'New Sector',
+                result_text: '',
                 rule_id: null,
                 probability: 10,
                 text_color: '#000000',
                 background_color: '#FFFFFF',
                 border_color: '#CCCCCC',
             },
+            priceRuleOptions: [],
             imports: {
                 'source': '${ $.provider }:data'
             }
         },
 
+        cartPriceRuleOptions: ko.observableArray([]),
         sectors: ko.observableArray([]),
         isPopupVisible: ko.observable(false),
         popupSector: ko.observable(null),
@@ -38,9 +42,7 @@ define(['Magento_Ui/js/form/element/abstract', 'ko', 'jquery'], (Abstract, ko, $
 
         initialize() {
             this._super();
-            console.log('Initializing wheel-config-visual component');
-            console.log('Provider:', this.provider);
-            console.log('Source:', this.source);
+            this.cartPriceRuleOptions(this.priceRuleOptions || []);
 
             this.closePopup = this.closePopup.bind(this);
             this.savePopupSector = this.savePopupSector.bind(this);
@@ -55,7 +57,6 @@ define(['Magento_Ui/js/form/element/abstract', 'ko', 'jquery'], (Abstract, ko, $
             this.loadFromValue();
 
             this.value.subscribe((newValue) => {
-                console.log('Value changed externally:', newValue);
                 this.loadFromValue();
             }, this);
 
@@ -88,11 +89,12 @@ define(['Magento_Ui/js/form/element/abstract', 'ko', 'jquery'], (Abstract, ko, $
                 rule_id: sector.rule_id(),
                 probability: Number(sector.probability()),
                 text_color: sector.text_color(),
+                result_text: sector.result_text(),
                 background_color: sector.background_color(),
                 border_color: sector.border_color(),
             }));
             const jsonValue = JSON.stringify(sectorsPlain);
-            console.log('Saving wheel_config:', jsonValue);
+
             this.value(jsonValue);
 
             // Безопасная работа с source

@@ -13,14 +13,13 @@ define(['jquery', 'jquery/ui'], function ($) {
             pointerColor: '#018749',
             outerRingColor: '#FFFFFF',
             outerRingWidth: 10,
-            baseRadius: 140,
             fontSizeRatio: 0.12,
             fontWeight: 'bold',
-            onSpinEnd: () => {},    
+            onSpinEnd: () => {},
         },
 
         /**
-         * Initializes the widget. Sets up initial values, renders the wheel, and adds resize handler.
+         * Initializes the widget. Sets up initial values, renders the wheel, and adds a resize handler.
          */
         _create: function () {
             this.currentRotation = 0;
@@ -28,53 +27,57 @@ define(['jquery', 'jquery/ui'], function ($) {
             this._calculateDimensions();
             this._renderWheel();
 
-            // Добавляем обработчик изменения размера окна
+            // Add window resize event handler
             $(window).on('resize', this._onResize.bind(this));
         },
 
         /**
-         * Calculates adaptive dimensions based on the container size.
+         * Calculates adaptive dimensions based on the container's size.
          */
         _calculateDimensions: function () {
             const $container = this.element;
             const containerWidth = $container.width();
             const containerHeight = $container.height();
 
-            // Используем меньшее из значений ширины и высоты контейнера
+            // Use the smaller dimension (width or height) of the container as the base size
             const baseSize = Math.min(containerWidth, containerHeight);
 
+            // Calculate the wheel radius from the container size and ensure a minimum size of 100
             this.options.wheelRadius = (baseSize / 2) * 0.9;
-            if (this.options.wheelRadius < 100) this.options.wheelRadius = 100;
+            if (this.options.wheelRadius < 100) {
+                this.options.wheelRadius = 100;
+            }
 
+            // Set the outer ring width (constant value in this example)
             this.options.outerRingWidth = 10;
 
-            // Масштабируем размер шрифта
+            // Scale the font size based on the wheel radius
             this.options.fontSize = this.options.wheelRadius * this.options.fontSizeRatio;
 
-            // Масштабируем ширину границы
+            // Scale the border width ensuring a minimum value of 1
             this.options.borderWidth = Math.max(1, this.options.wheelRadius * 0.005);
         },
 
         /**
-         * Handles window resize event to recalculate dimensions and re-render the wheel.
+         * Handles the window resize event by recalculating dimensions and re-rendering the wheel.
          */
         _onResize: function () {
             this._calculateDimensions();
-            this.element.empty(); // Очищаем старое колесо
-            this._renderWheel(); // Перерисовываем колесо с новыми размерами
+            this.element.empty();
+            this._renderWheel();
         },
 
         /**
-         * Applies a color theme to each item in the wheel.
+         * Applies a color theme to each wheel item.
          */
         _applyStyleTheme: function () {
             this.options.items.forEach((item, index) => {
-                item.color = item.color || this.options.colors[index % this.options.colors.length];
+                item.sectorBG = item.background_color || this.options.colors[index % this.options.colors.length];
             });
         },
 
         /**
-         * Renders the entire wheel, including the outer ring, sectors, center circle, and pointer.
+         * Renders the entire wheel including the outer ring, sectors, center circle, and pointer.
          */
         _renderWheel: function () {
             const svg = this._createSVG();
@@ -93,10 +96,10 @@ define(['jquery', 'jquery/ui'], function ($) {
             const totalRadius = this.options.wheelRadius + this.options.outerRingWidth;
             const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
             svg.setAttribute('class', 'wheel');
-            svg.setAttribute('width', '100%'); // Адаптивная ширина
-            svg.setAttribute('height', '100%'); // Адаптивная высота
+            svg.setAttribute('width', '100%');
+            svg.setAttribute('height', '100%');
             svg.setAttribute('viewBox', `0 0 ${totalRadius * 2} ${totalRadius * 2}`);
-            svg.setAttribute('preserveAspectRatio', 'xMidYMid meet'); // Сохраняем пропорции
+            svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
             return svg;
         },
 
@@ -141,7 +144,7 @@ define(['jquery', 'jquery/ui'], function ($) {
                 const startAngle = index * sectorAngle - 90;
                 const endAngle = (index + 1) * sectorAngle - 90;
 
-                const path = this._createSectorPath(startAngle, endAngle, wheelRadius, centerX, centerY, item.color);
+                const path = this._createSectorPath(startAngle, endAngle, wheelRadius, centerX, centerY, item.sectorBG);
                 path.setAttribute('stroke', borderColor);
                 path.setAttribute('stroke-width', borderWidth);
                 svg.appendChild(path);
@@ -155,7 +158,7 @@ define(['jquery', 'jquery/ui'], function ($) {
         },
 
         /**
-         * Creates the path for a sector.
+         * Creates the SVG path element for a wheel sector.
          */
         _createSectorPath: function (startAngle, endAngle, radius, cx, cy, color) {
             const largeArcFlag = endAngle - startAngle > 180 ? 1 : 0;
@@ -171,7 +174,7 @@ define(['jquery', 'jquery/ui'], function ($) {
         },
 
         /**
-         * Creates the text element for a sector.
+         * Creates the SVG text element for a wheel sector.
          */
         _createSectorText: function (text, startAngle, endAngle, radius, cx, cy) {
             const angle = (startAngle + endAngle) / 2;
@@ -216,21 +219,19 @@ define(['jquery', 'jquery/ui'], function ($) {
             const pointerTopOffset = this.options.outerRingWidth * 0.5;
 
             $('<div>', {
-                    class: 'wheel-pointer'
-                })
-                .css({
-                    position: 'absolute',
-                    width: 0,
-                    height: 0,
-                    borderLeft: `${pointerSize}px solid transparent`,
-                    borderRight: `${pointerSize}px solid transparent`,
-                    borderBottom: `${pointerSize * 2}px solid ${this.options.pointerColor}`,
-                    top: `${pointerTopOffset}px`,
-                    left: '50%',
-                    transform: 'translateX(-50%) rotate(180deg)',
-                    zIndex: 10,
-                })
-                .appendTo(this.element);
+                class: 'wheel-pointer'
+            }).css({
+                position: 'absolute',
+                width: 0,
+                height: 0,
+                'border-left': `${pointerSize}px solid transparent`,
+                'border-right': `${pointerSize}px solid transparent`,
+                'border-bottom': `${pointerSize * 2}px solid ${this.options.pointerColor}`,
+                top: `${pointerTopOffset}px`,
+                left: '50%',
+                transform: 'translateX(-50%) rotate(180deg)',
+                zIndex: 10,
+            }).appendTo(this.element);
         },
 
         /**
@@ -254,7 +255,7 @@ define(['jquery', 'jquery/ui'], function ($) {
         },
 
         /**
-         * Animates the spin of the wheel.
+         * Animates the spinning of the wheel.
          */
         _animateSpin: function (finalRotation, targetIndex, data, onSpinEndCallback) {
             const duration = this.options.rotationDuration;
@@ -264,7 +265,9 @@ define(['jquery', 'jquery/ui'], function ($) {
             const startRotation = this.currentRotation;
 
             const animate = (timestamp) => {
-                if (!startTime) startTime = timestamp;
+                if (!startTime) {
+                    startTime = timestamp;
+                }
                 const elapsed = timestamp - startTime;
 
                 const t = Math.min(elapsed / duration, 1);
@@ -285,8 +288,13 @@ define(['jquery', 'jquery/ui'], function ($) {
                         data
                     };
 
-                    if (onSpinEndCallback) onSpinEndCallback(result);
-                    if (typeof this.options.onSpinEnd === 'function') this.options.onSpinEnd(result);
+                    if (onSpinEndCallback) {
+                        onSpinEndCallback(result);
+                    }
+
+                    if (typeof this.options.onSpinEnd === 'function') {
+                        this.options.onSpinEnd(result);
+                    }
                 }
             };
 
@@ -294,7 +302,7 @@ define(['jquery', 'jquery/ui'], function ($) {
         },
 
         /**
-         * Destroys the widget, removing event listeners.
+         * Destroys the widget by removing event listeners and clearing its content.
          */
         _destroy: function () {
             $(window).off('resize', this._onResize.bind(this));

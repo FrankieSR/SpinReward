@@ -14,35 +14,12 @@
                     <label>Enable Module</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="allow_guests" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Allow Guests to Submit Wishes</label>
-                    <comment>Enable this option to allow guests to submit wishes. Otherwise, only logged-in customers can participate.</comment>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                </field>
-                <field id="enable_wheel" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Enable Lottery Wheel</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                </field>
-                <!-- Новое поле для выбора разрешённых групп клиентов для функционала колеса -->
-                <field id="allowed_customer_groups" translate="label" type="multiselect" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Allowed Customer Groups for Wheel</label>
-                    <source_model>Magento\Customer\Model\Config\Source\Group</source_model>
-                    <comment>Select the customer groups that are allowed to see the Lottery Wheel functionality.</comment>
-                </field>
-                <field id="default_rule_id" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Default Rule ID</label>
-                    <comment>Enter the rule ID to generate a coupon when the wheel is disabled.</comment>
-                </field>
-                <field id="wheel_sectors" translate="label" type="textarea" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Wheel Sectors</label>
-                    <comment>
-                        Enter JSON for sectors. Example: [{"id": 1, "label": "Prize 1", "rule_id": 6, "probability": 30, "color": "#fff"}, {"id": 2, "label": "Try Again", "rule_id": null, "probability": 40}]
-                    </comment>
-                </field>
-                <field id="rotation_duration" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Rotation Duration (ms)</label>
-                    <comment>Enter the duration of wheel rotation in milliseconds. Default: 5000</comment>
-                </field>
+                <!-- <field id="winning_coupon_email_template" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Winning Coupon Email Template</label>
+                    <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model>
+                    <comment>Select the email template for sending winning coupon notifications.</comment>
+                    <validate>required-entry</validate>
+                </field> -->
             </group>
         </section>
     </system>

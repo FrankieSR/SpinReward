@@ -1,8 +1,12 @@
 <?php
+declare(strict_types=1);
 
 namespace Doroshko\WishReward\Model;
 
 use Magento\SalesRule\Model\CouponFactory;
+use Magento\SalesRule\Model\ResourceModel\Rule as RuleResource;
+use Magento\SalesRule\Model\RuleFactory;
+use Magento\SalesRule\Api\CouponRepositoryInterface;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Psr\Log\LoggerInterface;
 use Magento\Framework\Exception\LocalizedException;
@@ -10,24 +14,51 @@ use Magento\Framework\Exception\LocalizedException;
 class CouponGenerator
 {
     private CouponFactory $couponFactory;
+    private RuleFactory $ruleFactory;
+    private RuleResource $ruleResource;
+    private CouponRepositoryInterface $couponRepository;
     private DateTime $dateTime;
     private LoggerInterface $logger;
 
     public function __construct(
         CouponFactory $couponFactory,
+        RuleFactory $ruleFactory,
+        RuleResource $ruleResource,
+        CouponRepositoryInterface $couponRepository,
         DateTime $dateTime,
         LoggerInterface $logger
     ) {
         $this->couponFactory = $couponFactory;
+        $this->ruleFactory = $ruleFactory;
+        $this->ruleResource = $ruleResource;
+        $this->couponRepository = $couponRepository;
         $this->dateTime = $dateTime;
         $this->logger = $logger;
     }
 
+    /**
+     * Generate a coupon for the given rule ID
+     *
+     * @param int $ruleId
+     * @return string|null Coupon code or null on failure
+     * @throws LocalizedException
+     */
     public function generate(int $ruleId): ?string
     {
         try {
             if ($ruleId <= 0) {
                 throw new LocalizedException(__('Invalid rule ID provided.'));
+            }
+
+            $rule = $this->ruleFactory->create();
+            $this->ruleResource->load($rule, $ruleId);
+
+            if (!$rule->getId()) {
+                throw new LocalizedException(__('Sales rule with ID %1 does not exist.', $ruleId));
+            }
+
+            if (!$rule->getIsActive()) {
+                throw new LocalizedException(__('Sales rule with ID %1 is not active.', $ruleId));
             }
 
             $couponCode = $this->generateUniqueCode();
@@ -36,29 +67,28 @@ class CouponGenerator
                 ->setCode($couponCode)
                 ->setUsageLimit(1)
                 ->setUsagePerCustomer(1)
-                ->setExpirationDate($this->getExpirationDate())
                 ->setCreatedAt($this->dateTime->gmtDate())
-                ->setType(1);
+                ->setType(1); // Generated coupon type
 
-            $coupon->save();
+            $this->couponRepository->save($coupon);
 
             return $couponCode;
         } catch (LocalizedException $e) {
-            $this->logger->error(__('Validation error: %1', $e->getMessage()));
+            $this->logger->error(__('Validation error for rule ID %1: %2', $ruleId, $e->getMessage()));
+            throw $e; // Re-throw to allow caller to handle
         } catch (\Exception $e) {
-            $this->logger->error(__('Failed to generate coupon: %1', $e->getMessage()));
+            $this->logger->error(__('Failed to generate coupon for rule ID %1: %2', $ruleId, $e->getMessage()));
+            return null;
         }
-
-        return null;
     }
 
+    /**
+     * Generate a unique coupon code
+     *
+     * @return string
+     */
     private function generateUniqueCode(): string
     {
         return 'COUPON-' . strtoupper(bin2hex(random_bytes(4)));
-    }
-
-    private function getExpirationDate(): string
-    {
-        return $this->dateTime->gmtDate('Y-m-d H:i:s', strtotime('+7 days'));
     }
 }

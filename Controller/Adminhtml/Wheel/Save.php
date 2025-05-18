@@ -12,6 +12,8 @@ use Doroshko\WishReward\Api\WheelRepositoryInterface;
 use Doroshko\WishReward\Api\Data\WheelInterface;
 use Doroshko\WishReward\Api\Data\WheelInterfaceFactory;
 use Psr\Log\LoggerInterface;
+use Magento\Framework\App\Request\DataPersistorInterface;
+use Magento\Framework\Message\ManagerInterface;
 
 class Save extends Action implements HttpPostActionInterface
 {
@@ -23,19 +25,25 @@ class Save extends Action implements HttpPostActionInterface
     private WheelInterfaceFactory $wheelFactory;
     private EventManagerInterface $eventManager;
     private LoggerInterface $logger;
+    private DataPersistorInterface $dataPersistor;
+    public $messageManager;
 
     public function __construct(
         Action\Context $context,
         WheelRepositoryInterface $wheelRepository,
         WheelInterfaceFactory $wheelFactory,
         EventManagerInterface $eventManager,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        DataPersistorInterface $dataPersistor,
+        ManagerInterface $messageManager
     ) {
         parent::__construct($context);
         $this->wheelRepository = $wheelRepository;
         $this->wheelFactory    = $wheelFactory;
         $this->eventManager    = $eventManager;
         $this->logger          = $logger;
+        $this->dataPersistor   = $dataPersistor;
+        $this->messageManager  = $messageManager;
     }
 
     /**
@@ -46,7 +54,7 @@ class Save extends Action implements HttpPostActionInterface
     public function execute(): ResultInterface
     {
         $resultRedirect = $this->resultRedirectFactory->create();
-        $data = $this->getRequest()->getPostValue();
+        $data = $this->_request->getParams();
 
         if (!$data) {
             $this->messageManager->addErrorMessage(__('No data provided to save.'));
@@ -107,38 +115,67 @@ class Save extends Action implements HttpPostActionInterface
         $wheel->setStartDate($data['start_date'] ?? null);
         $wheel->setEndDate($data['end_date'] ?? null);
 
-        // Нормализация массивов и JSON-конфигураций
         $wheel->setStoreviews($this->arrayToCommaString($this->normalizeToArray($data['storeviews'] ?? ['0'])));
         $wheel->setAllowedCustomerGroups($this->arrayToCommaString($this->normalizeToArray($data['allowed_customer_groups'] ?? [])));
         $wheel->setWheelConfig($this->normalizeWheelConfig($data['wheel_config'] ?? '[]'));
-        $wheel->setDisplayOnPages($this->arrayToCommaString($this->normalizeToArray($data['display_on_pages'] ?? [])));
 
         $wheel->setIsCtaEnabled((bool)($data['is_cta_enabled'] ?? false));
         $wheel->setCtaLabel((string)($data['cta_label'] ?? ''));
         $wheel->setCtaButtonText((string)($data['cta_button_text'] ?? ''));
         $wheel->setCtaPosition((string)($data['cta_position'] ?? 'bottom-right'));
         $wheel->setCtaCustomCss((string)($data['cta_custom_css'] ?? ''));
-        $this->processCtaImage($wheel, $data);
 
+        // Process images using universal method
+        $this->processImage($wheel, $data, 'cta_image', 'setCtaImage');
+        $this->processImage($wheel, $data, 'popup_company_logo', 'setPopupCompanyLogo');
+
+        // Popup settings
         $wheel->setPopupTitle((string)($data['popup_title'] ?? ''));
         $wheel->setPopupDescription((string)($data['popup_description'] ?? ''));
         $wheel->setIsWishAreaEnabled((bool)($data['is_wish_area_enabled'] ?? false));
         $wheel->setIsEmailInputEnabled((bool)($data['is_email_input_enabled'] ?? false));
+        $wheel->setPopupDelay((int)($data['popup_delay'] ?? 0));
+        $wheel->setPopupScrollTrigger((string)($data['popup_scroll_trigger'] ?? 'none'));
+        $wheel->setPopupOncePerSession((bool)($data['popup_once_per_session'] ?? true));
+
+        // New popup fields
+        $wheel->setPopupButtonText((string)($data['popup_button_text'] ?? ''));
+        $wheel->setPopupCompanyText((string)($data['popup_company_text'] ?? ''));
+        $wheel->setPopupDeclineText((string)($data['popup_decline_text'] ?? ''));
+        $wheel->setPopupCloseText((string)($data['popup_close_text'] ?? ''));
+        $wheel->setPopupTermsText((string)($data['popup_terms_text'] ?? ''));
+
+        // New Trigger fields
+        $wheel->setIsScrollEnabled((bool)($data['is_scroll_enabled'] ?? false));
+        $wheel->setScrollPercentage((int)($data['scroll_percentage'] ?? 50));
+        $wheel->setIsTimeoutEnabled((bool)($data['is_timeout_enabled'] ?? false));
+        $wheel->setTimeoutDuration((int)($data['timeout_duration'] ?? 5000));
+        $wheel->setIsExitEnabled((bool)($data['is_exit_enabled'] ?? false));
+        $wheel->setIsExitEnabled((bool)($data['once_per_user'] ?? false));
+
+        // Theme setting
+        $wheel->setPopupTheme((string)($data['popup_theme'] ?? 'light'));
     }
 
     /**
-     * Process CTA image data
+     * Universal method for processing image data
      *
      * @param WheelInterface $wheel
      * @param array $data
+     * @param string $fieldName Field name in data array
+     * @param string $setterMethod Setter method name in WheelInterface
      * @return void
      */
-    private function processCtaImage(WheelInterface $wheel, array $data): void
+    private function processImage(WheelInterface $wheel, array $data, string $fieldName, string $setterMethod): void
     {
-        $ctaImage = $data['cta_image'] ?? null;
-        $wheel->setCtaImage(
-            is_array($ctaImage) && !empty($ctaImage[0]['name']) ? 'wysiwyg/' . $ctaImage[0]['name'] : $ctaImage
-        );
+        $image = $data[$fieldName] ?? null;
+        if (is_array($image) && !empty($image[0]['name'])) {
+            $wheel->$setterMethod('wysiwyg/wishreward/' . $image[0]['name']);
+        } elseif (is_string($image)) {
+            $wheel->$setterMethod($image);
+        } else {
+            $wheel->$setterMethod(null);
+        }
     }
 
     /**
@@ -166,15 +203,6 @@ class Save extends Action implements HttpPostActionInterface
         return !empty($values) ? implode(',', $values) : '';
     }
 
-    /**
-     * Normalize wheel configuration data
-     *
-     * Если переданная строка является корректным JSON, возвращаем её как есть.
-     * Если это массив – кодируем его в JSON, иначе возвращаем пустой JSON-массив.
-     *
-     * @param mixed $config
-     * @return string
-     */
     private function normalizeWheelConfig($config): string
     {
         if (is_string($config)) {

@@ -4,19 +4,19 @@
         <table class="admin__table-secondary">
             <thead>
                 <tr>
-                    <th>ID</th>
                     <th>Label</th>
                     <th>Probability</th>
                     <th>Cart Rule Price ID</th>
+                    <th>Result Text</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody data-bind="foreach: { data: sectors, as: 'sector' }">
                 <tr>
-                    <td data-bind="text: sector.id"></td>
                     <td data-bind="text: sector.label"></td>
                     <td data-bind="text: sector.probability"></td>
                     <td data-bind="text: sector.rule_id"></td>
+                    <td data-bind="text: sector.result_text"></td>
                     <td>
                         <button class="action-secondary" data-bind="click: $parent.editSector.bind($parent, sector)">
                             Edit
@@ -32,8 +32,7 @@
             Add Sector
         </button>
     </div>
-    
-    <!-- Модальное окно -->
+
     <div class="modal" data-bind="visible: isPopupVisible, with: popupSector">
         <div class="modal-inner">
             <h2 data-bind="text: $parent.isEditing() ? 'Edit Sector' : 'Add Sector'"></h2>
@@ -43,12 +42,25 @@
                     <input type="text" data-bind="value: label, valueUpdate: 'input'" required />
                 </div>
                 <div class="field">
+                    <label>Result Text</label>
+                    <p>(The text that will be displayed in the win_coupon/lose window)</p>
+                    <input type="text" data-bind="value: result_text, valueUpdate: 'input'" required />
+                </div>
+                <div class="field">
                     <label>Probability (%)</label>
                     <input type="number" min="0" max="100" data-bind="value: probability, valueUpdate: 'input'" required />
                 </div>
                 <div class="field">
-                    <label>Cart Rule Price ID</label>
-                    <input type="text" data-bind="value: rule_id, valueUpdate: 'input'" placeholder="Enter rule ID manually" />
+                    <label>Cart Price Rule</label>
+                    <select
+                      data-bind="
+                        options: $parent.cartPriceRuleOptions,
+                        optionsText: 'label',
+                        optionsValue: 'value',
+                        value: rule_id,
+                        optionsCaption: '— Select rule —'
+                      ">
+                    </select>
                 </div>
                 <div class="field">
                     <label>Text Color</label>

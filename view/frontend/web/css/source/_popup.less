@@ -1,5 +1,15 @@
+@block-indent: 16px;
+
 & when (@media-common =true) {
     .wishreward-popup {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        &._inner-scroll {
+            max-height: 100%;
+        }
+
         .modal-inner-wrap {
             background: transparent;
             box-shadow: none;
@@ -12,17 +22,19 @@
             background-color: transparent;
         }
 
-        .modal-popup {
+        &.modal-popup {
             .modal-content {
                 background-color: transparent;
                 padding: 0;
                 box-shadow: none;
-                position: relative;
             }
         }
 
         .modal-header {
-            display: none;
+            position: absolute;
+            z-index: 99;
+            right: 10px;
+            top: 0;
         }
 
         .modal-popup._inner-scroll {
@@ -32,24 +44,20 @@
         }
     }
 
-    .wishreward-popup {
+    .wishreward-content {
         display: flex;
-        flex-wrap: wrap;
-        border-radius: 8px;
-        overflow: hidden;
-
-        .modal-inner-wrap {
-            width: fit-content;
-        }
+        transform: translateX(-16%);
+        min-height: 50vh;
     }
 
     .wishreward-wheel-section {
-        position: absolute;
+        position: relative;
         left: 0;
-        transform: translateX(-45%);
+        transform: translateX(49%);
         width: 100%;
         top: 0;
         height: 100%;
+        z-index: 1;
     }
 
     .lottery-wishreward-container {
@@ -59,26 +67,37 @@
     }
 
     .wishreward-info-section {
+        position: relative;
         background-color: #fff;
-        padding: 2rem 4rem;
+        box-sizing: border-box;
         text-align: center;
         position: relative;
         min-width: 300px;
-        max-width: 500px;
+        max-width: 370px;
         width: 30vw;
+        z-index: 2;
+    }
+
+    .wishreward-info-main {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 100%;
+        box-sizing: border-box;
+        padding: 2rem 4rem;
     }
 
     .wishreward-brand-title {
         font-size: 1.5rem;
         font-weight: bold;
-        margin-bottom: 1rem;
-        color: #1a3c5e; // Темно-синий цвет, как на скриншоте
+        margin-bottom: @block-indent;
+        color: #1a3c5e;
     }
 
     .wishreward-title {
-        font-size: 2rem;
+        .lib-font-size(32px);
         font-weight: bold;
-        margin-bottom: 1.5rem;
+        margin-bottom: @block-indent;
         color: #1a3c5e;
     }
 
@@ -104,7 +123,7 @@
     }
 
     #wishreward-form button.submit-wheel {
-        background-color: #1a3c5e; // Темно-синий цвет кнопки, как на скриншоте
+        background-color: #1a3c5e;
         color: #fff;
         padding: 0.75rem 2rem;
         border: none;
@@ -132,6 +151,7 @@
 
         &:hover {
             color: darken(#1a3c5e, 10%);
+            border: none;
         }
     }
 
@@ -153,16 +173,96 @@
         font-weight: bold;
         color: #1a3c5e;
     }
-}
 
-// Медиа-запрос для десктопа (ширина больше 768px)
-.media-width(@extremum, @break) when (@extremum ='min') and (@break =@screen__m) {
-    .wishreward-popup {
-        flex-wrap: nowrap; // На десктопе две колонки рядом
+    .visually-hidden {
+        border: 0;
+        clip: rect(0 0 0 0);
+        height: 1px;
+        margin: -1px;
+        overflow: hidden;
+        padding: 0;
+        position: absolute;
+        width: 1px;
+
+        &.focusable:active,
+        &.focusable:focus {
+            clip: auto;
+            height: auto;
+            margin: 0;
+            overflow: visible;
+            position: static;
+            width: auto;
+        }
+    }
+
+    .wishreward-closed-cta {
+        position: fixed;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        align-items: center;
+        background: #fff;
+        border: 1px solid #e7e7e7;
+        border-radius: 4px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+
+        &.bottom-left,
+        &.bottom-right {
+            left: 20px;
+        }
+
+        &.top-right,
+        &.top-left {
+            right: 20px;
+        }
+
+        .wishreward-reopen-button {
+            background: none;
+            border: none;
+        }
+
+        .wishreward-close-mini {
+            position: absolute;
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #000;
+            right: -10px;
+        }
+
+        &:hover {
+            background: #f9f9f9;
+
+            .wishreward-close-mini {
+                display: block;
+            }
+        }
+    }
+
+    // Подстройка позиции CTA‑блока
+    .wishreward-cta-wrapper.left {
+        position: fixed;
+        top: 50%;
+        left: 20px;
+        transform: translateY(-50%);
+    }
+
+    .wishreward-cta-wrapper.right {
+        position: fixed;
+        top: 50%;
+        right: 20px;
+        transform: translateY(-50%);
     }
 }
 
-// Медиа-запрос для мобильных устройств (ширина меньше 768px)
+.media-width(@extremum, @break) when (@extremum ='min') and (@break =@screen__m) {
+    .wishreward-popup {
+        flex-wrap: nowrap;
+    }
+}
+
 .media-width(@extremum, @break) when (@extremum ='max') and (@break =@screen__m) {
     .modal-popup.modal-slide {
         max-width: 100%;
@@ -170,8 +270,8 @@
         border-radius: 0;
     }
 
-    .wishreward-popup {
-        flex-direction: column; // На мобильных колесо сверху
+    .wishreward-content {
+        flex-direction: column;
     }
 
     .wishreward-wheel-section {
@@ -187,7 +287,7 @@
     }
 
     .wishreward-title {
-        font-size: 1.5rem; // Уменьшаем заголовок на мобильных
+        font-size: 1.5rem;
     }
 
     #wishreward-form button.submit-wheel {

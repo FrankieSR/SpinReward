@@ -2,26 +2,18 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
     <menu>
         <add id="Doroshko_WishReward::main"
-             title="Wish Reward"
-             module="Doroshko_WishReward"
-             sortOrder="55"
-             resource="Doroshko_WishReward::main" />
+            title="Wish Reward"
+            module="Doroshko_WishReward"
+            sortOrder="55"
+            resource="Doroshko_WishReward::main" />
 
         <add id="Doroshko_WishReward::config"
-             title="Configuration"
-             module="Doroshko_WishReward"
-             sortOrder="60"
-             parent="Doroshko_WishReward::main"
-             action="adminhtml/system_config/edit/section/wishreward_settings"
-             resource="Doroshko_WishReward::config" />
-
-        <add id="Doroshko_WishReward::wishes"
-            title="Wishes"
+            title="Configuration"
             module="Doroshko_WishReward"
-            sortOrder="30"
+            sortOrder="60"
             parent="Doroshko_WishReward::main"
-            action="wishreward/wishes/index"
-            resource="Doroshko_WishReward::wishes" />
+            action="adminhtml/system_config/edit/section/wishreward_settings"
+            resource="Doroshko_WishReward::config" />
 
         <add id="Doroshko_WishReward::wheels" 
             title="Wheels of Fortune"
@@ -30,5 +22,13 @@
             parent="Doroshko_WishReward::main"
             action="wishreward/wheel/index"
             resource="Doroshko_WishReward::wheels"/>
+
+        <add id="Doroshko_WishReward::statistics"
+            title="WishReward Statistics"
+            module="Doroshko_WishReward"
+            sortOrder="50"
+            parent="Doroshko_WishReward::main"
+            action="wishreward/statistics/index"
+            resource="Doroshko_WishReward::statistics"/>
     </menu>
 </config>

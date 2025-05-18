@@ -7,7 +7,6 @@ class Wheel extends AbstractDb
 {
     protected function _construct()
     {
-        // Указываем имя таблицы и поле первичного ключа
         $this->_init('wishreward_wheel', 'wheel_id');
     }
 }

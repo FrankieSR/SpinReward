@@ -1,64 +1,81 @@
 <?xml version="1.0"?>
-<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
     <table name="wishreward_wheel" resource="default" engine="innodb" comment="Wish Reward Wheels of Fortune">
-        <!-- Основные поля -->
         <column xsi:type="int" name="wheel_id" unsigned="true" nullable="false" identity="true" comment="Wheel ID"/>
         <column xsi:type="varchar" name="title" nullable="false" length="255" comment="Wheel Title"/>
-        <column xsi:type="boolean" name="is_active" nullable="false" default="1" comment="Is Active Flag"/>
-
-        <!-- Период действия -->
-        <column xsi:type="datetime" name="start_date" nullable="true" comment="Start Date"/>
-        <column xsi:type="datetime" name="end_date" nullable="true" comment="End Date"/>
-
-        <!-- Настройки отображения -->
-        <column xsi:type="text" name="display_on_pages" nullable="true" comment="Display on Pages (comma-separated values, e.g. all,homepage,except_checkout)"/>
-
-        <!-- Сообщения -->
+        <column xsi:type="smallint" name="is_active" nullable="false" default="1" comment="Is Active Flag"/>
+        <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" comment="Creation Time"/>
+        <column xsi:type="timestamp" name="updated_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="true"/>
         <column xsi:type="text" name="win_message" nullable="true" comment="Win Message"/>
         <column xsi:type="text" name="no_win_message" nullable="true" comment="No Win Message"/>
-
-        <!-- Конфигурация колеса -->
         <column xsi:type="text" name="wheel_config" nullable="true" comment="Wheel Configuration (JSON)"/>
         <column xsi:type="int" name="rotation_duration" nullable="true" default="6000" comment="Rotation Duration (milliseconds)"/>
-        <column xsi:type="int" name="wheel_radius" nullable="true" default="140" comment="Wheel Radius (pixels)"/>
-        <column xsi:type="varchar" name="wheel_position" nullable="true" length="50" default="center" comment="Wheel Position"/>
-
-        <!-- Storeviews и группы -->
         <column xsi:type="text" name="storeviews" nullable="true" comment="Store Views (comma-separated)"/>
         <column xsi:type="text" name="allowed_customer_groups" nullable="true" comment="Allowed Customer Groups (comma-separated)"/>
-
-        <!-- CTA настройки -->
-        <column xsi:type="boolean" name="is_cta_enabled" nullable="false" default="0" comment="Is CTA Enabled"/>
+        <column xsi:type="smallint" name="is_cta_enabled" nullable="false" default="0" comment="Is CTA Enabled"/>
         <column xsi:type="varchar" name="cta_label" nullable="true" length="255" comment="CTA Label"/>
         <column xsi:type="varchar" name="cta_button_text" nullable="true" length="255" comment="CTA Button Text"/>
         <column xsi:type="varchar" name="cta_image" nullable="true" length="255" comment="CTA Image Path"/>
         <column xsi:type="varchar" name="cta_position" nullable="true" length="50" default="bottom-right" comment="CTA Position"/>
         <column xsi:type="text" name="cta_custom_css" nullable="true" comment="Custom CSS for CTA Button"/>
-
-        <!-- Popup настройки -->
         <column xsi:type="varchar" name="popup_title" nullable="true" length="255" comment="Popup Title"/>
         <column xsi:type="text" name="popup_description" nullable="true" comment="Popup Description"/>
-        <column xsi:type="boolean" name="is_wish_area_enabled" nullable="false" default="0" comment="Enable Wish Area"/>
-        <column xsi:type="boolean" name="is_email_input_enabled" nullable="false" default="0" comment="Enable Email Input"/>
+        <column xsi:type="smallint" name="is_wish_area_enabled" nullable="false" default="0" comment="Enable Wish Area"/>
+        <column xsi:type="smallint" name="is_email_input_enabled" nullable="false" default="0" comment="Enable Email Input"/>
         <column xsi:type="int" name="popup_delay" nullable="true" default="0" comment="Popup Delay (milliseconds)"/>
         <column xsi:type="varchar" name="popup_scroll_trigger" nullable="true" length="50" default="none" comment="Popup Scroll Trigger"/>
-        <column xsi:type="boolean" name="popup_once_per_session" nullable="false" default="1" comment="Show Popup Once Per Session"/>
-
-        <!-- Новые поля -->
-        <column xsi:type="boolean" name="is_delay_enabled" nullable="false" default="0" comment="Enable Delay Trigger"/>
-        <column xsi:type="varchar" name="time_of_day_start" nullable="true" length="5" comment="Time of Day Start (HH:MM, e.g. 08:00)"/>
-        <column xsi:type="varchar" name="time_of_day_end" nullable="true" length="5" comment="Time of Day End (HH:MM, e.g. 18:00)"/>
-        <column xsi:type="varchar" name="trigger_action" nullable="true" length="50" comment="Trigger Action (e.g. add_to_cart, register, login)"/>
-        <column xsi:type="text" name="conditions_serialized" nullable="true" comment="Serialized Conditions for Popup Trigger"/>
-        <column xsi:type="boolean" name="once_per_user" nullable="false" default="0" comment="Show Popup Once Per User"/>
-
-        <!-- Временные метки -->
-        <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" comment="Creation Time"/>
-        <column xsi:type="timestamp" name="updated_at" nullable="true" on_update="true" comment="Update Time"/>
-
-        <!-- Primary Key -->
+        <column xsi:type="smallint" name="popup_once_per_session" nullable="false" default="1" comment="Show Popup Once Per Session"/>
+        <column xsi:type="varchar" name="popup_button_text" nullable="true" length="255" comment="Popup Button Text"/>
+        <column xsi:type="varchar" name="popup_company_logo" nullable="true" length="255" comment="Popup Company Logo Path"/>
+        <column xsi:type="varchar" name="popup_company_text" nullable="true" length="255" comment="Popup Company Text"/>
+        <column xsi:type="varchar" name="popup_decline_text" nullable="true" length="255" comment="Popup Decline Button Text"/>
+        <column xsi:type="varchar" name="popup_close_text" nullable="true" length="255" comment="Popup Close Button Text"/>
+        <column xsi:type="text" name="popup_terms_text" nullable="true" comment="Popup Terms Text"/>
+        <column xsi:type="smallint" name="is_scroll_enabled" nullable="false" default="0" comment="Enable Scroll Trigger"/>
+        <column xsi:type="int" name="scroll_percentage" nullable="true" default="50" comment="Scroll Percentage Trigger (e.g. 50, 75, 100)"/>
+        <column xsi:type="smallint" name="is_timeout_enabled" nullable="false" default="0" comment="Enable Timeout Trigger"/>
+        <column xsi:type="int" name="timeout_duration" nullable="true" default="5000" comment="Timeout Duration (milliseconds)"/>
+        <column xsi:type="smallint" name="is_exit_enabled" nullable="false" default="0" comment="Enable Exit Intent Trigger"/>
+        <column xsi:type="smallint" name="once_per_user" nullable="false" default="0" comment="Show Popup Once Per User"/>
+        <column xsi:type="timestamp" name="start_date" nullable="true" comment="Start Date"/>
+        <column xsi:type="timestamp" name="end_date" nullable="true" comment="End Date"/>
+        <column xsi:type="varchar" name="popup_theme" nullable="false" length="50" default="light" comment="Popup Theme"/>
         <constraint xsi:type="primary" referenceId="PRIMARY">
             <column name="wheel_id"/>
         </constraint>
+        <index indexType="btree" referenceId="WISHREWARD_WHEEL_IS_ACTIVE_IDX">
+            <column name="is_active"/>
+        </index>
+        <index indexType="btree" referenceId="WISHREWARD_WHEEL_DATE_RANGE_IDX">
+            <column name="start_date"/>
+            <column name="end_date"/>
+        </index>
+    </table>
+
+    <table name="wishreward_spin_log" resource="default" engine="innodb" comment="WishReward Spin Log">
+        <column xsi:type="bigint" name="id" unsigned="true" nullable="false" identity="true" comment="Spin ID"/>
+        <column xsi:type="int" name="wheel_id" unsigned="true" nullable="false" comment="Wheel ID"/>
+        <column xsi:type="int" name="customer_id" unsigned="true" nullable="true" comment="Customer ID"/>
+        <column xsi:type="varchar" name="email" nullable="true" length="255" comment="Email"/>
+        <column xsi:type="varchar" name="spin_result" nullable="true" length="255" comment="Spin Result"/>
+        <column xsi:type="datetime" name="spin_date" nullable="false" comment="Spin Date"/>
+        <column xsi:type="varchar" name="ip_address" nullable="true" length="45" comment="Anonymized IP Address"/>
+        <column xsi:type="tinyint" name="is_guest" nullable="false" default="0" comment="Is Guest"/>
+        <column xsi:type="tinyint" name="consent_given" nullable="false" default="0" comment="Consent Given"/>
+        <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="FK_WISHREWARD_SPIN_LOG_WHEEL_ID" table="wishreward_spin_log" column="wheel_id" referenceTable="wishreward_wheel" referenceColumn="wheel_id" onDelete="CASCADE"/>
+        <index referenceId="IDX_WISHREWARD_SPIN_LOG_EMAIL" indexType="btree">
+            <column name="email"/>
+        </index>
+        <index referenceId="IDX_WISHREWARD_SPIN_LOG_CUSTOMER_ID" indexType="btree">
+            <column name="customer_id"/>
+        </index>
+        <index referenceId="IDX_WISHREWARD_SPIN_LOG_SPIN_DATE" indexType="btree">
+            <column name="spin_date"/>
+        </index>
     </table>
 </schema>

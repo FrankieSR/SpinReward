@@ -1,24 +1,18 @@
 <?xml version="1.0"?>
-<listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+<listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
 
-    <!-- 1) Общие настройки листинга -->
     <argument name="data" xsi:type="array">
         <item name="js_config" xsi:type="array">
-            <!-- Имя dataSource -->
             <item name="provider" xsi:type="string">wishreward_wheel_listing.wishreward_wheel_listing_data_source</item>
-            <!-- Зависимости -->
             <item name="deps" xsi:type="string">wishreward_wheel_listing.wishreward_wheel_listing_data_source</item>
         </item>
     </argument>
 
     <settings>
-        <!-- Спиннер при загрузке колонок -->
         <spinner>wheel_columns</spinner>
         <deps>
             <dep>wishreward_wheel_listing.wishreward_wheel_listing_data_source</dep>
         </deps>
-        <!-- Кнопка «Add New Wheel» -->
         <buttons>
             <button name="add_new">
                 <url path="wishreward/wheel/new"/>
@@ -28,19 +22,14 @@
         </buttons>
     </settings>
 
-    <!-- 2) Data Source -->
     <dataSource name="wishreward_wheel_listing_data_source" component="Magento_Ui/js/grid/provider">
         <settings>
             <storageConfig>
-                <!-- Поле, по которому идентифицируются записи -->
                 <param name="indexField" xsi:type="string">wheel_id</param>
             </storageConfig>
-            <!-- URL для AJAX-обновления -->
             <updateUrl path="mui/index/render"/>
         </settings>
-        <!-- ACL-ресурс, контролирующий доступ к гриду -->
         <aclResource>Doroshko_WishReward::wheels</aclResource>
-        <!-- DataProvider, который возвращает коллекцию Wheel -->
         <dataProvider class="Doroshko\WishReward\Model\Wheel\DataProvider" name="wishreward_wheel_listing_data_source">
             <settings>
                 <requestFieldName>wheel_id</requestFieldName>
@@ -49,11 +38,9 @@
         </dataProvider>
     </dataSource>
 
-    <!-- 3) Верхняя панель инструментов: массовые действия, пагинация и т.д. -->
     <listingToolbar name="listing_top">
         <massaction name="listing_massaction">
             <settings>
-                <!-- Поле, по которому будут собираться ID для массового действия -->
                 <indexField>wheel_id</indexField>
             </settings>
             <action name="delete">
@@ -62,7 +49,6 @@
                         <message translate="true">Are you sure you want to delete selected wheels?</message>
                         <title translate="true">Delete Wheels</title>
                     </confirm>
-                    <!-- Маршрут для MassDelete-экшена -->
                     <url path="wishreward/wheel/massDelete"/>
                     <type>delete</type>
                     <label translate="true">Delete</label>
@@ -75,27 +61,23 @@
         <paging name="listing_paging"/>
     </listingToolbar>
 
-    <!-- 4) Определение колонок -->
     <columns name="wheel_columns">
-        <!-- Колонка для множественного выбора записей (selectionsColumn) -->
         <selectionsColumn name="ids" sortOrder="10">
             <settings>
                 <indexField>wheel_id</indexField>
             </settings>
         </selectionsColumn>
 
-        <!-- ID (wheel_id) -->
-        <column name="wheel_id" sortOrder="50">
+        <column name="wheel_id" sortOrder="20">
             <settings>
                 <filter>textRange</filter>
-                <dataType>number</dataType> <!-- Отображается как число -->
+                <dataType>number</dataType>
                 <label translate="true">ID</label>
                 <sorting>asc</sorting>
             </settings>
         </column>
 
-        <!-- Title (title) -->
-        <column name="title" sortOrder="60">
+        <column name="title" sortOrder="30">
             <settings>
                 <filter>text</filter>
                 <dataType>text</dataType>
@@ -103,29 +85,25 @@
             </settings>
         </column>
 
-        <!-- Active (is_active) -->
-        <column name="is_active" sortOrder="70">
+        <column name="is_active" sortOrder="40">
             <settings>
                 <filter>select</filter>
                 <dataType>select</dataType>
-                <!-- Yes/No из core-сорса Magento -->
                 <options class="Magento\Config\Model\Config\Source\Yesno"/>
                 <label translate="true">Active</label>
             </settings>
         </column>
 
-        <!-- Start Date (start_date) -->
-        <column name="start_date" sortOrder="80">
+        <column name="start_date" sortOrder="50">
             <settings>
                 <label translate="true">Start Date</label>
                 <filter>dateRange</filter>
-                <dataType>date</dataType> <!-- Отображаем как дату -->
+                <dataType>date</dataType>
                 <sorting>asc</sorting>
             </settings>
         </column>
 
-        <!-- End Date (end_date) -->
-        <column name="end_date" sortOrder="90">
+        <column name="end_date" sortOrder="60">
             <settings>
                 <label translate="true">End Date</label>
                 <filter>dateRange</filter>
@@ -133,8 +111,31 @@
             </settings>
         </column>
 
-        <!-- Actions (Edit, Delete, etc.) -->
-        <actionsColumn name="actions" class="Doroshko\WishReward\Ui\Component\Listing\Column\Actions" sortOrder="100">
+        <column name="popup_title" sortOrder="80">
+            <settings>
+                <label translate="true">Popup Title</label>
+                <dataType>text</dataType>
+                <filter>text</filter>
+            </settings>
+        </column>
+
+        <column name="created_at" sortOrder="90">
+            <settings>
+                <label translate="true">Created At</label>
+                <dataType>date</dataType>
+                <filter>dateRange</filter>
+            </settings>
+        </column>
+
+        <column name="updated_at" sortOrder="100">
+            <settings>
+                <label translate="true">Updated At</label>
+                <dataType>date</dataType>
+                <filter>dateRange</filter>
+            </settings>
+        </column>
+
+        <actionsColumn name="actions" class="Doroshko\WishReward\Ui\Component\Listing\Column\Actions" sortOrder="110">
             <settings>
                 <indexField>wheel_id</indexField>
             </settings>

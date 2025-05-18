@@ -1,9 +1,16 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-    <!-- Предпочтение для модели Wheel -->
     <preference for="Doroshko\WishReward\Api\Data\WheelInterface" type="Doroshko\WishReward\Model\Wheel" />
-    
-    <!-- Предпочтение для репозитория Wheel -->
     <preference for="Doroshko\WishReward\Api\WheelRepositoryInterface" type="Doroshko\WishReward\Model\WheelRepository" />
+    <preference for="Doroshko\WishReward\Api\SpinLogRepositoryInterface" type="Doroshko\WishReward\Model\SpinLogRepository"/>
+    <preference for="Doroshko\WishReward\Api\SpinLogRepositoryInterface" type="Doroshko\WishReward\Model\SpinLogRepository"/>
+    <preference for="Doroshko\WishReward\Api\EmailSenderInterface" type="Doroshko\WishReward\Model\EmailSender"/>
+
+    <type name="Doroshko\WishReward\ViewModel\WheelPopupViewModel">
+        <arguments>
+            <argument name="scopeConfig" xsi:type="object">Magento\Framework\App\Config\ScopeConfigInterface</argument>
+            <argument name="wheel" xsi:type="object">Doroshko\WishReward\Api\Data\WheelInterface</argument>
+        </arguments>
+    </type>
 </config>

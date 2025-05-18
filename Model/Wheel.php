@@ -238,20 +238,7 @@ class Wheel extends AbstractModel implements WheelInterface
         $this->setData('wheel_config', $config);
         return $this;
     }
-    
-    // Display Configuration
-    public function getDisplayOnPages(): ?string
-    {
-        return $this->getData('display_on_pages');
-    }
-    
-    public function setDisplayOnPages(?string $pages): self
-    {
-        $this->setData('display_on_pages', $pages);
-        return $this;
-    }
-    
-    // Visual settings for the wheel
+
     public function getRotationDuration(): ?int
     {
         return $this->getData('rotation_duration') !== null ? (int)$this->getData('rotation_duration') : null;
@@ -262,60 +249,258 @@ class Wheel extends AbstractModel implements WheelInterface
         $this->setData('rotation_duration', $duration);
         return $this;
     }
-    
-    public function getWheelRadius(): ?int
-    {
-        return $this->getData('wheel_radius') !== null ? (int)$this->getData('wheel_radius') : null;
-    }
-    
-    public function setWheelRadius(?int $radius): self
-    {
-        $this->setData('wheel_radius', $radius);
-        return $this;
-    }
-    
-    public function getWheelPosition(): ?string
-    {
-        return $this->getData('wheel_position');
-    }
-    
-    public function setWheelPosition(?string $position): self
-    {
-        $this->setData('wheel_position', $position);
-        return $this;
-    }
-    
-    // Popup trigger settings
+
     public function getPopupDelay(): ?int
     {
         return $this->getData('popup_delay') !== null ? (int)$this->getData('popup_delay') : null;
     }
-    
+
     public function setPopupDelay(?int $delay): self
     {
         $this->setData('popup_delay', $delay);
         return $this;
     }
-    
+
     public function getPopupScrollTrigger(): ?string
     {
         return $this->getData('popup_scroll_trigger');
     }
-    
+
     public function setPopupScrollTrigger(?string $trigger): self
     {
         $this->setData('popup_scroll_trigger', $trigger);
         return $this;
     }
-    
+
     public function getPopupOncePerSession(): bool
     {
         return (bool)$this->getData('popup_once_per_session');
     }
-    
+
     public function setPopupOncePerSession(bool $once): self
     {
         $this->setData('popup_once_per_session', $once);
         return $this;
+    }
+
+    public function getIsDelayEnabled(): bool
+    {
+        return (bool)$this->getData('is_delay_enabled');
+    }
+
+    public function setIsDelayEnabled(bool $enabled): self
+    {
+        $this->setData('is_delay_enabled', $enabled);
+        return $this;
+    }
+
+    public function getTimeOfDayStart(): ?string
+    {
+        return $this->getData('time_of_day_start');
+    }
+
+    public function setTimeOfDayStart(?string $time): self
+    {
+        $this->setData('time_of_day_start', $time);
+        return $this;
+    }
+
+    public function getTimeOfDayEnd(): ?string
+    {
+        return $this->getData('time_of_day_end');
+    }
+
+    public function setTimeOfDayEnd(?string $time): self
+    {
+        $this->setData('time_of_day_end', $time);
+        return $this;
+    }
+
+    public function getTriggerAction(): ?string
+    {
+        return $this->getData('trigger_action');
+    }
+
+    public function setTriggerAction(?string $action): self
+    {
+        $this->setData('trigger_action', $action);
+        return $this;
+    }
+
+    public function getConditionsSerialized(): ?string
+    {
+        return $this->getData('conditions_serialized');
+    }
+
+    public function setConditionsSerialized(?string $conditions): self
+    {
+        $this->setData('conditions_serialized', $conditions);
+        return $this;
+    }
+
+    public function getOncePerUser(): bool
+    {
+        return (bool)$this->getData('once_per_user');
+    }
+
+    public function setOncePerUser(bool $once): self
+    {
+        $this->setData('once_per_user', $once);
+        return $this;
+    }
+
+    // New Popup Methods
+    public function getPopupButtonText(): ?string
+    {
+        return $this->getData('popup_button_text');
+    }
+    
+    public function setPopupButtonText(?string $text): self
+    {
+        $this->setData('popup_button_text', $text);
+        return $this;
+    }
+    
+    public function getPopupCompanyText(): ?string
+    {
+        return $this->getData('popup_company_text');
+    }
+    
+    public function setPopupCompanyText(?string $text): self
+    {
+        $this->setData('popup_company_text', $text);
+        return $this;
+    }
+    
+    public function getPopupCompanyLogo(): ?string
+    {
+        return $this->getData('popup_company_logo');
+    }
+    
+    public function setPopupCompanyLogo(?string $logo): self
+    {
+        $this->setData('popup_company_logo', $logo);
+        return $this;
+    }
+    
+    public function getPopupDeclineText(): ?string
+    {
+        return $this->getData('popup_decline_text');
+    }
+    
+    public function setPopupDeclineText(?string $text): self
+    {
+        $this->setData('popup_decline_text', $text);
+        return $this;
+    }
+    
+    public function getPopupCloseText(): ?string
+    {
+        return $this->getData('popup_close_text');
+    }
+    
+    public function setPopupCloseText(?string $text): self
+    {
+        $this->setData('popup_close_text', $text);
+        return $this;
+    }
+    
+    public function getPopupTermsText(): ?string
+    {
+        return $this->getData('popup_terms_text');
+    }
+    
+    public function setPopupTermsText(?string $text): self
+    {
+        $this->setData('popup_terms_text', $text);
+        return $this;
+    }
+
+    // New Trigger Methods
+    public function getIsScrollEnabled(): bool
+    {
+        return (bool)$this->getData(self::IS_SCROLL_ENABLED);
+    }
+
+    public function setIsScrollEnabled(bool $enabled): self
+    {
+        $this->setData(self::IS_SCROLL_ENABLED, $enabled);
+        return $this;
+    }
+
+    public function getScrollPercentage(): ?int
+    {
+        return $this->getData(self::SCROLL_PERCENTAGE) !== null ? (int)$this->getData(self::SCROLL_PERCENTAGE) : null;
+    }
+
+    public function setScrollPercentage(?int $percentage): self
+    {
+        $this->setData(self::SCROLL_PERCENTAGE, $percentage);
+        return $this;
+    }
+
+    public function getIsTimeoutEnabled(): bool
+    {
+        return (bool)$this->getData(self::IS_TIMEOUT_ENABLED);
+    }
+
+    public function setIsTimeoutEnabled(bool $enabled): self
+    {
+        $this->setData(self::IS_TIMEOUT_ENABLED, $enabled);
+        return $this;
+    }
+
+    public function getTimeoutDuration(): ?int
+    {
+        return $this->getData(self::TIMEOUT_DURATION) !== null ? (int)$this->getData(self::TIMEOUT_DURATION) : null;
+    }
+
+    public function setTimeoutDuration(?int $duration): self
+    {
+        $this->setData(self::TIMEOUT_DURATION, $duration);
+        return $this;
+    }
+
+    public function getIsExitEnabled(): bool
+    {
+        return (bool)$this->getData(self::IS_EXIT_ENABLED);
+    }
+
+    public function setIsExitEnabled(bool $enabled): self
+    {
+        $this->setData(self::IS_EXIT_ENABLED, $enabled);
+        return $this;
+    }
+
+    // Timestamp Methods
+    public function getCreatedAt(): string
+    {
+        return (string)$this->getData(self::CREATED_AT);
+    }
+
+    public function getUpdatedAt(): ?string
+    {
+        return $this->getData(self::UPDATED_AT);
+    }
+
+    /**
+     * Get popup theme
+     *
+     * @return string
+     */
+    public function getPopupTheme(): string
+    {
+        return $this->getData('popup_theme') ?: 'light';
+    }
+
+    /**
+     * Set popup theme
+     *
+     * @param string $theme
+     * @return $this
+     */
+    public function setPopupTheme(string $theme): self
+    {
+        return $this->setData('popup_theme', $theme);
     }
 }

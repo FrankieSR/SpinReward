@@ -6,102 +6,121 @@ namespace Doroshko\WishReward\Api\Data;
 
 interface WheelInterface
 {
+    const WHEEL_ID = 'wheel_id';
+    const TITLE = 'title';
+    const IS_ACTIVE = 'is_active';
+    const START_DATE = 'start_date';
+    const END_DATE = 'end_date';
+    const WIN_MESSAGE = 'win_message';
+    const NO_WIN_MESSAGE = 'no_win_message';
+    const WHEEL_CONFIG = 'wheel_config';
+    const ROTATION_DURATION = 'rotation_duration';
+    const STOREVIEWS = 'storeviews';
+    const ALLOWED_CUSTOMER_GROUPS = 'allowed_customer_groups';
+    const IS_CTA_ENABLED = 'is_cta_enabled';
+    const CTA_LABEL = 'cta_label';
+    const CTA_BUTTON_TEXT = 'cta_button_text';
+    const CTA_IMAGE = 'cta_image';
+    const CTA_POSITION = 'cta_position';
+    const CTA_CUSTOM_CSS = 'cta_custom_css';
+    const POPUP_TITLE = 'popup_title';
+    const POPUP_DESCRIPTION = 'popup_description';
+    const IS_WISH_AREA_ENABLED = 'is_wish_area_enabled';
+    const IS_EMAIL_INPUT_ENABLED = 'is_email_input_enabled';
+    const POPUP_DELAY = 'popup_delay';
+    const POPUP_SCROLL_TRIGGER = 'popup_scroll_trigger';
+    const POPUP_ONCE_PER_SESSION = 'popup_once_per_session';
+    const POPUP_BUTTON_TEXT = 'popup_button_text';
+    const POPUP_COMPANY_LOGO = 'popup_company_logo';
+    const POPUP_COMPANY_TEXT = 'popup_company_text';
+    const POPUP_DECLINE_TEXT = 'popup_decline_text';
+    const POPUP_CLOSE_TEXT = 'popup_close_text';
+    const POPUP_TERMS_TEXT = 'popup_terms_text';
+    const IS_SCROLL_ENABLED = 'is_scroll_enabled';
+    const SCROLL_PERCENTAGE = 'scroll_percentage';
+    const IS_TIMEOUT_ENABLED = 'is_timeout_enabled';
+    const TIMEOUT_DURATION = 'timeout_duration';
+    const IS_EXIT_ENABLED = 'is_exit_enabled';
+    const ONCE_PER_USER = 'once_per_user';
+    const POPUP_THEME = 'popup_theme';
+
+    // --- Getters ---
     public function getWheelId(): ?int;
-    public function setWheelId(int $id): self;
-
     public function getTitle(): string;
-    public function setTitle(string $title): self;
-
-    public function getAllowedCustomerGroups(): ?string;
-    public function setAllowedCustomerGroups(?string $groups): self;
-
-    public function getWinMessage(): ?string;
-    public function setWinMessage(?string $message): self;
-
-    public function getNoWinMessage(): ?string;
-    public function setNoWinMessage(?string $message): self;
-
-    public function getStartDate(): ?string;
-    public function setStartDate(?string $date): self;
-
-    public function getEndDate(): ?string;
-    public function setEndDate(?string $date): self;
-
     public function isActive(): bool;
-    public function setIsActive(bool $active): self;
-
-    public function getStoreviews(): ?string;
-    public function setStoreviews(?string $storeviews): self;
-
-    public function getRotationDuration(): ?int;
-    public function setRotationDuration(?int $duration): self;
-
-    public function getWheelRadius(): ?int;
-    public function setWheelRadius(?int $radius): self;
-
-    public function getWheelPosition(): ?string;
-    public function setWheelPosition(?string $position): self;
-
-    public function getIsCtaEnabled(): bool;
-    public function setIsCtaEnabled(bool $enabled): self;
-
-    public function getCtaLabel(): ?string;
-    public function setCtaLabel(?string $label): self;
-
-    public function getCtaButtonText(): ?string;
-    public function setCtaButtonText(?string $text): self;
-
-    public function getCtaImage(): ?string;
-    public function setCtaImage(?string $image): self;
-
-    public function getCtaPosition(): ?string;
-    public function setCtaPosition(?string $position): self;
-
-    public function getCtaCustomCss(): ?string;
-    public function setCtaCustomCss(?string $css): self;
-
-    public function getPopupTitle(): ?string;
-    public function setPopupTitle(?string $title): self;
-
-    public function getPopupDescription(): ?string;
-    public function setPopupDescription(?string $description): self;
-
-    public function getIsWishAreaEnabled(): bool;
-    public function setIsWishAreaEnabled(bool $enabled): self;
-
-    public function getIsEmailInputEnabled(): bool;
-    public function setIsEmailInputEnabled(bool $enabled): self;
-
-    public function getPopupDelay(): ?int;
-    public function setPopupDelay(?int $delay): self;
-
-    public function getPopupScrollTrigger(): ?string;
-    public function setPopupScrollTrigger(?string $trigger): self;
-
-    public function getPopupOncePerSession(): bool;
-    public function setPopupOncePerSession(bool $once): self;
-
+    public function getStartDate(): ?string;
+    public function getEndDate(): ?string;
+    public function getWinMessage(): ?string;
+    public function getNoWinMessage(): ?string;
     public function getWheelConfig(): ?string;
-    public function setWheelConfig(?string $config): self;
-
-    public function getDisplayOnPages(): ?string;
-    public function setDisplayOnPages(?string $pages): self;
-
-    public function getIsDelayEnabled(): bool;
-    public function setIsDelayEnabled(bool $enabled): self;
-
-    public function getTimeOfDayStart(): ?string;
-    public function setTimeOfDayStart(?string $time): self;
-
-    public function getTimeOfDayEnd(): ?string;
-    public function setTimeOfDayEnd(?string $time): self;
-
-    public function getTriggerAction(): ?string;
-    public function setTriggerAction(?string $action): self;
-
-    public function getConditionsSerialized(): ?string;
-    public function setConditionsSerialized(?string $conditions): self;
-
+    public function getRotationDuration(): ?int;
+    public function getStoreviews(): ?string;
+    public function getAllowedCustomerGroups(): ?string;
+    public function getIsCtaEnabled(): bool;
+    public function getCtaLabel(): ?string;
+    public function getCtaButtonText(): ?string;
+    public function getCtaImage(): ?string;
+    public function getCtaPosition(): ?string;
+    public function getCtaCustomCss(): ?string;
+    public function getPopupTitle(): ?string;
+    public function getPopupDescription(): ?string;
+    public function getIsWishAreaEnabled(): bool;
+    public function getIsEmailInputEnabled(): bool;
+    public function getPopupDelay(): ?int;
+    public function getPopupScrollTrigger(): ?string;
+    public function getPopupOncePerSession(): bool;
+    public function getPopupButtonText(): ?string;
+    public function getPopupCompanyLogo(): ?string;
+    public function getPopupCompanyText(): ?string;
+    public function getPopupDeclineText(): ?string;
+    public function getPopupCloseText(): ?string;
+    public function getPopupTermsText(): ?string;
+    public function getIsScrollEnabled(): bool;
+    public function getScrollPercentage(): ?int;
+    public function getIsTimeoutEnabled(): bool;
+    public function getTimeoutDuration(): ?int;
+    public function getIsExitEnabled(): bool;
     public function getOncePerUser(): bool;
+    public function getCreatedAt(): string;
+    public function getUpdatedAt(): ?string;
+    public function getPopupTheme(): string;
+
+    // --- Setters ---
+    public function setWheelId(int $id): self;
+    public function setTitle(string $title): self;
+    public function setIsActive(bool $active): self;
+    public function setStartDate(?string $date): self;
+    public function setEndDate(?string $date): self;
+    public function setWinMessage(?string $message): self;
+    public function setNoWinMessage(?string $message): self;
+    public function setWheelConfig(?string $config): self;
+    public function setRotationDuration(?int $duration): self;
+    public function setStoreviews(?string $storeviews): self;
+    public function setAllowedCustomerGroups(?string $groups): self;
+    public function setIsCtaEnabled(bool $enabled): self;
+    public function setCtaLabel(?string $label): self;
+    public function setCtaButtonText(?string $text): self;
+    public function setCtaImage(?string $image): self;
+    public function setCtaPosition(?string $position): self;
+    public function setCtaCustomCss(?string $css): self;
+    public function setPopupTitle(?string $title): self;
+    public function setPopupDescription(?string $description): self;
+    public function setIsWishAreaEnabled(bool $enabled): self;
+    public function setIsEmailInputEnabled(bool $enabled): self;
+    public function setPopupDelay(?int $delay): self;
+    public function setPopupScrollTrigger(?string $trigger): self;
+    public function setPopupOncePerSession(bool $once): self;
+    public function setPopupButtonText(?string $text): self;
+    public function setPopupCompanyLogo(?string $logo): self;
+    public function setPopupCompanyText(?string $text): self;
+    public function setPopupDeclineText(?string $text): self;
+    public function setPopupCloseText(?string $text): self;
+    public function setPopupTermsText(?string $text): self;
+    public function setIsScrollEnabled(bool $enabled): self;
+    public function setScrollPercentage(?int $percentage): self;
+    public function setIsTimeoutEnabled(bool $enabled): self;
+    public function setTimeoutDuration(?int $duration): self;
+    public function setIsExitEnabled(bool $enabled): self;
     public function setOncePerUser(bool $once): self;
+    public function setPopupTheme(string $theme): self;
 }

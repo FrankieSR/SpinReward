@@ -2,7 +2,6 @@
 <layout xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
         xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <referenceContainer name="content">
-        <!-- <block name="wishreward-cta" template="Doroshko_WishReward::cta.phtml" ifconfig="wishreward_settings/general/enable_module" /> -->
-        <block class="Doroshko\WishReward\Block\CtaButton" name="wishreward.cta.button" template="Doroshko_WishReward::cta_button.phtml" />
+        <block class="Doroshko\WishReward\Block\Init" name="wishreward.cta.button" template="Doroshko_WishReward::init.phtml" />
     </referenceContainer>
 </layout>

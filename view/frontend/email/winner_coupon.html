@@ -1,0 +1,15 @@
+{{template config_path="design/email/header_template"}}
+
+<table>
+    <tr>
+        <td>
+            <h1>{{trans "Congratulations, %name!" name=$customer_name}}</h1>
+            <p>{{trans "You've won a special coupon!"}}</p>
+            <p>{{trans "Coupon Code: %coupon_code" coupon_code=$coupon_code}}</p>
+            <p>{{trans "Use this coupon at checkout to enjoy your discount."}}</p>
+            <p>{{trans "Visit our store: "}} <a href="{{store_url}}">{{trans "Shop Now"}}</a></p>
+        </td>
+    </tr>
+</table>
+
+{{template config_path="design/email/footer_template"}}
