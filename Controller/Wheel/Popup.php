@@ -67,9 +67,9 @@ class Popup implements HttpPostActionInterface
 
             $this->logger->debug('Loaded layout blocks: ' . json_encode(array_keys($layout->getAllBlocks())));
 
-            $block = $layout->getBlock('wheel.popup');
+            $block = $layout->getBlock('wishreward.wheel.popup');
             if (!$block) {
-                $this->logger->error('Block "wheel.popup" not found in layout.');
+                $this->logger->error('Block "wishreward.wheel.popup" not found in layout.');
                 return $resultJson->setData([
                     'success' => false,
                     'message' => __('Popup block not found.')
