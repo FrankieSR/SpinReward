@@ -220,6 +220,16 @@ class WheelPopupViewModel implements ArgumentInterface
     }
 
     /**
+     * Get popup button text
+     *
+     * @return string|null
+     */
+    public function getPopupButtonText(): ?string
+    {
+        return $this->wheel->getPopupButtonText();
+    }
+
+    /**
      * Get popup decline text
      *
      * @return string|null

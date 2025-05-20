@@ -261,7 +261,7 @@
 
         <field name="popup_company_logo" formElement="imageUploader">
             <settings>
-                <notice translate="true">Upload company logo (recommended size: 200x50px).</notice>
+                <notice translate="true">Upload company logo</notice>
                 <label translate="true">Company Logo</label>
                 <componentType>imageUploader</componentType>
                 <dataScope>popup_company_logo</dataScope>
@@ -269,7 +269,7 @@
             <formElements>
                 <imageUploader>
                     <settings>
-                        <allowedExtensions>jpg jpeg gif png</allowedExtensions>
+                        <allowedExtensions>jpg jpeg gif png webp</allowedExtensions>
                         <maxFileSize>2097152</maxFileSize>
                         <uploaderConfig>
                             <param xsi:type="string" name="url">wishreward/wheel/upload</param>
@@ -392,7 +392,7 @@
             <formElements>
                 <imageUploader>
                     <settings>
-                        <allowedExtensions>jpg jpeg gif png</allowedExtensions>
+                        <allowedExtensions>jpg jpeg gif png webp</allowedExtensions>
                         <maxFileSize>2097152</maxFileSize>
                         <uploaderConfig>
                             <param xsi:type="string" name="url">wishreward/wheel/upload</param>

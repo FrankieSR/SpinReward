@@ -1,84 +1,83 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Doroshko\WishReward\Controller\Adminhtml\Wheel;
 
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\File\UploaderFactory;
 use Magento\Framework\Filesystem;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\UrlInterface;
+use Psr\Log\LoggerInterface;
 
 class Upload extends Action
 {
-    /**
-     * @var UploaderFactory
-     */
-    protected $uploaderFactory;
+    private const IMAGE_UPLOAD_PATH = 'wysiwyg/wishreward/';
 
-    /**
-     * @var Filesystem
-     */
-    protected $filesystem;
+    private JsonFactory $jsonFactory;
+    private UploaderFactory $uploaderFactory;
+    private Filesystem $filesystem;
+    private LoggerInterface $logger;
+    private UrlInterface $urlBuilder;
 
-    /**
-     * @param Context $context
-     * @param UploaderFactory $uploaderFactory
-     * @param Filesystem $filesystem
-     */
     public function __construct(
         Context $context,
+        JsonFactory $jsonFactory,
         UploaderFactory $uploaderFactory,
-        Filesystem $filesystem
+        Filesystem $filesystem,
+        LoggerInterface $logger,
+        UrlInterface $urlBuilder
     ) {
         parent::__construct($context);
+        $this->jsonFactory = $jsonFactory;
         $this->uploaderFactory = $uploaderFactory;
         $this->filesystem = $filesystem;
+        $this->logger = $logger;
+        $this->urlBuilder = $urlBuilder;
     }
 
-    /**
-     * @return \Magento\Framework\Controller\ResultInterface
-     */
     public function execute()
     {
-        $result = [];
+        $resultJson = $this->jsonFactory->create();
+        $fileId = $this->getRequest()->getParam('param_name', 'cta_image');
+
         try {
-            $possibleFileIds = ['cta_image', 'popup_company_logo'];
-            $fileId = null;
-
-            foreach ($possibleFileIds as $id) {
-                if (isset($_FILES[$id]) && !empty($_FILES[$id]['name'])) {
-                    $fileId = $id;
-                    break;
-                }
-            }
-
-            if (!$fileId) {
-                throw new LocalizedException(__('No file was uploaded.'));
-            }
-
             $uploader = $this->uploaderFactory->create(['fileId' => $fileId]);
-            $uploader->setAllowedExtensions(['jpg', 'jpeg', 'gif', 'png']);
+            $uploader->setAllowedExtensions(['jpg', 'jpeg', 'gif', 'png', 'webp']);
             $uploader->setAllowRenameFiles(true);
-            $uploader->setFilesDispersion(true);
+            $uploader->setFilesDispersion(false);
 
-            $mediaDirectory = $this->filesystem->getDirectoryRead(DirectoryList::MEDIA);
-            $result = $uploader->save($mediaDirectory->getAbsolutePath('wishreward/wheel'));
+            $mediaDirectory = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA);
+            $uploadPath = self::IMAGE_UPLOAD_PATH;
 
-            if (!$result) {
+            $result = $uploader->save($mediaDirectory->getAbsolutePath($uploadPath));
+            if (!$result || empty($result['file'])) {
                 throw new LocalizedException(__('File cannot be saved to the destination folder.'));
             }
 
-            $result['url'] = $this->_url->getBaseUrl(['_type' => \Magento\Framework\UrlInterface::URL_TYPE_MEDIA])
-                . 'wishreward/wheel' . $result['file'];
-            $result['file'] = ltrim($result['file'], '/');
+            $fileUrl = $this->urlBuilder->getBaseUrl(['_type' => UrlInterface::URL_TYPE_MEDIA]) . $uploadPath . ltrim($result['file'], '/');
 
+            return $resultJson->setData([
+                'name' => $result['file'],
+                'url' => $fileUrl,
+                'size' => isset($result['size']) ? $result['size'] : null,
+                'type' => mime_content_type($mediaDirectory->getAbsolutePath($uploadPath . $result['file'])),
+            ]);
         } catch (\Exception $e) {
-            $result = ['error' => $e->getMessage(), 'errorcode' => $e->getCode()];
+            $this->logger->error('Image upload error: ' . $e->getMessage());
+            return $resultJson->setData([
+                'error' => $e->getMessage(),
+                'errorcode' => $e->getCode()
+            ]);
         }
+    }
 
-        return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData($result);
+    protected function _isAllowed(): bool
+    {
+        return $this->_authorization->isAllowed('Doroshko_WishReward::wheel_edit');
     }
 }

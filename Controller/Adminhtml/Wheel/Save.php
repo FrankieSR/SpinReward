@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Doroshko\WishReward\Controller\Adminhtml\Wheel;
@@ -14,19 +15,28 @@ use Doroshko\WishReward\Api\Data\WheelInterfaceFactory;
 use Psr\Log\LoggerInterface;
 use Magento\Framework\App\Request\DataPersistorInterface;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\MediaStorage\Model\File\UploaderFactory;
+use Magento\Framework\Filesystem;
+use Magento\Framework\App\Filesystem\DirectoryList;
 
 class Save extends Action implements HttpPostActionInterface
 {
-    public const ADMIN_RESOURCE = 'Doroshko_WishReward::wheel_edit';
+    public const ADMIN_RESOURCE = 'DOROSHKO_WISHREWARD::WHEEL_EDIT';
     private const EVENT_WHEEL_BEFORE_SAVE = 'wishreward_wheel_before_save';
-    private const EVENT_WHEEL_AFTER_SAVE  = 'wishreward_wheel_after_save';
+    private const EVENT_WHEEL_AFTER_SAVE = 'wishreward_wheel_after_save';
+    private const IMAGE_UPLOAD_PATH = 'wysiwyg/wishreward/';
+
+    private const CTA_POSITION_BOTTOM_RIGHT = 'bottom-right';
+    private const THEME_LIGHT = 'light';
+    private const POPUP_SCROLL_TRIGGER_NONE = 'none';
 
     private WheelRepositoryInterface $wheelRepository;
     private WheelInterfaceFactory $wheelFactory;
     private EventManagerInterface $eventManager;
     private LoggerInterface $logger;
     private DataPersistorInterface $dataPersistor;
-    public $messageManager;
+    private UploaderFactory $uploaderFactory;
+    private Filesystem $filesystem;
 
     public function __construct(
         Action\Context $context,
@@ -35,75 +45,103 @@ class Save extends Action implements HttpPostActionInterface
         EventManagerInterface $eventManager,
         LoggerInterface $logger,
         DataPersistorInterface $dataPersistor,
-        ManagerInterface $messageManager
+        UploaderFactory $uploaderFactory,
+        Filesystem $filesystem
     ) {
         parent::__construct($context);
         $this->wheelRepository = $wheelRepository;
-        $this->wheelFactory    = $wheelFactory;
-        $this->eventManager    = $eventManager;
-        $this->logger          = $logger;
-        $this->dataPersistor   = $dataPersistor;
-        $this->messageManager  = $messageManager;
+        $this->wheelFactory = $wheelFactory;
+        $this->eventManager = $eventManager;
+        $this->logger = $logger;
+        $this->dataPersistor = $dataPersistor;
+        $this->uploaderFactory = $uploaderFactory;
+        $this->filesystem = $filesystem;
     }
 
-    /**
-     * Execute save action
-     *
-     * @return ResultInterface
-     */
     public function execute(): ResultInterface
     {
         $resultRedirect = $this->resultRedirectFactory->create();
-        $data = $this->_request->getParams();
+        $data = $this->getRequest()->getParams();
 
         if (!$data) {
             $this->messageManager->addErrorMessage(__('No data provided to save.'));
             return $resultRedirect->setPath('*/*/index');
         }
 
-        // Логируем входящие данные для отладки
-        $this->logger->debug('Form data received: ' . json_encode($data));
-
         try {
-            $wheel = $this->loadOrCreateWheel((int)($data['wheel_id'] ?? 0));
+            $this->validateWheelData($data);
+            $wheelId = isset($data['wheel_id']) ? (int)$data['wheel_id'] : 0;
+            $wheel = $this->loadOrCreateWheel($wheelId);
             $this->populateWheelData($wheel, $data);
 
             $this->eventManager->dispatch(self::EVENT_WHEEL_BEFORE_SAVE, ['wheel' => $wheel, 'data' => $data]);
             $this->wheelRepository->save($wheel);
             $this->eventManager->dispatch(self::EVENT_WHEEL_AFTER_SAVE, ['wheel' => $wheel]);
 
-            $this->messageManager->addSuccessMessage(__('Wheel has been saved successfully.'));
+            $this->messageManager->addSuccessMessage(__('Wheel "%1" has been saved successfully.', $wheel->getTitle()));
             $redirectPath = (isset($data['back']) && $data['back'] === 'edit') ? '*/*/edit' : '*/*/index';
             return $resultRedirect->setPath($redirectPath, ['wheel_id' => $wheel->getWheelId()]);
-        } catch (LocalizedException $e) {
-            $this->logger->error('Localized exception while saving wheel: ' . $e->getMessage());
-            $this->messageManager->addErrorMessage($e->getMessage());
-            return $resultRedirect->setPath('*/*/edit', ['wheel_id' => $data['wheel_id'] ?? null]);
         } catch (\Exception $e) {
-            $this->logger->critical('Unexpected error while saving wheel: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
-            $this->messageManager->addErrorMessage(__('An unexpected error occurred: %1', $e->getMessage()));
+            $this->logger->error('Error saving wheel', [
+                'wheel_id' => $data['wheel_id'] ?? 'new',
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            $this->messageManager->addExceptionMessage($e, __('An error occurred while saving the wheel: %1', $e->getMessage()));
             return $resultRedirect->setPath('*/*/edit', ['wheel_id' => $data['wheel_id'] ?? null]);
         }
     }
 
     /**
-     * Load existing wheel or create new one
-     *
-     * @param int $wheelId
-     * @return WheelInterface
+     * @param array<string, mixed> $data
+     * @return void
+     * @throws LocalizedException
      */
+    private function validateWheelData(array $data): void
+    {
+        if (empty($data['title'])) {
+            throw new LocalizedException(__('Title is required.'));
+        }
+
+        if (!empty($data['start_date'])) {
+            $date = \DateTime::createFromFormat('Y-m-d', $data['start_date']);
+            $errors = \DateTime::getLastErrors();
+            if ($date === false || $errors['warning_count'] > 0 || $errors['error_count'] > 0) {
+                throw new LocalizedException(__('Invalid start date format.'));
+            }
+        }
+
+        if (!empty($data['end_date'])) {
+            $date = \DateTime::createFromFormat('Y-m-d', $data['end_date']);
+            $errors = \DateTime::getLastErrors();
+            if ($date === false || $errors['warning_count'] > 0 || $errors['error_count'] > 0) {
+                throw new LocalizedException(__('Invalid end date format.'));
+            }
+        }
+
+        if (!empty($data['wheel_config'])) {
+            json_decode((string)$data['wheel_config']);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new LocalizedException(__('Invalid JSON format in wheel configuration.'));
+            }
+        }
+
+        if (!isset($data['storeviews']) || (!is_array($data['storeviews']) && !is_string($data['storeviews']))) {
+            throw new LocalizedException(__('Store views must be provided.'));
+        }
+    }
+
     private function loadOrCreateWheel(int $wheelId): WheelInterface
     {
-        return $wheelId > 0
-            ? $this->wheelRepository->getById($wheelId)
-            : $this->wheelFactory->create();
+        if ($wheelId > 0) {
+            return $this->wheelRepository->getById($wheelId);
+        }
+        return $this->wheelFactory->create();
     }
 
     /**
-     * Populate wheel entity with form data
-     *
      * @param WheelInterface $wheel
-     * @param array $data
+     * @param array<string, mixed> $data
      * @return void
      */
     private function populateWheelData(WheelInterface $wheel, array $data): void
@@ -122,67 +160,65 @@ class Save extends Action implements HttpPostActionInterface
         $wheel->setIsCtaEnabled((bool)($data['is_cta_enabled'] ?? false));
         $wheel->setCtaLabel((string)($data['cta_label'] ?? ''));
         $wheel->setCtaButtonText((string)($data['cta_button_text'] ?? ''));
-        $wheel->setCtaPosition((string)($data['cta_position'] ?? 'bottom-right'));
+        $wheel->setCtaPosition((string)($data['cta_position'] ?? self::CTA_POSITION_BOTTOM_RIGHT));
         $wheel->setCtaCustomCss((string)($data['cta_custom_css'] ?? ''));
 
-        // Process images using universal method
         $this->processImage($wheel, $data, 'cta_image', 'setCtaImage');
         $this->processImage($wheel, $data, 'popup_company_logo', 'setPopupCompanyLogo');
 
-        // Popup settings
         $wheel->setPopupTitle((string)($data['popup_title'] ?? ''));
         $wheel->setPopupDescription((string)($data['popup_description'] ?? ''));
         $wheel->setIsWishAreaEnabled((bool)($data['is_wish_area_enabled'] ?? false));
         $wheel->setIsEmailInputEnabled((bool)($data['is_email_input_enabled'] ?? false));
         $wheel->setPopupDelay((int)($data['popup_delay'] ?? 0));
-        $wheel->setPopupScrollTrigger((string)($data['popup_scroll_trigger'] ?? 'none'));
+        $wheel->setPopupScrollTrigger((string)($data['popup_scroll_trigger'] ?? self::POPUP_SCROLL_TRIGGER_NONE));
         $wheel->setPopupOncePerSession((bool)($data['popup_once_per_session'] ?? true));
 
-        // New popup fields
         $wheel->setPopupButtonText((string)($data['popup_button_text'] ?? ''));
         $wheel->setPopupCompanyText((string)($data['popup_company_text'] ?? ''));
         $wheel->setPopupDeclineText((string)($data['popup_decline_text'] ?? ''));
         $wheel->setPopupCloseText((string)($data['popup_close_text'] ?? ''));
         $wheel->setPopupTermsText((string)($data['popup_terms_text'] ?? ''));
 
-        // New Trigger fields
         $wheel->setIsScrollEnabled((bool)($data['is_scroll_enabled'] ?? false));
         $wheel->setScrollPercentage((int)($data['scroll_percentage'] ?? 50));
         $wheel->setIsTimeoutEnabled((bool)($data['is_timeout_enabled'] ?? false));
         $wheel->setTimeoutDuration((int)($data['timeout_duration'] ?? 5000));
         $wheel->setIsExitEnabled((bool)($data['is_exit_enabled'] ?? false));
-        // $wheel->setIsExitEnabled((bool)($data['once_per_user'] ?? false));
 
-        // Theme setting
-        $wheel->setPopupTheme((string)($data['popup_theme'] ?? 'light'));
+        $wheel->setPopupTheme((string)($data['popup_theme'] ?? self::THEME_LIGHT));
     }
 
     /**
-     * Universal method for processing image data
-     *
      * @param WheelInterface $wheel
-     * @param array $data
-     * @param string $fieldName Field name in data array
-     * @param string $setterMethod Setter method name in WheelInterface
+     * @param array<string, mixed> $data
+     * @param string $fieldName
+     * @param string $setterMethod
      * @return void
      */
     private function processImage(WheelInterface $wheel, array $data, string $fieldName, string $setterMethod): void
     {
-        $image = $data[$fieldName] ?? null;
-        if (is_array($image) && !empty($image[0]['name'])) {
-            $wheel->$setterMethod('wysiwyg/wishreward/' . $image[0]['name']);
-        } elseif (is_string($image)) {
-            $wheel->$setterMethod($image);
-        } else {
+        if (!isset($data[$fieldName][0]['url'], $data[$fieldName][0]['name'])) {
             $wheel->$setterMethod(null);
+            return;
         }
+
+        $fileName = ltrim((string)$data[$fieldName][0]['name'], '/');
+        $imagePath = self::IMAGE_UPLOAD_PATH . $fileName;
+
+        $mediaDir = $this->filesystem->getDirectoryRead(DirectoryList::MEDIA);
+        if (!$mediaDir->isFile($imagePath)) {
+            $this->logger->warning("Image file does not exist in media: $imagePath");
+            $wheel->$setterMethod(null);
+            return;
+        }
+
+        $wheel->$setterMethod($imagePath);
     }
 
     /**
-     * Normalize value to array
-     *
      * @param mixed $value
-     * @return array
+     * @return array<int, string>
      */
     private function normalizeToArray($value): array
     {
@@ -193,9 +229,7 @@ class Save extends Action implements HttpPostActionInterface
     }
 
     /**
-     * Convert array to comma-separated string
-     *
-     * @param array $values
+     * @param array<int, string> $values
      * @return string
      */
     private function arrayToCommaString(array $values): string
@@ -203,6 +237,10 @@ class Save extends Action implements HttpPostActionInterface
         return !empty($values) ? implode(',', $values) : '';
     }
 
+    /**
+     * @param string|array|null $config
+     * @return string
+     */
     private function normalizeWheelConfig($config): string
     {
         if (is_string($config)) {
@@ -210,17 +248,12 @@ class Save extends Action implements HttpPostActionInterface
             if (json_last_error() === JSON_ERROR_NONE) {
                 return $config;
             }
+            return '[]';
         }
-        return is_array($config) ? json_encode($config) : '[]';
-    }
-
-    /**
-     * Check if action is allowed for current user
-     *
-     * @return bool
-     */
-    protected function _isAllowed(): bool
-    {
-        return $this->_authorization->isAllowed(self::ADMIN_RESOURCE);
+        if (is_array($config)) {
+            $encoded = json_encode($config);
+            return $encoded === false ? '[]' : $encoded;
+        }
+        return '[]';
     }
 }

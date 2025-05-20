@@ -80,37 +80,11 @@ class FormDataProvider extends AbstractDataProvider
                 $data['popup_theme'] = $data['popup_theme'] ?? 'light';
 
                 if (!empty($data['cta_image'])) {
-                    $filePath = $data['cta_image'];
-                    $filePath = ltrim(str_replace(['media/.renditions/', 'media/'], '', $filePath), '/');
-                    $fullPath = $this->filesystem->getDirectoryRead(DirectoryList::MEDIA)->getAbsolutePath($filePath);
-                    $baseUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA);
-
-                    $data['cta_image'] = [
-                        [
-                            'name' => basename($filePath),
-                            'file' => $filePath,
-                            'url' => $baseUrl . $filePath,
-                            'size' => file_exists($fullPath) ? filesize($fullPath) : 0,
-                            'type' => file_exists($fullPath) ? mime_content_type($fullPath) : 'image/jpeg'
-                        ]
-                    ];
+                    $data['cta_image'] = $this->prepareImageData($data['cta_image']);
                 }
 
                 if (!empty($data['popup_company_logo'])) {
-                    $filePath = $data['popup_company_logo'];
-                    $filePath = ltrim(str_replace(['media/.renditions/', 'media/'], '', $filePath), '/');
-                    $fullPath = $this->filesystem->getDirectoryRead(DirectoryList::MEDIA)->getAbsolutePath($filePath);
-                    $baseUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA);
-
-                    $data['popup_company_logo'] = [
-                        [
-                            'name' => basename($filePath),
-                            'file' => $filePath,
-                            'url' => $baseUrl . $filePath,
-                            'size' => file_exists($fullPath) ? filesize($fullPath) : 0,
-                            'type' => file_exists($fullPath) ? mime_content_type($fullPath) : 'image/jpeg'
-                        ]
-                    ];
+                    $data['popup_company_logo'] = $this->prepareImageData($data['popup_company_logo']);
                 }
 
                 $this->loadedData[$wheelId] = $data;
@@ -118,6 +92,31 @@ class FormDataProvider extends AbstractDataProvider
         }
 
         return $this->loadedData;
+    }
+
+    private function prepareImageData(string $filePath): array
+    {
+        $filePath = ltrim($filePath, '/');
+
+        if (str_starts_with($filePath, 'media/')) {
+            $filePath = substr($filePath, strlen('media/'));
+        }
+
+        $mediaDir = $this->filesystem->getDirectoryRead(DirectoryList::MEDIA);
+        $fullPath = $mediaDir->getAbsolutePath($filePath);
+        $baseUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA);
+
+        if (!file_exists($fullPath)) {
+            return [];
+        }
+
+        return [[
+            'name' => basename($filePath),
+            'file' => $filePath,
+            'url' => $baseUrl . $filePath,
+            'size' => filesize($fullPath),
+            'type' => mime_content_type($fullPath),
+        ]];
     }
 
     public function getMeta(): array
