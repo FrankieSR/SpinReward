@@ -151,7 +151,7 @@ class Save extends Action implements HttpPostActionInterface
         $wheel->setIsTimeoutEnabled((bool)($data['is_timeout_enabled'] ?? false));
         $wheel->setTimeoutDuration((int)($data['timeout_duration'] ?? 5000));
         $wheel->setIsExitEnabled((bool)($data['is_exit_enabled'] ?? false));
-        $wheel->setIsExitEnabled((bool)($data['once_per_user'] ?? false));
+        // $wheel->setIsExitEnabled((bool)($data['once_per_user'] ?? false));
 
         // Theme setting
         $wheel->setPopupTheme((string)($data['popup_theme'] ?? 'light'));

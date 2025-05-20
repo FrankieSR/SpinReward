@@ -47,12 +47,11 @@ class Edit extends Action
             $model = $this->wheelFactory->create()->load($id);
             if (!$model->getId()) {
                 $this->messageManager->addErrorMessage(__('This Wheel no longer exists.'));
-                // Редиректим через resultRedirectFactory
                 return $this->resultRedirectFactory->create()->setPath('*/*/index');
             }
         }
 
-        // Создаём PageResult
+
         $resultPage = $this->resultFactory->create(ResultFactory::TYPE_PAGE);
         $resultPage->getConfig()->getTitle()->prepend(__('Edit Wheel'));
 
