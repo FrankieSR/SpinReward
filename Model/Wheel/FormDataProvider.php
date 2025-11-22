@@ -57,8 +57,8 @@ class FormDataProvider extends AbstractDataProvider
                     ? explode(',', $data['storeviews'])
                     : ['0'];
 
-                $data['allowed_customer_groups'] = !empty($data['allowed_customer_groups'])
-                    ? explode(',', $data['allowed_customer_groups'])
+                $data['allowed_customer_groups'] = $data['allowed_customer_groups'] !== null && $data['allowed_customer_groups'] !== ''
+                    ? array_map('strval', explode(',', $data['allowed_customer_groups']))
                     : [];
 
                 $data['wheel_config'] = !empty($data['wheel_config']) ? $data['wheel_config'] : '[]';
@@ -67,15 +67,11 @@ class FormDataProvider extends AbstractDataProvider
 
                 $data['popup_delay'] = isset($data['popup_delay']) ? (int)$data['popup_delay'] : 0;
                 $data['popup_scroll_trigger'] = $data['popup_scroll_trigger'] ?? 'none';
-                $data['popup_once_per_session'] = isset($data['popup_once_per_session'])
-                    ? (bool)$data['popup_once_per_session']
-                    : true;
 
                 $data['time_of_day_start'] = $data['time_of_day_start'] ?? null;
                 $data['time_of_day_end'] = $data['time_of_day_end'] ?? null;
 
                 $data['trigger_action'] = $data['trigger_action'] ?? null;
-                $data['conditions_serialized'] = $data['conditions_serialized'] ?? null;
 
                 $data['popup_theme'] = $data['popup_theme'] ?? 'light';
 

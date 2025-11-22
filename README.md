@@ -86,7 +86,7 @@ The `Wheel Sectors` field allows you to define the sectors of the lottery wheel 
   {"label": "No win, sorry", "rule_id": null, "probability": 25}
 ]
 ```
-More details in app/code/Doroshko/WishReward/Model/ProbabilityCalculator.php
+More details in app/code/Doroshko/WishReward/Helper/ProbabilityCalculator.php
 ---
 
 ### **How Winning Probability is Calculated**

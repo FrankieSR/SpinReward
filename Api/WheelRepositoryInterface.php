@@ -12,4 +12,5 @@ interface WheelRepositoryInterface
     public function delete(WheelInterface $wheel): bool;
     public function deleteById(int $wheelId): bool;
     public function getEligiblePopup(): ?WheelInterface;
+    public function cacheActiveWheels(): void;
 }

@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
-<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
     <table name="wishreward_wheel" resource="default" engine="innodb" comment="Wish Reward Wheels of Fortune">
         <column xsi:type="int" name="wheel_id" unsigned="true" nullable="false" identity="true" comment="Wheel ID"/>
         <column xsi:type="varchar" name="title" nullable="false" length="255" comment="Wheel Title"/>
@@ -22,10 +21,8 @@
         <column xsi:type="varchar" name="popup_title" nullable="true" length="255" comment="Popup Title"/>
         <column xsi:type="text" name="popup_description" nullable="true" comment="Popup Description"/>
         <column xsi:type="smallint" name="is_wish_area_enabled" nullable="false" default="0" comment="Enable Wish Area"/>
-        <column xsi:type="smallint" name="is_email_input_enabled" nullable="false" default="0" comment="Enable Email Input"/>
         <column xsi:type="int" name="popup_delay" nullable="true" default="0" comment="Popup Delay (milliseconds)"/>
         <column xsi:type="varchar" name="popup_scroll_trigger" nullable="true" length="50" default="none" comment="Popup Scroll Trigger"/>
-        <column xsi:type="smallint" name="popup_once_per_session" nullable="false" default="1" comment="Show Popup Once Per Session"/>
         <column xsi:type="varchar" name="popup_button_text" nullable="true" length="255" comment="Popup Button Text"/>
         <column xsi:type="varchar" name="popup_company_logo" nullable="true" length="255" comment="Popup Company Logo Path"/>
         <column xsi:type="varchar" name="popup_company_text" nullable="true" length="255" comment="Popup Company Text"/>
@@ -37,7 +34,8 @@
         <column xsi:type="smallint" name="is_timeout_enabled" nullable="false" default="0" comment="Enable Timeout Trigger"/>
         <column xsi:type="int" name="timeout_duration" nullable="true" default="5000" comment="Timeout Duration (milliseconds)"/>
         <column xsi:type="smallint" name="is_exit_enabled" nullable="false" default="0" comment="Enable Exit Intent Trigger"/>
-        <column xsi:type="smallint" name="once_per_user" nullable="false" default="0" comment="Show Popup Once Per User"/>
+        <column xsi:type="int" name="attempts_per_user" nullable="false" default="0" comment="Attempts Per User"/>
+        <column xsi:type="varchar" name="attempts_period_unit" nullable="false" default="0" comment="Attempts Period Unit"/>
         <column xsi:type="timestamp" name="start_date" nullable="true" comment="Start Date"/>
         <column xsi:type="timestamp" name="end_date" nullable="true" comment="End Date"/>
         <column xsi:type="varchar" name="popup_theme" nullable="false" length="50" default="light" comment="Popup Theme"/>
@@ -53,29 +51,68 @@
         </index>
     </table>
 
-    <table name="wishreward_spin_log" resource="default" engine="innodb" comment="WishReward Spin Log">
-        <column xsi:type="bigint" name="id" unsigned="true" nullable="false" identity="true" comment="Spin ID"/>
-        <column xsi:type="int" name="wheel_id" unsigned="true" nullable="false" comment="Wheel ID"/>
-        <column xsi:type="int" name="customer_id" unsigned="true" nullable="true" comment="Customer ID"/>
-        <column xsi:type="varchar" name="email" nullable="true" length="255" comment="Email"/>
-        <column xsi:type="varchar" name="spin_result" nullable="true" length="255" comment="Spin Result"/>
-        <column xsi:type="datetime" name="spin_date" nullable="false" comment="Spin Date"/>
-        <column xsi:type="varchar" name="ip_address" nullable="true" length="45" comment="Anonymized IP Address"/>
-        <column xsi:type="tinyint" name="is_guest" nullable="false" default="0" comment="Is Guest"/>
-        <column xsi:type="tinyint" name="consent_given" nullable="false" default="0" comment="Consent Given"/>
-        <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At"/>
-        <constraint xsi:type="primary" referenceId="PRIMARY">
-            <column name="id"/>
-        </constraint>
-        <constraint xsi:type="foreign" referenceId="FK_WISHREWARD_SPIN_LOG_WHEEL_ID" table="wishreward_spin_log" column="wheel_id" referenceTable="wishreward_wheel" referenceColumn="wheel_id" onDelete="CASCADE"/>
-        <index referenceId="IDX_WISHREWARD_SPIN_LOG_EMAIL" indexType="btree">
-            <column name="email"/>
-        </index>
-        <index referenceId="IDX_WISHREWARD_SPIN_LOG_CUSTOMER_ID" indexType="btree">
-            <column name="customer_id"/>
-        </index>
-        <index referenceId="IDX_WISHREWARD_SPIN_LOG_SPIN_DATE" indexType="btree">
-            <column name="spin_date"/>
-        </index>
-    </table>
+<table name="wishreward_spin_analytics" resource="default" engine="innodb" comment="WishReward Spin Analytics">
+    <column xsi:type="bigint" name="id" unsigned="true" nullable="false" identity="true" comment="Entry ID"/>
+
+    <column xsi:type="int" name="wheel_id" unsigned="true" nullable="false" comment="Wheel ID"/>
+    <column xsi:type="int" name="customer_id" unsigned="true" nullable="true" comment="Customer ID"/>
+    <column xsi:type="varchar" name="email" nullable="true" length="255" comment="Customer Email"/>
+    <column xsi:type="varchar" name="spin_result" nullable="true" length="255" comment="Spin Result / Prize"/>
+    <column xsi:type="varchar" name="spin_prize_label" nullable="true" length="255" comment="Spin Prize LAbel"/>
+    <column xsi:type="datetime" name="spin_date" nullable="false" comment="Spin Date"/>
+    <column xsi:type="varchar" name="ip_address" nullable="true" length="45" comment="Anonymized IP Address"/>
+    <column xsi:type="tinyint" name="is_guest" nullable="false" default="0" comment="Is Guest"/>
+    <column xsi:type="tinyint" name="consent_given" nullable="false" default="0" comment="GDPR Consent Given"/>
+
+    <column xsi:type="tinyint" name="is_redeemed" nullable="false" default="0" comment="Coupon Redeemed"/>
+    <column xsi:type="datetime" name="redeemed_at" nullable="true" comment="Coupon Redeemed At"/>
+    <column xsi:type="varchar" name="coupon_code" nullable="true" length="64" comment="Coupon Code"/>
+    <column xsi:type="int" name="order_id" unsigned="true" nullable="true" comment="Order ID"/>
+
+    <column xsi:type="varchar" name="utm_source" nullable="true" length="64" comment="UTM Source"/>
+    <column xsi:type="varchar" name="utm_medium" nullable="true" length="64" comment="UTM Medium"/>
+    <column xsi:type="varchar" name="utm_campaign" nullable="true" length="128" comment="UTM Campaign"/>
+    <column xsi:type="varchar" name="user_agent" nullable="true" length="512" comment="User Agent String"/>
+    <column xsi:type="varchar" name="device_type" nullable="true" length="32" comment="Device Type (mobile/desktop/tablet)"/>
+    <column xsi:type="varchar" name="session_id" nullable="true" length="128" comment="Magento Session ID"/>
+    <column xsi:type="varchar" name="page_url" nullable="true" length="512" comment="Page URL"/>
+    <column xsi:type="varchar" name="referrer_url" nullable="true" length="512" comment="Referrer URL"/>
+
+    <column xsi:type="int" name="spin_count_session" nullable="false" default="0" comment="Spins in Session"/>
+
+    <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At"/>
+
+    <constraint xsi:type="primary" referenceId="PRIMARY">
+        <column name="id"/>
+    </constraint>
+    <constraint xsi:type="foreign" referenceId="FK_WISHREWARD_SPIN_ANALYTICS_WHEEL_ID" table="wishreward_spin_analytics" column="wheel_id" referenceTable="wishreward_wheel" referenceColumn="wheel_id" onDelete="CASCADE"/>
+
+    <index referenceId="IDX_SPIN_EMAIL" indexType="btree">
+        <column name="email"/>
+    </index>
+    <index referenceId="IDX_SPIN_CUSTOMER_ID" indexType="btree">
+        <column name="customer_id"/>
+    </index>
+    <index referenceId="IDX_SPIN_DATE" indexType="btree">
+        <column name="spin_date"/>
+    </index>
+    <index referenceId="IDX_SPIN_WHEEL_ID" indexType="btree">
+        <column name="wheel_id"/>
+    </index>
+    <index referenceId="IDX_SPIN_UTM_SOURCE" indexType="btree">
+        <column name="utm_source"/>
+    </index>
+    <index referenceId="IDX_SPIN_SESSION_ID" indexType="btree">
+        <column name="session_id"/>
+    </index>
+    <index referenceId="IDX_SPIN_PAGE_URL" indexType="btree">
+        <column name="page_url"/>
+    </index>
+    <index referenceId="IDX_SPIN_COUPON_CODE" indexType="btree">
+        <column name="coupon_code"/>
+    </index>
+    <index referenceId="IDX_SPIN_ORDER_ID" indexType="btree">
+        <column name="order_id"/>
+    </index>
+</table>
 </schema>

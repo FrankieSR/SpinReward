@@ -1,18 +1,24 @@
+/* global FORM_KEY */
+
 define([
     'jquery',
     'Magento_Ui/js/modal/modal',
     'underscore',
-    'domReady!'
+    'domReady!',
+    'mage/cookies'
 ], function ($, modal, _) {
     'use strict';
 
     return function (config, element) {
         const wrapper      = element;
         const ctaButton    = document.getElementById('wishreward-cta-button');
-        const ctaWrapper   = document.querySelector('.wishreward-cta-wrapper');
-        const reopenBtn    = document.querySelector('.wishreward-reopen-button');
-        const reopenHolder = document.querySelector('.wishreward-closed-cta');
+        const ctaWrapper   = document.getElementById('wishreward-cta-wrapper');
+        const reopenBtn    = document.getElementById('wishreward-reopen-button');
+        const reopenHolder = document.getElementById('wishreward-closed-wrapper');
+
         const { ajaxUrl, wheelId, triggerConfig = {} } = config;
+
+        console.log(config, 'configconfig');
 
         let popupClosed = false;
         let popupShown  = false;
@@ -21,6 +27,7 @@ define([
 
         function handleClose() {
             popupClosed = true;
+
             if (reopenHolder) {
                 reopenHolder.style.display = '';
             }
@@ -42,7 +49,10 @@ define([
                 method:     'POST',
                 dataType:   'json',
                 showLoader: true,
-                data:       { wheel_id: wheelId },
+                data: { 
+                    wheel_id: wheelId,
+                    form_key: $.cookie("form_key") 
+                },
 
                 success(response) {
                     if (!response.success || !response.html) {
@@ -50,7 +60,6 @@ define([
                         return;
                     }
 
-                    // build and cache the modal
                     $popupInstance = $('<div class="wishreward-popup-wrapper">')
                         .html(response.html)
                         .modal({
@@ -87,7 +96,6 @@ define([
             });
         }
 
-        // reopen button handler
         if (reopenBtn) {
             reopenBtn.addEventListener('click', e => {
                 e.preventDefault();
@@ -100,7 +108,6 @@ define([
             });
         }
 
-        // CTA trigger
         if (triggerConfig.isCtaEnabled && ctaButton) {
             ctaButton.addEventListener('click', e => {
                 e.preventDefault();
@@ -111,7 +118,6 @@ define([
             });
         }
 
-        // scroll trigger
         if (triggerConfig.isScrollEnabled) {
             const onScroll = _.throttle(() => {
                 const percent = (window.scrollY /
@@ -124,12 +130,10 @@ define([
             window.addEventListener('scroll', onScroll);
         }
 
-        // timeout trigger
         if (triggerConfig.isTimeoutEnabled) {
             setTimeout(openModal, triggerConfig.timeoutDuration);
         }
 
-        // exit-intent trigger
         if (triggerConfig.isExitEnabled) {
             const onMouseLeave = e => {
                 if (e.clientY <= 0) {

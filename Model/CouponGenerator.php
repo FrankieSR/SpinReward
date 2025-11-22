@@ -68,14 +68,14 @@ class CouponGenerator
                 ->setUsageLimit(1)
                 ->setUsagePerCustomer(1)
                 ->setCreatedAt($this->dateTime->gmtDate())
-                ->setType(1); // Generated coupon type
+                ->setType(1);
 
             $this->couponRepository->save($coupon);
 
             return $couponCode;
         } catch (LocalizedException $e) {
             $this->logger->error(__('Validation error for rule ID %1: %2', $ruleId, $e->getMessage()));
-            throw $e; // Re-throw to allow caller to handle
+            throw $e;
         } catch (\Exception $e) {
             $this->logger->error(__('Failed to generate coupon for rule ID %1: %2', $ruleId, $e->getMessage()));
             return null;

@@ -1,0 +1,35 @@
+<div class="analytics-dashboard">    
+    <!-- <div class="date-range-filter" style="margin-bottom: 20px;">
+        <label for="date-from">From:</label>
+        <input type="date" id="date-from" data-bind="value: dateFrom, event: { change: onDateRangeChange }">
+        <label for="date-to" style="margin-left: 10px;">To:</label>
+        <input type="date" id="date-to" data-bind="value: dateTo, event: { change: onDateRangeChange }">
+    </div> -->
+    
+    <div class="charts-container">
+        <!-- ko if: elems -->
+            <!-- ko foreach: elems -->
+                <!-- ko template: getTemplate() --><!-- /ko -->
+            <!-- /ko -->
+        <!-- /ko -->
+    </div>
+</div>
+
+<style>
+.analytics-dashboard .date-range-filter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.analytics-dashboard .charts-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 20px;
+}
+.analytics-dashboard .chart-block {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    min-height: 200px;
+}
+</style>

@@ -1,7 +1,5 @@
 <?xml version="1.0"?>
 <form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
-
-    <!-- General Form Arguments -->
     <argument name="data" xsi:type="array">
         <item name="js_config" xsi:type="array">
             <item name="provider" xsi:type="string">wishreward_wheel_form.wishreward_wheel_form_data_source</item>
@@ -35,7 +33,6 @@
         </deps>
     </settings>
 
-    <!-- DataSource -->
     <dataSource name="wishreward_wheel_form_data_source">
         <argument name="dataProvider" xsi:type="configurableObject">
             <argument name="class" xsi:type="string">Doroshko\WishReward\Model\Wheel\FormDataProvider</argument>
@@ -55,13 +52,11 @@
         </argument>
     </dataSource>
 
-    <!-- Fieldset: General Settings -->
     <fieldset name="general" sortOrder="10">
         <settings>
             <label translate="true">General Settings</label>
         </settings>
 
-        <!-- Hidden ID -->
         <field name="wheel_id" formElement="hidden">
             <settings>
                 <dataScope>wheel_id</dataScope>
@@ -71,7 +66,6 @@
             </settings>
         </field>
 
-        <!-- Title -->
         <field name="title" formElement="input">
             <settings>
                 <label translate="true">Title</label>
@@ -82,7 +76,6 @@
             </settings>
         </field>
 
-        <!-- Is Active -->
         <field name="is_active" formElement="checkbox">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
@@ -101,7 +94,6 @@
             </settings>
         </field>
 
-        <!-- Win Message -->
         <field name="win_message" formElement="textarea">
             <settings>
                 <label translate="true">Win Message</label>
@@ -109,7 +101,6 @@
             </settings>
         </field>
 
-        <!-- No Win Message -->
         <field name="no_win_message" formElement="textarea">
             <settings>
                 <label translate="true">No Win Message</label>
@@ -117,7 +108,68 @@
             </settings>
         </field>
 
-        <!-- Storeviews -->
+        <field name="attempts_per_user" formElement="input">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="dataType" xsi:type="string">text</item>
+                    <item name="label" xsi:type="string" translate="true">Attempts Per User</item>
+                    <item name="formElement" xsi:type="string">input</item>
+                    <item name="dataScope" xsi:type="string">attempts_per_user</item>
+                    <item name="default" xsi:type="number">1</item>
+                    <item name="validation" xsi:type="array">
+                        <item name="required-entry" xsi:type="boolean">true</item>
+                        <item name="validate-digits" xsi:type="boolean">true</item>
+                        <item name="validate-greater-than-zero" xsi:type="boolean">true</item>
+                    </item>
+                </item>
+            </argument>
+            <settings>
+                <label translate="true">Attempts Per User</label>
+                <dataScope>attempts_per_user</dataScope>
+            </settings>
+        </field>
+
+        <field name="attempts_period_unit" formElement="select">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="dataType" xsi:type="string">text</item>
+                    <item name="default" xsi:type="string">day</item>
+                    <item name="label" xsi:type="string" translate="true">Attempts Period</item>
+                    <item name="formElement" xsi:type="string">select</item>
+                    <item name="dataScope" xsi:type="string">attempts_period_unit</item>
+                    <item name="validation" xsi:type="array">
+                        <item name="required-entry" xsi:type="boolean">true</item>
+                    </item>
+                    <item name="options" xsi:type="array">
+                        <item name="day" xsi:type="array">
+                            <item name="value" xsi:type="string">day</item>
+                            <item name="label" xsi:type="string" translate="true">Day</item>
+                        </item>
+                        <item name="week" xsi:type="array">
+                            <item name="value" xsi:type="string">week</item>
+                            <item name="label" xsi:type="string" translate="true">Week</item>
+                        </item>
+                        <item name="month" xsi:type="array">
+                            <item name="value" xsi:type="string">month</item>
+                            <item name="label" xsi:type="string" translate="true">Month</item>
+                        </item>
+                        <item name="year" xsi:type="array">
+                            <item name="value" xsi:type="string">year</item>
+                            <item name="label" xsi:type="string" translate="true">Year</item>
+                        </item>
+                        <item name="forever" xsi:type="array">
+                            <item name="value" xsi:type="string">forever</item>
+                            <item name="label" xsi:type="string" translate="true">Forever</item>
+                        </item>
+                    </item>
+                </item>
+            </argument>
+            <settings>
+                <label translate="true">Attempts Period</label>
+                <dataScope>attempts_period_unit</dataScope>
+            </settings>
+        </field>
+
         <field name="storeviews" formElement="multiselect" class="Magento\Store\Ui\Component\Form\Field\StoreView">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
@@ -145,7 +197,6 @@
             </formElements>
         </field>
 
-        <!-- Allowed Customer Groups -->
         <field name="allowed_customer_groups" formElement="multiselect">
             <settings>
                 <label translate="true">Allowed Customer Groups</label>
@@ -154,6 +205,9 @@
                 <tooltip>
                     <description translate="true">Choose customer groups that can interact with the wheel (e.g., General, Wholesale).</description>
                 </tooltip>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
             </settings>
             <formElements>
                 <multiselect>
@@ -164,25 +218,29 @@
             </formElements>
         </field>
 
-        <!-- Start Date -->
         <field name="start_date" formElement="date">
             <settings>
-                <label translate="true">Start Date</label>
+                <validation>
+                    <rule name="validate-date" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>text</dataType>
+                <label translate="true">From</label>
+                <visible>true</visible>
                 <dataScope>start_date</dataScope>
-                <dataType>datetime</dataType>
             </settings>
         </field>
-
-        <!-- End Date -->
         <field name="end_date" formElement="date">
             <settings>
-                <label translate="true">End Date</label>
+                <validation>
+                    <rule name="validate-date" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>text</dataType>
+                <label translate="true">To</label>
+                <visible>true</visible>
                 <dataScope>end_date</dataScope>
-                <dataType>datetime</dataType>
             </settings>
         </field>
 
-        <!-- Popup Theme -->
         <field name="popup_theme">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
@@ -209,7 +267,6 @@
         </field>
     </fieldset>
 
-    <!-- Fieldset: Wheel Configuration -->
     <fieldset name="wheel_configuration" sortOrder="20">
         <settings>
             <label translate="true">Wheel Configuration</label>
@@ -238,8 +295,7 @@
         </field>
     </fieldset>
 
-    <!-- Fieldset: Popup Settings -->
-    <fieldset name="popup_settings" sortOrder="40">
+    <fieldset name="popup_settings" sortOrder="30">
         <settings>
             <label translate="true">Popup Settings</label>
             <collapsible>true</collapsible>
@@ -331,27 +387,9 @@
                 <dataType>boolean</dataType>
             </settings>
         </field>
-
-        <field name="is_email_input_enabled" formElement="checkbox">
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="default" xsi:type="number">0</item>
-                    <item name="prefer" xsi:type="string">toggle</item>
-                    <item name="valueMap" xsi:type="array">
-                        <item name="true" xsi:type="string">1</item>
-                        <item name="false" xsi:type="string">0</item>
-                    </item>
-                </item>
-            </argument>
-            <settings>
-                <label translate="true">Enable Email Input</label>
-                <dataScope>is_email_input_enabled</dataScope>
-                <dataType>boolean</dataType>
-            </settings>
-        </field>
     </fieldset>
 
-    <fieldset name="cta_configuration" sortOrder="30">
+    <fieldset name="cta_configuration" sortOrder="40">
         <settings>
             <label translate="true">CTA Configuration</label>
             <collapsible>true</collapsible>
@@ -491,7 +529,6 @@
             <collapsible>true</collapsible>
         </settings>
 
-        <!-- Scroll Trigger -->
         <field name="is_scroll_enabled" formElement="checkbox">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
@@ -514,6 +551,7 @@
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="visible" xsi:type="boolean">false</item>
+                    <item name="default" xsi:type="number">50</item>
                     <item name="imports" xsi:type="array">
                         <item name="visible" xsi:type="string">ns = ${ $.ns }, index = is_scroll_enabled:checked</item>
                     </item>
@@ -546,7 +584,6 @@
             </formElements>
         </field>
 
-        <!-- Timeout Trigger -->
         <field name="is_timeout_enabled" formElement="checkbox">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
@@ -586,7 +623,6 @@
             </settings>
         </field>
 
-        <!-- Exit Intent Trigger -->
         <field name="is_exit_enabled" formElement="checkbox">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
@@ -601,24 +637,6 @@
             <settings>
                 <label translate="true">Enable Exit Intent Trigger</label>
                 <dataScope>is_exit_enabled</dataScope>
-                <dataType>boolean</dataType>
-            </settings>
-        </field>
-
-        <field name="once_per_user" formElement="checkbox">
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="default" xsi:type="number">0</item>
-                    <item name="prefer" xsi:type="string">toggle</item>
-                    <item name="valueMap" xsi:type="array">
-                        <item name="true" xsi:type="string">1</item>
-                        <item name="false" xsi:type="string">0</item>
-                    </item>
-                </item>
-            </argument>
-            <settings>
-                <label translate="true">Show Only Once Per User</label>
-                <dataScope>once_per_user</dataScope>
                 <dataType>boolean</dataType>
             </settings>
         </field>

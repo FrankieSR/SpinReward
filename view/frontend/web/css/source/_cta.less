@@ -1,117 +1,165 @@
-@base-rem: 16;
-@wishreward-bg: #ffffff;
-@wishreward-border-radius: 0.75rem;      // 12px / 16 = 0.75rem
-@wishreward-box-shadow: 0 0.25rem 1.25rem rgba(0, 0, 0, 0.1); // (0, 4px, 20px)
-@wishreward-primary-gradient: linear-gradient(45deg, #ff3366, #ff6633);
-@wishreward-z-index: 1000;
-@wishreward-position-offset: 1.25rem;     // 20px
-@wishreward-max-width: 22.5rem;           // 360px
-@wishreward-max-width-mobile: 18.75rem;   // 300px
-@wishreward-image-size: 6.25rem;          // 100px
-@wishreward-image-size-mobile: 5rem;      // 80px
-@wishreward-content-padding: 0.9375rem;     // 15px
-@wishreward-content-padding-mobile: 0.625rem; // 10px
-@wishreward-gap: 0.625rem;                // 10px
-@wishreward-button-padding-vertical: 0.625rem;  // 10px
-@wishreward-button-padding-horizontal: 1.25rem; // 20px
-@wishreward-button-border-radius: 0.375rem;     // 6px
+& when (@media-common = true) {
+    .wishreward {
+        &__cta {
+            position: fixed;
+            z-index: 1000;
+            transition: transform 0.3s ease-in-out;
+            max-width: 200px;
+            background: @color-white;
+            border-radius: 0.75rem;
+            box-shadow: 0 0.25rem 1.25rem @color-gray-darken1;
+            overflow: hidden;
 
-.wishreward-cta-wrapper {
-    position: fixed;
-    z-index: @wishreward-z-index;
-    transition: transform 0.3s ease-in-out;
-    max-width: @wishreward-max-width;
-    background: @wishreward-bg;
-    border-radius: @wishreward-border-radius;
-    box-shadow: @wishreward-box-shadow;
-    overflow: hidden;
+            &--position_top-left {
+                top: 1.25rem;
+                left: 1.25rem;
+            }
 
-    &.top-left {
-        top: @wishreward-position-offset;
-        left: @wishreward-position-offset;
-    }
-    &.top-right {
-        top: @wishreward-position-offset;
-        right: @wishreward-position-offset;
-    }
-    &.bottom-left {
-        bottom: @wishreward-position-offset;
-        left: @wishreward-position-offset;
-    }
-    &.bottom-right {
-        bottom: @wishreward-position-offset;
-        right: @wishreward-position-offset;
-    }
+            &--position_top-right {
+                top: 1.25rem;
+                right: 1.25rem;
+            }
 
-    .media-width('max', @screen__m) {
-        max-width: @wishreward-max-width-mobile;
-    }
-}
+            &--position_bottom-left {
+                bottom: 1.25rem;
+                left: 1.25rem;
+            }
 
-.wishreward-cta-inner {
-    display: flex;
-    align-items: center;
-}
+            &--position_bottom-right {
+                bottom: 1.25rem;
+                right: 1.25rem;
+            }
+        }
 
-.wishreward-cta-image {
-    img {
-        width: @wishreward-image-size;
-        height: @wishreward-image-size;
-        object-fit: cover;
-        display: block;
-    }
-    .media-width('max', @screen__m) {
-        img {
-            width: @wishreward-image-size-mobile;
-            height: @wishreward-image-size-mobile;
+        &__cta-inner {
+            display: flex;
+            align-items: center;
+        }
+
+        &__cta-image {
+            img {
+                width: 6.25rem;
+                height: 6.25rem;
+                object-fit: cover;
+                display: block;
+            }
+        }
+
+        &__cta-content {
+            padding: 0.9375rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.625rem; 
+        }
+
+        &__cta-label {
+            .lib-font-size(1.2rem);
+            .lib-line-height(1.2);
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+
+        &__cta-button {
+            padding: 0.625rem 1.25rem;
+            background: linear-gradient(45deg, #ff3366, #ff6633);
+            border: none;
+            border-radius: 0.375rem;
+            color: #ffffff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+            will-change: transform;
+
+            &:hover,
+            &:active {
+                transform: scale(1.05);
+                opacity: 0.95;
+            }
+
+            &:focus {
+                outline: none;
+                box-shadow: 0 0 0 3px rgba(255, 102, 51, 0.5);
+            }
+        }
+
+        &__closed {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            background: #ffffff;
+            border: 1px solid #e7e7e7;
+            border-radius: 0.25rem;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+
+            &--position_top-left,
+            &--position_bottom-left {
+                left: 0;
+                top: 50%;
+            }
+
+            &--position_top-right,
+            &--position_bottom-right {
+                right: 0;
+                top: 50%;
+            }
+
+            &--theme_light {
+                background: #fff;
+            }
+
+            &--theme_dark {
+                background: #1a1a1a;
+                color: #fff;
+            }
+        }
+
+        &__closed-button {
+            background: none;
+            border: none;
+            padding: 0.5rem;
+            width: 80px;
+
+            svg {
+                width: 32px;
+                height: 32px;
+            }
+        }
+
+        &__closed-close {
+            position: absolute;
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #000;
+            right: -10px;
+        }
+
+        &__closed:hover {
+            background: #f9f9f9;
+
+            .wishreward__closed-close {
+                display: block;
+            }
         }
     }
 }
 
-.wishreward-cta-content {
-    padding: @wishreward-content-padding;
-    display: flex;
-    flex-direction: column;
-    gap: @wishreward-gap;
-
-    .media-width('max', @screen__m) {
-        padding: @wishreward-content-padding-mobile;
+.media-width(@extremum, @break) when (@extremum = 'max') and (@break = @screen__m) {
+    .wishreward {
+        &__cta {
+            width: 100%;
+        }
     }
 }
 
-.wishreward-cta-label {
-    .lib-font-size(1rem);
-    .lib-line-height(1.2);
-    font-weight: 500;
-    color: #1a1a1a;
-}
-
-.wishreward-cta-button {
-    padding: @wishreward-button-padding-vertical @wishreward-button-padding-horizontal;
-    background: @wishreward-primary-gradient;
-    border: none;
-    border-radius: @wishreward-button-border-radius;
-    color: #ffffff;
-    font-weight: 600;
-    cursor: pointer;
-    transition: transform 0.2s ease, opacity 0.2s ease;
-    will-change: transform;
-
-    &:hover,
-    &:active {
-        transform: scale(1.05);
-        opacity: 0.95;
-    }
-
-    &:focus {
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(255, 102, 51, 0.5);
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .wishreward-cta-wrapper,
-    .wishreward-cta-button {
-        transition: none;
+.media-width(@extremum, @break) when (@extremum = 'min') and (@break = @screen__m) {
+        .wishreward {
+        &__cta {
+            width: 300px;
+        }
     }
 }

@@ -1,16 +1,16 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
     <argument name="data" xsi:type="array">
         <item name="js_config" xsi:type="array">
-            <item name="provider" xsi:type="string">wishreward_statistics_grid.wishreward_statistics_grid_data_source</item>
-            <item name="deps" xsi:type="string">wishreward_statistics_grid.wishreward_statistics_grid_data_source</item>
+            <item name="provider" xsi:type="string">wishreward_analytics_grid.wishreward_analytics_grid_data_source</item>
+            <item name="deps" xsi:type="string">wishreward_analytics_grid.wishreward_analytics_grid_data_source</item>
         </item>
         <item name="spinner" xsi:type="string">wishreward_statistics_columns</item>
     </argument>
-    <dataSource name="wishreward_statistics_grid_data_source">
+    <dataSource name="wishreward_analytics_grid_data_source">
         <argument name="dataProvider" xsi:type="configurableObject">
-            <argument name="class" xsi:type="string">Doroshko\WishReward\Model\Wheel\SpinLogDataProvider</argument>
-            <argument name="name" xsi:type="string">wishreward_statistics_grid_data_source</argument>
+            <argument name="class" xsi:type="string">Doroshko\WishReward\Model\Wheel\SpinAnalyticsDataProvider</argument>
+            <argument name="name" xsi:type="string">wishreward_analytics_grid_data_source</argument>
             <argument name="primaryFieldName" xsi:type="string">id</argument>
             <argument name="requestFieldName" xsi:type="string">id</argument>
             <argument name="data" xsi:type="array">
@@ -26,8 +26,25 @@
     </dataSource>
     <listingToolbar name="listing_top">
         <filters name="listing_filters"/>
-        <paging name="listing_paging"/>
+        <!-- <paging name="listing_paging"/> -->
     </listingToolbar>
+
+    <container name="analytics_dashboard" sortOrder="5">
+        <argument name="data" xsi:type="array">
+            <item name="config" xsi:type="array">
+                <item name="component" xsi:type="string">Doroshko_WishReward/js/analytics/analytics-dashboard</item>
+                <item name="template" xsi:type="string">Doroshko_WishReward/analytics/analytics-dashboard</item>
+            </item>
+        </argument>
+        <container name="chart_by_date" sortOrder="10">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="component" xsi:type="string">Doroshko_WishReward/js/analytics/spin-analytics-chart</item>
+                    <item name="template" xsi:type="string">Doroshko_WishReward/analytics/spin-analytics-chart</item>
+                </item>
+            </argument>
+        </container>
+    </container>
     <columns name="wishreward_statistics_columns">
         <column name="id">
             <argument name="data" xsi:type="array">
@@ -69,15 +86,6 @@
                 </item>
             </argument>
         </column>
-        <!-- <column name="consent_given" class="Doroshko\WishReward\Ui\Component\Listing\Column\ConsentGiven">
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="filter" xsi:type="string">select</item>
-                    <item name="options" xsi:type="object">Doroshko\WishReward\Ui\Component\Listing\Column\ConsentGivenOptions</item>
-                    <item name="label" xsi:type="string" translate="true">Consent Given</item>
-                </item>
-            </argument>
-        </column> -->
         <column name="created_at" class="Magento\Ui\Component\Listing\Columns\Date">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">

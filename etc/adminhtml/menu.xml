@@ -23,12 +23,12 @@
             action="wishreward/wheel/index"
             resource="Doroshko_WishReward::wheels"/>
 
-        <add id="Doroshko_WishReward::statistics"
-            title="WishReward Statistics"
+        <add id="Doroshko_WishReward::analytics"
+            title="Spin Results Dashboard"
             module="Doroshko_WishReward"
             sortOrder="50"
             parent="Doroshko_WishReward::main"
-            action="wishreward/statistics/index"
-            resource="Doroshko_WishReward::statistics"/>
+            action="wishreward/analytics/index"
+            resource="Doroshko_WishReward::analytics"/>
     </menu>
 </config>

@@ -3,14 +3,46 @@
         xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <preference for="Doroshko\WishReward\Api\Data\WheelInterface" type="Doroshko\WishReward\Model\Wheel" />
     <preference for="Doroshko\WishReward\Api\WheelRepositoryInterface" type="Doroshko\WishReward\Model\WheelRepository" />
-    <preference for="Doroshko\WishReward\Api\SpinLogRepositoryInterface" type="Doroshko\WishReward\Model\SpinLogRepository"/>
-    <preference for="Doroshko\WishReward\Api\SpinLogRepositoryInterface" type="Doroshko\WishReward\Model\SpinLogRepository"/>
+    <preference for="Doroshko\WishReward\Api\SpinAnalyticsRepositoryInterface" type="Doroshko\WishReward\Model\Analytics\SpinAnalyticsRepository"/>
     <preference for="Doroshko\WishReward\Api\EmailSenderInterface" type="Doroshko\WishReward\Model\EmailSender"/>
+    <preference for="Doroshko\WishReward\Api\SpinAnalyticsProviderInterface" type="Doroshko\WishReward\Model\Analytics\SpinAnalyticsProvider" />
+    <preference for="Doroshko\WishReward\Api\SpinLimitValidatorInterface" type="Doroshko\WishReward\Model\SpinLimitValidator" />
 
     <type name="Doroshko\WishReward\ViewModel\WheelPopupViewModel">
         <arguments>
             <argument name="scopeConfig" xsi:type="object">Magento\Framework\App\Config\ScopeConfigInterface</argument>
-            <argument name="wheel" xsi:type="object">Doroshko\WishReward\Api\Data\WheelInterface</argument>
+            <argument name="wheelRepository" xsi:type="object">Doroshko\WishReward\Api\WheelRepositoryInterface</argument>
+            <argument name="customerSession" xsi:type="object">Magento\Customer\Model\Session</argument>
+        </arguments>
+    </type>
+
+    <type name="Doroshko\WishReward\Model\WheelRepository">
+        <arguments>
+            <argument name="resource" xsi:type="object">Doroshko\WishReward\Model\ResourceModel\Wheel</argument>
+            <argument name="wheelFactory" xsi:type="object">Doroshko\WishReward\Model\WheelFactory</argument>
+            <argument name="collectionFactory" xsi:type="object">Doroshko\WishReward\Model\ResourceModel\Wheel\CollectionFactory</argument>
+            <argument name="storeManager" xsi:type="object">Magento\Store\Model\StoreManager</argument>
+            <argument name="customerSession" xsi:type="object">Magento\Customer\Model\Session</argument>
+            <argument name="scopeConfig" xsi:type="object">Magento\Framework\App\Config\ScopeConfigInterface</argument>
+            <argument name="timezone" xsi:type="object">Magento\Framework\Stdlib\DateTime\Timezone</argument>
+            <argument name="request" xsi:type="object">Magento\Framework\App\Request\Http</argument>
+            <argument name="layout" xsi:type="object">Magento\Framework\View\Layout</argument>
+            <argument name="cache" xsi:type="object">Magento\Framework\App\Cache\Proxy</argument>
+            <argument name="logger" xsi:type="object">Psr\Log\LoggerInterface</argument>
+        </arguments>
+    </type>
+    <type name="Doroshko\WishReward\Model\SpinLimitValidator">
+        <arguments>
+            <argument name="analyticsProvider" xsi:type="object">Doroshko\WishReward\Model\Analytics\SpinAnalyticsProvider</argument>
+            <argument name="timezone" xsi:type="object">Magento\Framework\Stdlib\DateTime\Timezone</argument>
+            <argument name="wheelRepository" xsi:type="object">Doroshko\WishReward\Model\WheelRepository</argument>
+            <argument name="logger" xsi:type="object">Psr\Log\LoggerInterface</argument>
+        </arguments>
+    </type>
+    <type name="Doroshko\WishReward\Cron\CacheWheels">
+        <arguments>
+            <argument name="wheelRepository" xsi:type="object">Doroshko\WishReward\Model\WheelRepository</argument>
+            <argument name="logger" xsi:type="object">Psr\Log\LoggerInterface</argument>
         </arguments>
     </type>
 </config>

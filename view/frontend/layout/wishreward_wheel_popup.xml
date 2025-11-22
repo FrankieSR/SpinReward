@@ -3,7 +3,7 @@
     <container name="root" output="1">
         <block class="Doroshko\WishReward\Block\WheelPopup" name="wishreward.wheel.popup" template="Doroshko_WishReward::wheel_popup.phtml">
             <arguments>
-                <argument name="view_model" xsi:type="object">Doroshko\WishReward\ViewModel\WheelPopupViewModel</argument>
+                <argument name="viewModel" xsi:type="object">Doroshko\WishReward\ViewModel\WheelPopupViewModel</argument>
             </arguments>
         </block>
     </container>

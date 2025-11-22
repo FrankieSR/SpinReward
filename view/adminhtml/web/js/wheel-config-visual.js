@@ -97,7 +97,6 @@ define(['Magento_Ui/js/form/element/abstract', 'ko', 'jquery'], (Abstract, ko, $
 
             this.value(jsonValue);
 
-            // Безопасная работа с source
             if (this.source && typeof this.source.set === 'function') {
                 this.source.set('data.wheel_config', jsonValue);
             } else {

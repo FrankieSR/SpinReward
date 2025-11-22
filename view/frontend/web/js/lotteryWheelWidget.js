@@ -27,7 +27,6 @@ define(['jquery', 'jquery/ui'], function ($) {
             this._calculateDimensions();
             this._renderWheel();
 
-            // Add window resize event handler
             $(window).on('resize', this._onResize.bind(this));
         },
 
@@ -38,20 +37,14 @@ define(['jquery', 'jquery/ui'], function ($) {
             const $container = this.element;
             const containerWidth = $container.width();
             const containerHeight = $container.height();
-
-            // Use the smaller dimension (width or height) of the container as the base size
             const baseSize = Math.min(containerWidth, containerHeight);
 
-            // Calculate the wheel radius from the container size and ensure a minimum size of 100
             this.options.wheelRadius = (baseSize / 2) * 0.9;
             if (this.options.wheelRadius < 100) {
                 this.options.wheelRadius = 100;
             }
 
-            // Set the outer ring width (constant value in this example)
             this.options.outerRingWidth = 10;
-
-            // Scale the font size based on the wheel radius
             this.options.fontSize = this.options.wheelRadius * this.options.fontSizeRatio;
 
             // Scale the border width ensuring a minimum value of 1
@@ -70,10 +63,13 @@ define(['jquery', 'jquery/ui'], function ($) {
         /**
          * Applies a color theme to each wheel item.
          */
-        _applyStyleTheme: function () {
-            this.options.items.forEach((item, index) => {
-                item.sectorBG = item.background_color || this.options.colors[index % this.options.colors.length];
-            });
+        _applyStyleTheme() {
+            this.options.items = this.options.items.map((item, index) => ({
+                ...item,
+                sectorBG: item.background_color || this.options.colors[index % this.options.colors.length],
+                borderColor: item.border_color || this.options.borderColor,
+                textColor: item.text_color || this.options.textColor,
+            }));
         },
 
         /**
@@ -81,6 +77,7 @@ define(['jquery', 'jquery/ui'], function ($) {
          */
         _renderWheel: function () {
             const svg = this._createSVG();
+
             this._renderOuterRing(svg);
             this._renderSectors(svg);
             this._renderCenterCircle(svg);
@@ -95,11 +92,13 @@ define(['jquery', 'jquery/ui'], function ($) {
         _createSVG: function () {
             const totalRadius = this.options.wheelRadius + this.options.outerRingWidth;
             const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+
             svg.setAttribute('class', 'wheel');
             svg.setAttribute('width', '100%');
             svg.setAttribute('height', '100%');
             svg.setAttribute('viewBox', `0 0 ${totalRadius * 2} ${totalRadius * 2}`);
             svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
             return svg;
         },
 
@@ -112,6 +111,7 @@ define(['jquery', 'jquery/ui'], function ($) {
             const centerY = totalRadius;
 
             const outerRing = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+
             outerRing.setAttribute('cx', centerX);
             outerRing.setAttribute('cy', centerY);
             outerRing.setAttribute('r', totalRadius - this.options.outerRingWidth / 2);
@@ -131,8 +131,6 @@ define(['jquery', 'jquery/ui'], function ($) {
                 wheelRadius,
                 borderColor,
                 borderWidth,
-                textColor,
-                fontSize,
                 fontWeight
             } = this.options;
             const numItems = items.length;
@@ -149,9 +147,8 @@ define(['jquery', 'jquery/ui'], function ($) {
                 path.setAttribute('stroke-width', borderWidth);
                 svg.appendChild(path);
 
-                const text = this._createSectorText(item.label, startAngle, endAngle, wheelRadius, centerX, centerY);
-                text.setAttribute('fill', textColor);
-                text.setAttribute('font-size', fontSize);
+                const text = this._createSectorText(item, startAngle, endAngle, wheelRadius, centerX, centerY);
+                text.setAttribute('fill', item.textColor);
                 text.setAttribute('font-weight', fontWeight);
                 svg.appendChild(text);
             });
@@ -168,31 +165,95 @@ define(['jquery', 'jquery/ui'], function ($) {
             const y2 = cy + radius * Math.sin((endAngle * Math.PI) / 180);
 
             const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+
             path.setAttribute('d', `M ${cx} ${cy} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`);
             path.setAttribute('fill', color);
+
             return path;
         },
 
         /**
-         * Creates the SVG text element for a wheel sector.
+         * Creates an SVG text element for a wheel sector with word wrapping and font size adjustment.
+         * @param {Object} item - Sector item with label and textColor.
+         * @param {number} startAngle - Start angle of the sector (degrees).
+         * @param {number} endAngle - End angle of the sector (degrees).
+         * @param {number} radius - Radius of the wheel.
+         * @param {number} cx - X-coordinate of the wheel center.
+         * @param {number} cy - Y-coordinate of the wheel center.
+         * @returns {SVGElement} SVG text element with wrapped text.
          */
-        _createSectorText: function (text, startAngle, endAngle, radius, cx, cy) {
+        _createSectorText: function (item, startAngle, endAngle, radius, cx, cy) {
             const angle = (startAngle + endAngle) / 2;
             const textRadius = radius * 0.65;
             const x = cx + textRadius * Math.cos((angle * Math.PI) / 180);
             const y = cy + textRadius * Math.sin((angle * Math.PI) / 180);
 
+            // Create SVG text element
             const textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            console.log(item.textColor, 'item.textColor');
             textElement.setAttribute('x', x);
             textElement.setAttribute('y', y);
             textElement.setAttribute('text-anchor', 'middle');
             textElement.setAttribute('alignment-baseline', 'middle');
-            textElement.textContent = text;
+            textElement.setAttribute('font-weight', this.options.fontWeight);
 
-            const rotationAngle = angle;
-            textElement.setAttribute('transform', `rotate(${rotationAngle}, ${x}, ${y})`);
+            const maxWidth = radius * 0.6;
+            const maxLines = 3;
+            const lineHeight = this.options.fontSize * 1.2;
+            let fontSize = this.options.fontSize;
+
+            let lines = this._wrapText(item.label, fontSize, maxWidth);
+
+            if (lines.length > maxLines) {
+                fontSize = Math.max(fontSize * (maxLines / lines.length), 12);
+                lines = this._wrapText(item.label, fontSize, maxWidth).slice(0, maxLines);
+            }
+
+            textElement.setAttribute('font-size', fontSize);
+
+            lines.forEach((line, index) => {
+                const tspan = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+                tspan.setAttribute('x', x);
+                tspan.setAttribute('dy', index === 0 ? (-(lines.length - 1) * lineHeight) / 2 : lineHeight);
+                tspan.textContent = line;
+                textElement.appendChild(tspan);
+            });
+
+            textElement.setAttribute('transform', `rotate(${angle}, ${x}, ${y})`);
 
             return textElement;
+        },
+
+        /**
+         * Wraps text into lines based on estimated width.
+         * @param {string} text - Text to wrap.
+         * @param {number} fontSize - Font size in pixels.
+         * @param {number} maxWidth - Maximum width in pixels.
+         * @returns {string[]} Array of text lines.
+         */
+        _wrapText: function (text, fontSize, maxWidth) {
+            const words = text.split(' ');
+            const lines = [];
+            let currentLine = [];
+
+            words.forEach(word => {
+                const testLine = [...currentLine, word].join(' ');
+                const estimatedWidth = testLine.length * (fontSize * 0.6);
+                if (estimatedWidth <= maxWidth) {
+                    currentLine.push(word);
+                } else {
+                    if (currentLine.length > 0) {
+                        lines.push(currentLine.join(' '));
+                    }
+                    currentLine = [word];
+                }
+            });
+
+            if (currentLine.length > 0) {
+                lines.push(currentLine.join(' '));
+            }
+
+            return lines;
         },
 
         /**
@@ -215,23 +276,25 @@ define(['jquery', 'jquery/ui'], function ($) {
          * Renders the pointer element above the wheel.
          */
         _renderPointer: function () {
-            const pointerSize = this.options.wheelRadius * 0.13;
+            const pointerSize = this.options.wheelRadius * 0.20;
             const pointerTopOffset = this.options.outerRingWidth * 0.5;
 
             $('<div>', {
-                class: 'wheel-pointer'
-            }).css({
-                position: 'absolute',
-                width: 0,
-                height: 0,
-                'border-left': `${pointerSize}px solid transparent`,
-                'border-right': `${pointerSize}px solid transparent`,
-                'border-bottom': `${pointerSize * 2}px solid ${this.options.pointerColor}`,
-                top: `${pointerTopOffset}px`,
-                left: '50%',
-                transform: 'translateX(-50%) rotate(180deg)',
-                zIndex: 10,
-            }).appendTo(this.element);
+                    class: 'wheel-pointer',
+                })
+                .css({
+                    position: 'absolute',
+                    width: 0,
+                    height: 0,
+                    'border-left': `${pointerSize}px solid transparent`,
+                    'border-right': `${pointerSize}px solid transparent`,
+                    'border-bottom': `${pointerSize * 2}px solid ${this.options.pointerColor}`,
+                    top: `${pointerTopOffset}px`,
+                    left: '50%',
+                    transform: 'translateX(-50%) rotate(180deg)',
+                    zIndex: 10,
+                })
+                .appendTo(this.element);
         },
 
         /**
@@ -285,7 +348,7 @@ define(['jquery', 'jquery/ui'], function ($) {
                     const result = {
                         id: winningItem.id,
                         label: winningItem.label,
-                        data
+                        data,
                     };
 
                     if (onSpinEndCallback) {

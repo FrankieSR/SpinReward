@@ -1,305 +1,302 @@
-@block-indent: 16px;
+& when (@media-common = true) {
+    .modal-popup.wishreward-popup {
+        .modal-inner-wrap {
+            max-width: 900px;
+        }
 
-& when (@media-common =true) {
+        div.mage-error {
+            bottom: -20px;
+            position: absolute;
+        }
+
+        div.mage-error,
+        .wishreward__message-text--error {
+            .lib-font-size(12px);
+            font-weight: bold;
+            color: @error__color;
+        }
+    }
+
+    .wishreward {
+        &__main {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            gap: 2rem;
+        }
+
+        &__wheel {
+            position: relative;
+            width: 100%;
+            flex-basis: 50%;
+            top: 0;
+            height: 100%;
+            z-index: 1;
+
+            & circle {
+                stroke: @color-black;
+            }
+
+            &-container {
+                position: relative;
+                transform: rotate(-90deg);
+                height: 100%;
+            }
+        }
+
+        &__info {
+            position: relative;
+            box-sizing: border-box;
+            text-align: center;
+            min-width: 300px;
+            max-width: 370px;
+            width: 30vw;
+            z-index: 2;
+
+            &-inner {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                height: 100%;
+                box-sizing: border-box;
+            }
+        }
+
+        &__company {
+            margin-bottom: 16px;
+
+            &-logo {
+                max-width: 100px;
+                height: auto;
+            }
+
+            &-text {
+                .lib-font-size(16px);
+                color: @color-gray20;
+                margin-top: 0.5rem;
+            }
+        }
+
+        &__title {
+            .lib-font-size(32px);
+            font-weight: bold;
+            margin-bottom: 16px;
+            color: @theme__color__primary;
+        }
+
+        &__description {
+            .lib-font-size(16px);
+            color: @color-black;
+            margin-bottom: 16px;
+        }
+
+        &__form {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        &__field {
+            width: 100%;
+            position: relative;
+
+            &--consent {}
+
+            input[type="email"] {
+                .lib-font-size(18px);
+                width: 100%;
+                padding: 0.5rem 1rem;
+                border: 1px solid @primary__color__light;
+                border-radius: 4px;
+                box-sizing: border-box;
+                height: 50px;
+
+                &:focus {
+                    outline: none;
+                    border-color: @theme__color__primary;
+                }
+            }
+        }
+
+        &__label {
+            .lib-font-size(16px);
+            color: #333;
+
+            &--hidden {
+                border: 0;
+                clip: rect(0 0 0 0);
+                height: 1px;
+                margin: -1px;
+                overflow: hidden;
+                padding: 0;
+                position: absolute;
+                width: 1px;
+
+                &.focusable:active,
+                &.focusable:focus {
+                    clip: auto;
+                    height: auto;
+                    margin: 0;
+                    overflow: visible;
+                    position: static;
+                    width: auto;
+                }
+            }
+        }
+
+        &__textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid @primary__color__light;
+            border-radius: 4px;
+            .lib-font-size(16px);
+            box-sizing: border-box;
+
+            &:focus {
+                outline: none;
+                border-color: @theme__color__primary;
+            }
+        }
+
+        &__checkbox {
+            margin-right: 0.5rem;
+        }
+
+        &__button {
+            &--primary {
+                .lib-button-primary(
+                    @_button-font-size: 18px,
+                    @_button-padding: 12px
+                );
+            }
+
+            &--opt-out {
+                background: none;
+                border: none;
+                color: @theme__color__primary;
+                text-decoration: underline;
+                cursor: pointer;
+                .lib-font-size(14px);
+                margin-top: 1rem;
+                transition: color 0.2s;
+
+                &:hover {
+                    color: darken(@theme__color__primary, 10%);
+                }
+            }
+        }
+
+        &__result {
+            text-align: center;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+
+            &-title {
+                .lib-font-size(24px);
+                font-weight: bold;
+                color: @theme__color__primary;
+                margin-bottom: 16px;
+            }
+        }
+
+        &__coupon {
+            &-code {
+                .lib-font-size(19px);
+                color: @theme__color__primary;
+                font-weight: bold;
+            }
+        }
+    }
+
     .wishreward-popup {
         display: flex;
         justify-content: center;
         align-items: center;
 
-        &._inner-scroll {
+        &--inner-scroll {
             max-height: 100%;
-        }
 
-        .modal-inner-wrap {
-            background: transparent;
-            box-shadow: none;
-            width: fit-content;
-        }
-
-        .modal-popup.modal-slide {
-            margin: 0 auto;
-            border-radius: 8px;
-            background-color: transparent;
-        }
-
-        &.modal-popup {
-            .modal-content {
-                background-color: transparent;
-                padding: 0;
-                box-shadow: none;
+            .wishreward-popup__content {
+                overflow: visible;
             }
         }
 
-        .modal-header {
+        &__inner-wrap {
+            box-shadow: none;
+            width: fit-content;
+            max-width: 900px;
+        }
+
+        &__content {
+            background-color: transparent;
+            padding: 0;
+            box-shadow: none;
+        }
+
+        &__header {
             position: absolute;
             z-index: 99;
             right: 10px;
             top: 0;
         }
-
-        .modal-popup._inner-scroll {
-            .modal-content {
-                overflow: visible;
-            }
-        }
-    }
-
-    .wishreward-content {
-        display: flex;
-        transform: translateX(-16%);
-        min-height: 50vh;
-    }
-
-    .wishreward-wheel-section {
-        position: relative;
-        left: 0;
-        transform: translateX(49%);
-        width: 100%;
-        top: 0;
-        height: 100%;
-        z-index: 1;
-    }
-
-    .lottery-wishreward-container {
-        position: relative;
-        transform: rotate(-90deg);
-        height: 100%;
-    }
-
-    .wishreward-info-section {
-        position: relative;
-        background-color: #fff;
-        box-sizing: border-box;
-        text-align: center;
-        position: relative;
-        min-width: 300px;
-        max-width: 370px;
-        width: 30vw;
-        z-index: 2;
-    }
-
-    .wishreward-info-main {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        height: 100%;
-        box-sizing: border-box;
-        padding: 2rem 4rem;
-    }
-
-    .wishreward-brand-title {
-        font-size: 1.5rem;
-        font-weight: bold;
-        margin-bottom: @block-indent;
-        color: #1a3c5e;
-    }
-
-    .wishreward-title {
-        .lib-font-size(32px);
-        font-weight: bold;
-        margin-bottom: @block-indent;
-        color: #1a3c5e;
-    }
-
-    #wishreward-form {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    #wishreward-form input[type='email'],
-    #wishreward-form textarea {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 1rem;
-        box-sizing: border-box;
-
-        &:focus {
-            outline: none;
-            border-color: #1a3c5e;
-        }
-    }
-
-    #wishreward-form button.submit-wheel {
-        background-color: #1a3c5e;
-        color: #fff;
-        padding: 0.75rem 2rem;
-        border: none;
-        border-radius: 25px;
-        font-size: 1rem;
-        font-weight: bold;
-        cursor: pointer;
-        transition: background-color 0.2s;
-        text-transform: uppercase;
-    }
-
-    #wishreward-form button.submit-wheel:hover {
-        background-color: darken(#1a3c5e, 10%);
-    }
-
-    .wishreward-opt-out-link {
-        background: none;
-        border: none;
-        color: #1a3c5e;
-        text-decoration: underline;
-        cursor: pointer;
-        font-size: 0.875rem;
-        margin-top: 1rem;
-        transition: color 0.2s;
-
-        &:hover {
-            color: darken(#1a3c5e, 10%);
-            border: none;
-        }
-    }
-
-    .wishreward-terms-text {
-        font-size: 0.75rem;
-        color: #666;
-        margin-top: 1rem;
-    }
-
-    .wishreward-message {
-        text-align: center;
-        padding: 2rem;
-        border-radius: 8px;
-        margin-top: 1rem;
-    }
-
-    .wishreward-message .success-message {
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: #1a3c5e;
-    }
-
-    .visually-hidden {
-        border: 0;
-        clip: rect(0 0 0 0);
-        height: 1px;
-        margin: -1px;
-        overflow: hidden;
-        padding: 0;
-        position: absolute;
-        width: 1px;
-
-        &.focusable:active,
-        &.focusable:focus {
-            clip: auto;
-            height: auto;
-            margin: 0;
-            overflow: visible;
-            position: static;
-            width: auto;
-        }
-    }
-
-    .wishreward-closed-cta {
-        position: fixed;
-        top: 50%;
-        transform: translateY(-50%);
-        display: flex;
-        align-items: center;
-        background: #fff;
-        border: 1px solid #e7e7e7;
-        border-radius: 4px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
-
-        &.bottom-left,
-        &.bottom-right {
-            left: 20px;
-        }
-
-        &.top-right,
-        &.top-left {
-            right: 20px;
-        }
-
-        .wishreward-reopen-button {
-            background: none;
-            border: none;
-        }
-
-        .wishreward-close-mini {
-            position: absolute;
-            display: none;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: #000;
-            right: -10px;
-        }
-
-        &:hover {
-            background: #f9f9f9;
-
-            .wishreward-close-mini {
-                display: block;
-            }
-        }
-    }
-
-    // Подстройка позиции CTA‑блока
-    .wishreward-cta-wrapper.left {
-        position: fixed;
-        top: 50%;
-        left: 20px;
-        transform: translateY(-50%);
-    }
-
-    .wishreward-cta-wrapper.right {
-        position: fixed;
-        top: 50%;
-        right: 20px;
-        transform: translateY(-50%);
     }
 }
 
-.media-width(@extremum, @break) when (@extremum ='min') and (@break =@screen__m) {
+.media-width(@extremum, @break) when (@extremum = 'max') and (@break = @screen__m) {
+     .modal-popup.wishreward-popup {
+        left: 0;
+        width: 100%;
+        height: 100%;
+
+        .modal-inner-wrap {
+            width: 100%;
+            height: 100%;
+            max-height: 100%;
+        }
+    }
+
+    .wishreward {
+        flex-direction: column;
+
+        &__wheel {
+            flex: 1 1 100%;
+            max-width: 100%;
+            padding: 1.5rem;
+        }
+
+        &__main {
+            flex-direction: column;
+        }
+
+        &__info {
+            flex: 1 1 100%;
+            max-width: 100%;
+            padding: 1.5rem;
+        }
+
+        &__title {
+            .lib-font-size(24px);
+        }
+
+        &__button {
+            &--primary {
+                padding: 0.5rem 1.5rem;
+                .lib-font-size(14px);
+            }
+
+            &--opt-out {
+                .lib-font-size(16px);
+                box-sizing: border-box;
+                padding: 0;
+                border: none;
+            }
+        }
+    }
+}
+
+.media-width(@extremum, @break) when (@extremum = 'min') and (@break = @screen__m) {
     .wishreward-popup {
         flex-wrap: nowrap;
-    }
-}
-
-.media-width(@extremum, @break) when (@extremum ='max') and (@break =@screen__m) {
-    .modal-popup.modal-slide {
-        max-width: 100%;
-        margin: 0;
-        border-radius: 0;
-    }
-
-    .wishreward-content {
-        flex-direction: column;
-    }
-
-    .wishreward-wheel-section {
-        flex: 1 1 100%;
-        max-width: 100%;
-        padding: 1.5rem;
-    }
-
-    .wishreward-info-section {
-        flex: 1 1 100%;
-        max-width: 100%;
-        padding: 1.5rem;
-    }
-
-    .wishreward-title {
-        font-size: 1.5rem;
-    }
-
-    #wishreward-form button.submit-wheel {
-        padding: 0.5rem 1.5rem;
-        font-size: 0.875rem;
-    }
-
-    .wishreward-opt-out-link {
-        font-size: 0.75rem;
-    }
-
-    .wishreward-terms-text {
-        font-size: 0.625rem;
     }
 }

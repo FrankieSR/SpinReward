@@ -8,18 +8,6 @@
         </arguments>
     </type>
 
-    <type name="Doroshko\WishReward\Model\Config">
-        <arguments>
-            <argument name="scopeConfig" xsi:type="object">Magento\Framework\App\Config\ScopeConfigInterface</argument>
-        </arguments>
-    </type>
-
-    <type name="Doroshko\WishReward\Model\Wishes\DataProvider">
-        <arguments>
-            <argument name="collectionFactory" xsi:type="object">Doroshko\WishReward\Model\ResourceModel\Wish\CollectionFactory</argument>
-        </arguments>
-    </type>
-
     <type name="Doroshko\WishReward\Model\Wheel\DataProvider">
         <arguments>
             <argument name="request" xsi:type="object">Magento\Framework\App\Request\Http</argument>

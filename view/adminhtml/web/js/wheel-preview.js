@@ -18,16 +18,13 @@ define([
         },
 
         initWheel: function () {
-            // Initialize wheel visualization
             this.canvas = document.createElement('canvas');
             this.canvas.width = 400;
             this.canvas.height = 400;
             this.ctx = this.canvas.getContext('2d');
             
-            // Subscribe to sectors changes
             this.sectors.subscribe(this.drawWheel.bind(this));
             
-            // Initial draw
             this.drawWheel();
         },
 
@@ -49,7 +46,6 @@ define([
             sectors.forEach(sector => {
                 const angle = (sector.probability / totalProbability) * 2 * Math.PI;
                 
-                // Draw sector
                 this.ctx.beginPath();
                 this.ctx.moveTo(centerX, centerY);
                 this.ctx.arc(centerX, centerY, radius, startAngle, startAngle + angle);
@@ -58,7 +54,6 @@ define([
                 this.ctx.fill();
                 this.ctx.stroke();
 
-                // Draw label
                 this.ctx.save();
                 this.ctx.translate(centerX, centerY);
                 this.ctx.rotate(startAngle + angle / 2);
@@ -71,7 +66,6 @@ define([
                 startAngle += angle;
             });
 
-            // Insert canvas into the DOM
             const container = document.getElementById('wheel-preview-canvas');
             if (container) {
                 container.innerHTML = '';

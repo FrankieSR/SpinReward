@@ -26,10 +26,8 @@ interface WheelInterface
     const POPUP_TITLE = 'popup_title';
     const POPUP_DESCRIPTION = 'popup_description';
     const IS_WISH_AREA_ENABLED = 'is_wish_area_enabled';
-    const IS_EMAIL_INPUT_ENABLED = 'is_email_input_enabled';
     const POPUP_DELAY = 'popup_delay';
     const POPUP_SCROLL_TRIGGER = 'popup_scroll_trigger';
-    const POPUP_ONCE_PER_SESSION = 'popup_once_per_session';
     const POPUP_BUTTON_TEXT = 'popup_button_text';
     const POPUP_COMPANY_LOGO = 'popup_company_logo';
     const POPUP_COMPANY_TEXT = 'popup_company_text';
@@ -41,10 +39,14 @@ interface WheelInterface
     const IS_TIMEOUT_ENABLED = 'is_timeout_enabled';
     const TIMEOUT_DURATION = 'timeout_duration';
     const IS_EXIT_ENABLED = 'is_exit_enabled';
-    const ONCE_PER_USER = 'once_per_user';
+    const ATTEMPTS_PER_USER = 'attempts_per_user';
+    const ATTEMPTS_PERIOD_UNIT = 'attempts_period_unit';
     const POPUP_THEME = 'popup_theme';
+    const IS_DELAY_ENABLED = 'is_delay_enabled';
+    const TIME_OF_DAY_START = 'time_of_day_start';
+    const TIME_OF_DAY_END = 'time_of_day_end';
+    const TRIGGER_ACTION = 'trigger_action';
 
-    // --- Getters ---
     public function getWheelId(): ?int;
     public function getTitle(): string;
     public function isActive(): bool;
@@ -65,10 +67,8 @@ interface WheelInterface
     public function getPopupTitle(): ?string;
     public function getPopupDescription(): ?string;
     public function getIsWishAreaEnabled(): bool;
-    public function getIsEmailInputEnabled(): bool;
     public function getPopupDelay(): ?int;
     public function getPopupScrollTrigger(): ?string;
-    public function getPopupOncePerSession(): bool;
     public function getPopupButtonText(): ?string;
     public function getPopupCompanyLogo(): ?string;
     public function getPopupCompanyText(): ?string;
@@ -80,12 +80,16 @@ interface WheelInterface
     public function getIsTimeoutEnabled(): bool;
     public function getTimeoutDuration(): ?int;
     public function getIsExitEnabled(): bool;
-    public function getOncePerUser(): bool;
+    public function getAttemptsPerUser(): int;
+    public function getAttemptsPeriodUnit(): string;
     public function getCreatedAt(): string;
     public function getUpdatedAt(): ?string;
     public function getPopupTheme(): string;
+    public function getIsDelayEnabled(): bool;
+    public function getTimeOfDayStart(): ?string;
+    public function getTimeOfDayEnd(): ?string;
+    public function getTriggerAction(): ?string;
 
-    // --- Setters ---
     public function setWheelId(int $id): self;
     public function setTitle(string $title): self;
     public function setIsActive(bool $active): self;
@@ -106,10 +110,10 @@ interface WheelInterface
     public function setPopupTitle(?string $title): self;
     public function setPopupDescription(?string $description): self;
     public function setIsWishAreaEnabled(bool $enabled): self;
-    public function setIsEmailInputEnabled(bool $enabled): self;
     public function setPopupDelay(?int $delay): self;
     public function setPopupScrollTrigger(?string $trigger): self;
-    public function setPopupOncePerSession(bool $once): self;
+    public function setAttemptsPerUser(int $attempts): self;
+    public function setAttemptsPeriodUnit(string $period): self;
     public function setPopupButtonText(?string $text): self;
     public function setPopupCompanyLogo(?string $logo): self;
     public function setPopupCompanyText(?string $text): self;
@@ -121,6 +125,9 @@ interface WheelInterface
     public function setIsTimeoutEnabled(bool $enabled): self;
     public function setTimeoutDuration(?int $duration): self;
     public function setIsExitEnabled(bool $enabled): self;
-    public function setOncePerUser(bool $once): self;
     public function setPopupTheme(string $theme): self;
+    public function setIsDelayEnabled(bool $enabled): self;
+    public function setTimeOfDayStart(?string $time): self;
+    public function setTimeOfDayEnd(?string $time): self;
+    public function setTriggerAction(?string $action): self;
 }

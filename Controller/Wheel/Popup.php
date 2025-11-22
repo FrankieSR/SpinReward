@@ -40,8 +40,6 @@ class Popup implements HttpPostActionInterface
         $resultJson = $this->jsonFactory->create();
         $wheelId = (int)$this->context->getRequest()->getParam('wheel_id', 0);
 
-        $this->logger->debug('Popup request received with params: ' . json_encode($this->context->getRequest()->getParams()));
-
         if ($wheelId <= 0) {
             $this->logger->warning('Invalid wheel_id provided: ' . $wheelId);
             return $resultJson->setData([
@@ -64,8 +62,6 @@ class Popup implements HttpPostActionInterface
             $resultLayout = $this->layoutFactory->create();
             $resultLayout->addHandle('wishreward_wheel_popup');
             $layout = $resultLayout->getLayout();
-
-            $this->logger->debug('Loaded layout blocks: ' . json_encode(array_keys($layout->getAllBlocks())));
 
             $block = $layout->getBlock('wishreward.wheel.popup');
             if (!$block) {

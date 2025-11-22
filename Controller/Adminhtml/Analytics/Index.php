@@ -1,5 +1,5 @@
 <?php
-namespace Doroshko\WishReward\Controller\Adminhtml\Statistics;
+namespace Doroshko\WishReward\Controller\Adminhtml\Analytics;
 
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
@@ -20,13 +20,13 @@ class Index extends Action
     public function execute()
     {
         $resultPage = $this->resultPageFactory->create();
-        $resultPage->setActiveMenu('Doroshko_WishReward::statistics');
-        $resultPage->getConfig()->getTitle()->prepend(__('WishReward Statistics'));
+        $resultPage->setActiveMenu('Doroshko_WishReward::analytics');
+        $resultPage->getConfig()->getTitle()->prepend(__('Spin Results Analytics'));
         return $resultPage;
     }
 
     protected function _isAllowed()
     {
-        return $this->_authorization->isAllowed('Doroshko_WishReward::statistics');
+        return $this->_authorization->isAllowed('Doroshko_WishReward::analytics');
     }
 }

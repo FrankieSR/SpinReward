@@ -1,79 +1,55 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Doroshko\WishReward\Block;
 
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Element\Template;
-use Doroshko\WishReward\ViewModel\WheelPopupViewModel;
-use Magento\Framework\Escaper;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\UrlInterface;
 use Psr\Log\LoggerInterface;
+use Magento\Framework\Escaper;
+use Doroshko\WishReward\Api\WheelRepositoryInterface;
+use Doroshko\WishReward\Api\Data\WheelInterface;
+use Magento\Framework\Data\Form\FormKey;
 
 class WheelPopup extends Template
 {
-    private WheelPopupViewModel $viewModel;
     private StoreManagerInterface $storeManager;
     private LoggerInterface $logger;
+    private WheelRepositoryInterface $wheelRepository;
+    private Escaper $escaper;
+    private FormKey $formKey;
 
     public function __construct(
         Template\Context $context,
-        WheelPopupViewModel $viewModel,
+        WheelRepositoryInterface $wheelRepository,
+        Escaper $escaper,
+        FormKey $formKey,
         array $data = []
     ) {
         parent::__construct($context, $data);
-        $this->viewModel    = $viewModel;
-        $this->storeManager = $context->getStoreManager();
-        $this->logger       = $context->getLogger();
+        $this->storeManager    = $context->getStoreManager();
+        $this->logger          = $context->getLogger();
+        $this->wheelRepository = $wheelRepository;
+        $this->escaper = $escaper;
+        $this->formKey = $formKey;
     }
 
     /**
-     * Set Wheel object
+     * Get eligible wheel
      *
-     * @param \Doroshko\WishReward\Api\Data\WheelInterface $wheel
-     * @return $this
+     * @return WheelInterface|null
      */
-    public function setWheel(\Doroshko\WishReward\Api\Data\WheelInterface $wheel): self
+    public function getEligibleWheel(): ?WheelInterface
     {
-        $this->viewModel->setWheel($wheel);
-        return $this;
-    }
-
-    /**
-     * Get ViewModel
-     *
-     * @return WheelPopupViewModel
-     */
-    public function getViewModel(): WheelPopupViewModel
-    {
-        return $this->viewModel;
-    }
-
-    /**
-     * Get Escaper instance
-     *
-     * @return Escaper
-     */
-    public function getEscaper(): Escaper
-    {
-        return $this->_escaper;
-    }
-
-    /**
-     * Prepare data before rendering
-     *
-     * @return $this
-     */
-    protected function _beforeToHtml(): self
-    {
-        $wheel = $this->getData('wheel');
-        if ($wheel instanceof \Doroshko\WishReward\Api\Data\WheelInterface) {
-            $this->viewModel->setWheel($wheel);
-        } else {
-            $this->logger->warning('Wheel data not set in WheelPopup block.');
+        try {
+            return $this->wheelRepository->getEligiblePopup();
+        } catch (\Exception $e) {
+            $this->logger->error('Error fetching wheel: ' . $e->getMessage());
+            return null;
         }
-        return parent::_beforeToHtml();
     }
 
     /**
@@ -97,5 +73,20 @@ class WheelPopup extends Template
             ));
             return '';
         }
+    }
+
+    public function getEscaper(): Escaper
+    {
+        return $this->escaper;
+    }
+
+    /**
+     * Get form key
+     *
+     * @return string
+     */
+    public function getFormKey()
+    {
+        return $this->formKey->getFormKey();
     }
 }

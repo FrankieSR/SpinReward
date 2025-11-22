@@ -1,0 +1,16 @@
+<div class="spin-analytics-chart">
+    <!-- ko if: isLoading -->
+    <div class="loader">Loading...</div>
+    <!-- /ko -->
+    <canvas data-bind="attr: { id: canvasId }, style: { display: isLoading() ? 'none' : 'block' }" style="max-height: 300px;"></canvas>
+
+</div>
+
+<style>
+.spin-analytics-chart .loader {
+    text-align: center;
+    padding: 20px;
+    font-size: 16px;
+    color: #666;
+}
+</style>

@@ -4,33 +4,20 @@ declare(strict_types=1);
 namespace Doroshko\WishReward\ViewModel;
 
 use Magento\Framework\View\Element\Block\ArgumentInterface;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Doroshko\WishReward\Api\Data\WheelInterface;
+use Magento\Customer\Model\Session as CustomerSession;
 
 class WheelPopupViewModel implements ArgumentInterface
 {
-    /**
-     * @var ScopeConfigInterface
-     */
-    private $scopeConfig;
+    private WheelInterface $wheel;
+    private CustomerSession $customerSession;
 
-    /**
-     * @var WheelInterface
-     */
-    private $wheel;
-
-    /**
-     * WheelPopupViewModel constructor.
-     *
-     * @param ScopeConfigInterface $scopeConfig
-     * @param WheelInterface $wheel
-     */
     public function __construct(
-        ScopeConfigInterface $scopeConfig,
-        WheelInterface $wheel
+        WheelInterface $wheel,
+        CustomerSession $customerSession
     ) {
-        $this->scopeConfig = $scopeConfig;
         $this->wheel = $wheel;
+        $this->customerSession = $customerSession;
     }
 
     public function setWheel(WheelInterface $wheel): void
@@ -41,6 +28,11 @@ class WheelPopupViewModel implements ArgumentInterface
     public function getWheel(): ?WheelInterface
     {
         return $this->wheel;
+    }
+
+    public function isCustomerLoggedIn(): bool
+    {
+        return $this->customerSession->isLoggedIn();
     }
 
     public function getWheelId(): ?int
@@ -78,14 +70,19 @@ class WheelPopupViewModel implements ArgumentInterface
         return $this->wheel ? $this->wheel->getNoWinMessage() : null;
     }
 
-    /**
-     * Get wheel configuration
-     *
-     * @return string|null
-     */
+    public function getAttemptsPerUser(): ?int
+    {
+        return $this->wheel ? $this->wheel->getAttemptsPerUser() : null;
+    }
+
+    public function getAttemptsPeriodUnit(): ?string
+    {
+        return $this->wheel ? $this->wheel->getAttemptsPeriodUnit() : null;
+    }
+
     public function getWheelConfig(): ?string
     {
-        return $this->wheel->getWheelConfig();
+        return $this->wheel ? $this->wheel->getWheelConfig() : null;
     }
 
     public function getStoreviews(): array
@@ -102,81 +99,21 @@ class WheelPopupViewModel implements ArgumentInterface
             : [];
     }
 
-    public function getIsCtaEnabled(): bool
-    {
-        return $this->wheel ? $this->wheel->getIsCtaEnabled() : false;
-    }
-
-    public function getCtaLabel(): ?string
-    {
-        return $this->wheel ? $this->wheel->getCtaLabel() : null;
-    }
-
-    public function getCtaButtonText(): ?string
-    {
-        return $this->wheel ? $this->wheel->getCtaButtonText() : null;
-    }
-
-    public function getCtaImage(): ?string
-    {
-        return $this->wheel ? $this->wheel->getCtaImage() : null;
-    }
-
-    public function getCtaPosition(): ?string
-    {
-        return $this->wheel ? $this->wheel->getCtaPosition() : null;
-    }
-
-    public function getCtaCustomCss(): ?string
-    {
-        return $this->wheel ? $this->wheel->getCtaCustomCss() : null;
-    }
-
-    /**
-     * Get popup title
-     *
-     * @return string|null
-     */
     public function getPopupTitle(): ?string
     {
-        return $this->wheel->getPopupTitle();
+        return $this->wheel ? $this->wheel->getPopupTitle() : null;
     }
 
-    /**
-     * Get popup description
-     *
-     * @return string|null
-     */
     public function getPopupDescription(): ?string
     {
-        return $this->wheel->getPopupDescription();
+        return $this->wheel ? $this->wheel->getPopupDescription() : null;
     }
 
-    /**
-     * Check if wish area is enabled
-     *
-     * @return bool
-     */
     public function getIsWishAreaEnabled(): bool
     {
-        return $this->wheel->getIsWishAreaEnabled();
+        return $this->wheel ? $this->wheel->getIsWishAreaEnabled() : false;
     }
 
-    /**
-     * Check if email input is enabled
-     *
-     * @return bool
-     */
-    public function getIsEmailInputEnabled(): bool
-    {
-        return $this->wheel ? $this->wheel->getIsEmailInputEnabled() : false;
-    }
-
-    /**
-     * Get rotation duration
-     *
-     * @return int|null
-     */
     public function getRotationDuration(): ?int
     {
         return $this->wheel ? $this->wheel->getRotationDuration() : null;
@@ -192,60 +129,33 @@ class WheelPopupViewModel implements ArgumentInterface
         return $this->wheel ? $this->wheel->getPopupScrollTrigger() : null;
     }
 
-    public function getPopupOncePerSession(): bool
-    {
-        return $this->wheel ? $this->wheel->getPopupOncePerSession() : false;
-    }
-
-    /**
-     * Get popup company logo
-     *
-     * @return string|null
-     */
     public function getPopupCompanyLogo(): ?string
     {
-        return $this->wheel
-            ? $this->wheel->getPopupCompanyLogo()
-            : null;
+        return $this->wheel ? $this->wheel->getPopupCompanyLogo() : null;
     }
 
-    /**
-     * Get popup company text
-     *
-     * @return string|null
-     */
     public function getPopupCompanyText(): ?string
     {
-        return $this->wheel->getPopupCompanyText();
+        return $this->wheel ? $this->wheel->getPopupCompanyText() : null;
     }
 
-    /**
-     * Get popup button text
-     *
-     * @return string|null
-     */
     public function getPopupButtonText(): ?string
     {
-        return $this->wheel->getPopupButtonText();
+        return $this->wheel ? $this->wheel->getPopupButtonText() : null;
     }
 
-    /**
-     * Get popup decline text
-     *
-     * @return string|null
-     */
     public function getPopupDeclineText(): ?string
     {
-        return $this->wheel->getPopupDeclineText();
+        return $this->wheel ? $this->wheel->getPopupDeclineText() : null;
     }
 
-    /**
-     * Get popup theme
-     *
-     * @return string
-     */
     public function getPopupTheme(): string
     {
-        return $this->wheel->getPopupTheme() ?: 'light';
+        return $this->wheel ? $this->wheel->getPopupTheme() : 'light';
+    }
+
+    public function getPopupTermsText(): ?string
+    {
+        return $this->wheel->getPopupTermsText();
     }
 }

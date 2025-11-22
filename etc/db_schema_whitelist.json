@@ -33,8 +33,7 @@
             "cta_position": true,
             "cta_custom_css": true,
             "popup_description": true,
-            "is_wish_area_enabled": true,
-            "is_email_input_enabled": true
+            "is_wish_area_enabled": true
         },
         "constraint": {
             "PRIMARY": true

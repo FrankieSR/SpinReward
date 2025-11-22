@@ -1,195 +1,210 @@
 <?php
+
 /** @var \Doroshko\WishReward\Block\WheelPopup $block */
-$viewModel      = $block->getViewModel();
-$escaper        = $block->getEscaper();
+/** @var \Doroshko\WishReward\ViewModel\WheelPopupViewModel $wheelPopupViewModel */
 
-// Core wheel config
-$wheelId        = (int)$viewModel->getWheelId();
+$wheel = $block->getEligibleWheel();
+if (!$wheel) {
+    return;
+}
+
+$wheelPopupViewModel = $block->getData('viewModel');
+$escaper   = $block->getEscaper();
+
+$wheelPopupViewModel->setWheel($wheel);
+
+$wheelId        = (int)$wheelPopupViewModel->getWheelId();
 $ajaxUrl        = $escaper->escapeUrl($block->getUrl('wishreward/ajax/spinwheel'));
-$wheelItems     = $viewModel->getWheelConfig() ? json_decode($viewModel->getWheelConfig(), true) : [];
-$rotationDur    = $viewModel->getRotationDuration() ?: 6000;
+$wheelItems     = $wheelPopupViewModel->getWheelConfig() ? json_decode($wheelPopupViewModel->getWheelConfig(), true) : [];
+$rotationDur    = $wheelPopupViewModel->getRotationDuration() ?: 6000;
 
-// Popup text & assets
-$popupTitle         = $viewModel->getPopupTitle() ?: '';
-$popupDesc          = $viewModel->getPopupDescription() ?: '';
-$companyLogoPath    = $viewModel->getPopupCompanyLogo();
-$companyText        = $viewModel->getPopupCompanyText();
-$declineText        = $viewModel->getPopupDeclineText() ?: __('No, Thanks');
+$popupTitle         = $wheelPopupViewModel->getPopupTitle() ?: '';
+$popupDesc          = $wheelPopupViewModel->getPopupDescription() ?: '';
+$companyLogoPath    = $wheelPopupViewModel->getPopupCompanyLogo();
+$companyText        = $wheelPopupViewModel->getPopupCompanyText();
+$declineText        = $wheelPopupViewModel->getPopupDeclineText() ?: __('No, Thanks');
+$privacyText        = $wheelPopupViewModel->getPopupTermsText() ?: __('I agree to the');
+$buttonText         = $wheelPopupViewModel->getPopupButtonText() ?: __('Spin Now');
 
-// Wish/email toggles
-$wishEnabled        = $viewModel->getIsWishAreaEnabled();
-$emailEnabled       = $viewModel->getIsEmailInputEnabled();
+$wishEnabled        = $wheelPopupViewModel->getIsWishAreaEnabled();
+
+$attemptsPerUser    = $wheelPopupViewModel->getAttemptsPerUser();
+$attemptsPeriodUnit = $wheelPopupViewModel->getAttemptsPeriodUnit();
+
+$winMessage         = $wheelPopupViewModel->getWinMessage() ?: __('Congratulations');
+$noWinMessage       = $wheelPopupViewModel->getNoWinMessage() ?: __('Maybe next time');
+
+$winMessage         = $wheelPopupViewModel->getWinMessage() ?: __('Congratulations');
+$noWinMessage       = $wheelPopupViewModel->getNoWinMessage() ?: __('Maybe next time');
+$isCustomerLoggedIn = $wheelPopupViewModel->isCustomerLoggedIn();
 ?>
 
-<div class="wishreward-content" id="wishreward-content">
-
-    <!-- Wheel container -->
-    <div class="wishreward-wheel-section">
-        <div
-            id="wishreward-wheel"
-            class="lottery-wishreward-container"
-            role="region"
-            aria-live="polite"
-        ></div>
-    </div>
-
-    <!-- Info & form -->
-    <div class="wishreward-info-section">
-        <div class="wishreward-info-main">
-
-            <!-- Company logo & text -->
-            <?php if ($companyLogoPath || $companyText): ?>
-                <div class="wishreward-company-header">
-                    <?php if ($companyLogoPath): ?>
-                        <img
-                            src="<?= $escaper->escapeUrl($block->getMediaUrl($companyLogoPath)) ?>"
-                            alt="<?= $escaper->escapeHtmlAttr($companyText ?: $popupTitle) ?>"
-                            class="wishreward-company-logo"
-                            loading="lazy"
-                        />
-                    <?php endif; ?>
-                    <?php if ($companyText): ?>
-                        <p class="wishreward-company-text">
-                            <?= $escaper->escapeHtml($companyText) ?>
-                        </p>
-                    <?php endif; ?>
-                </div>
-            <?php endif; ?>
-
-            <!-- Popup title & description -->
-            <h2 class="wishreward-title">
-                <?= $escaper->escapeHtml($popupTitle) ?>
-            </h2>
-            <p class="wishreward-description">
-                <?= $escaper->escapeHtml($popupDesc) ?>
-            </p>
-
-            <!-- Spin form -->
-            <form
-                id="wishreward-form"
-                method="post"
-                class="wishreward-form"
-                aria-label="Wheel of Fortune Form"
-            >
-                <input type="hidden" name="wheel_id" value="<?= $wheelId ?>" />
-
-                <?php if ($wishEnabled): ?>
-                    <div class="form-field">
-                        <label for="wish-input" class="visually-hidden">
-                            <?= $escaper->escapeHtml(__('Enter your wish')) ?>
-                        </label>
-                        <textarea
-                            id="wish-input"
-                            name="wish"
-                            rows="4"
-                            required
-                            placeholder="<?= $escaper->escapeHtml(__('Enter your wish')) ?>"
-                            aria-required="true"
-                        ></textarea>
+<div class="wishreward" id="wishreward">
+    <div class="wishreward__main" id="wishreward-main">
+        <div class="wishreward__wheel" id="wishreward-wheel">
+            <div class="wishreward__wheel-container"
+                role="region"
+                aria-live="polite"></div>
+        </div>
+        <div class="wishreward__info">
+            <div class="wishreward__info-inner">
+                <?php if ($companyLogoPath || $companyText): ?>
+                    <div class="wishreward__company">
+                        <?php if ($companyLogoPath): ?>
+                            <img
+                                src="<?= $escaper->escapeUrl($block->getMediaUrl($companyLogoPath)) ?>"
+                                alt="<?= $escaper->escapeHtmlAttr($companyText ?: $popupTitle) ?>"
+                                class="wishreward__company-logo"
+                                loading="lazy" />
+                        <?php endif; ?>
+                        <?php if ($companyText): ?>
+                            <p class="wishreward__company-text">
+                                <?= $escaper->escapeHtml($companyText) ?>
+                            </p>
+                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
 
-                <?php if ($emailEnabled): ?>
-                    <div class="form-field">
-                        <label for="email-input" class="visually-hidden">
-                            <?= $escaper->escapeHtml(__('Enter your email')) ?>
-                        </label>
+                <h2 class="wishreward__title">
+                    <?= $escaper->escapeHtml($popupTitle) ?>
+                </h2>
+                <p class="wishreward__description">
+                    <?= $escaper->escapeHtml($popupDesc) ?>
+                </p>
+
+                <form
+                    id="wishreward-form"
+                    method="post"
+                    class="wishreward__form"
+                    aria-label="Wheel of Fortune Form">
+                    <input type="hidden" name="wheel_id" value="<?= $escaper->escapeHtmlAttr($wheelId) ?>" />
+                    <input type="hidden" name="form_key" value="<?= $escaper->escapeHtmlAttr($block->getFormKey()) ?>"/>
+
+                    <?php if ($wishEnabled): ?>
+                        <div class="wishreward__field">
+                            <label for="wish-input" class="wishreward__label wishreward__label--hidden">
+                                <?= $escaper->escapeHtml(__('Enter your wish')) ?>
+                            </label>
+                            <textarea
+                                id="wish-input"
+                                name="wish"
+                                rows="4"
+                                required
+                                placeholder="<?= $escaper->escapeHtml(__('Enter your wish')) ?>"
+                                aria-required="true"
+                                class="wishreward__textarea"></textarea>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if (!$isCustomerLoggedIn): ?>
+                        <div class="wishreward__field">
+                            <label for="email-input" class="wishreward__label wishreward__label--hidden">
+                                <?= $escaper->escapeHtml(__('Enter your email')) ?>
+                            </label>
+                            <input
+                                type="email"
+                                id="email-input"
+                                name="email"
+                                required
+                                placeholder="<?= $escaper->escapeHtml(__('Enter your email')) ?>"
+                                aria-required="true"
+                                class="wishreward__input" />
+                        </div>
+                    <?php endif; ?>
+
+                    <div class="wishreward__field wishreward__field--consent">
                         <input
-                            type="email"
-                            id="email-input"
-                            name="email"
+                            type="checkbox"
+                            name="consent_given"
+                            title="<?= $escaper->escapeHtmlAttr(__('Consent to Privacy Policy')) ?>"
+                            value="1"
+                            id="consent-input"
                             required
-                            placeholder="<?= $escaper->escapeHtml(__('Enter your email')) ?>"
                             aria-required="true"
-                        />
+                            class="wishreward__checkbox">
+                        <label for="consent-input" class="wishreward__label">
+                            <span>
+                                <?= $escaper->escapeHtml($privacyText) ?>
+                                <a href="<?= $escaper->escapeUrl($block->getUrl('privacy-policy')) ?>" target="_blank">
+                                    <?= $escaper->escapeHtml(__('Privacy Policy')) ?>
+                                </a>
+                            </span>
+                        </label>
                     </div>
-                <?php endif; ?>
 
-                <!-- Consent Checkbox -->
-                <div class="field choice consent">
-                    <input type="checkbox" name="consent_given" 
-                           title="<?= $escaper->escapeHtmlAttr(__('Consent to Privacy Policy')) ?>" 
-                           value="1" id="consent-input" 
-                           required aria-required="true" 
-                           class="checkbox">
-                    <label for="consent-input" class="label">
-                        <span>
-                            <?= $escaper->escapeHtml(__('I agree to the')) ?>
-                            <a href="<?= $escaper->escapeUrl($block->getUrl('privacy-policy')) ?>" target="_blank">
-                                <?= $escaper->escapeHtml(__('Privacy Policy')) ?>
-                            </a>
-                        </span>
-                    </label>
+                    <button
+                        type="submit"
+                        class="wishreward__button wishreward__button--primary"
+                        aria-label="<?= $escaper->escapeHtmlAttr($buttonText) ?>">
+                        <?= $escaper->escapeHtml($buttonText) ?>
+                    </button>
+                </form>
+
+                <div class="wishreward__error">
+                    <p class="wishreward__message-text wishreward__message-text--error"></p>
                 </div>
 
-                <button
-                    type="submit"
-                    class="submit-wheel primary-button"
-                    aria-label="<?= $escaper->escapeHtmlAttr(__('Spin Now')) ?>"
-                >
-                    <?= $escaper->escapeHtml(__('Spin Now')) ?>
-                </button>
-            </form>
-
-            <!-- Decline / opt-out -->
-            <div class="wishreward-opt-out">
-                <button
-                    type="button"
-                    id="wishreward-opt-out-link"
-                    class="wishreward-opt-out-link"
-                    aria-label="<?= $escaper->escapeHtmlAttr($declineText) ?>"
-                >
-                    <?= $escaper->escapeHtml($declineText) ?>
-                </button>
+                <div class="wishreward__opt-out">
+                    <button
+                        type="button"
+                        id="wishreward-opt-out-link"
+                        class="wishreward__button wishreward__button--opt-out"
+                        aria-label="<?= $escaper->escapeHtmlAttr($declineText) ?>">
+                        <?= $escaper->escapeHtml($declineText) ?>
+                    </button>
+                </div>
             </div>
         </div>
+    </div>
 
-        <!-- Result message -->
+    <div
+        class="wishreward__result"
+        id="wishreward-result"
+        role="alert"
+        aria-live="assertive"
+        style="display: none;">
         <div
-            class="wishreward-message"
-            id="wishreward-message"
-            role="alert"
-            aria-live="assertive"
+            id="wish-coupon-container"
+            class="wishreward__coupon"
             style="display: none;"
-        >
-            <!-- Win -->
-            <div
-                id="wish-coupon-container"
-                class="wish-coupon-container"
-                style="display: none;"
-                aria-hidden="true"
-            >
-                <h2><?= $escaper->escapeHtml(__('Congratulations!')) ?></h2>
-                <p class="success-message"></p>
-                <p>
-                    <?= $escaper->escapeHtml(__('Your coupon code is:')) ?>
-                    <strong id="wish-coupon-code" class="wish-coupon-code"></strong>
-                </p>
-            </div>
+            aria-hidden="true">
+            <h2 class="wishreward__result-title">
+                <?= $escaper->escapeHtml($winMessage) ?>
+            </h2>
+            <p class="wishreward__result-text wishreward__result-text--success" id="wish-result-text"></p>
+            <p>
+                <?= $escaper->escapeHtml(__('Your coupon code is:')) ?>
+                <strong id="wish-coupon-code" class="wishreward__coupon-code"></strong>
+            </p>
+        </div>
 
-            <div class="error-container">
-                <p class="error-message"></p>
-            </div>
-            <!-- No win -->
-            <div
-                id="wish-nocoupon-container"
-                class="wish-nocoupon-container"
-                style="display: none;"
-                aria-hidden="true"
-            >
-                <h2><?= $escaper->escapeHtml(__('Maybe next time')) ?></h2>
-            </div>
+        <div
+            id="wish-nocoupon-container"
+            class="wishreward__nocoupon"
+            style="display: none;"
+            aria-hidden="true">
+            <h2 class="wishreward__result-title">
+                <?= $escaper->escapeHtml($noWinMessage) ?>
+            </h2>
+        </div>
+
+        <div class="wishreward__spin-more" id="wishreward-spin-more" style="display: none;">
+            <button class="button button-primary">
+                <?= $escaper->escapeHtml(__('Spin again')) ?>
+            </button>
         </div>
     </div>
 </div>
 
 <script type="text/x-magento-init">
-{
-    "#wishreward-content": {
+    {
+    "#wishreward": {
         "Doroshko_WishReward/js/wheel-handler": {
-            "ajaxUrl": "<?= $ajaxUrl ?>",
+            "ajaxUrl": "<?= $escaper->escapeJs($ajaxUrl) ?>",
             "wheelItems": <?= json_encode($wheelItems) ?>,
-            "rotationDuration": <?= $rotationDur ?>
+            "rotationDuration": "<?= $escaper->escapeJs($rotationDur) ?>",
+            "attemptsPerUser":  "<?= $escaper->escapeJs($attemptsPerUser) ?>",
+            "attemptsPeriodUnit":  "<?= $escaper->escapeJs($attemptsPeriodUnit) ?>"
         }
     }
 }

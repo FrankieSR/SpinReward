@@ -29,7 +29,7 @@ class Actions extends Column
             foreach ($dataSource['data']['items'] as &$item) {
                 $name = $this->getData('name');
                 if (isset($item['wheel_id']) && !empty($item['wheel_id'])) {
-                    $item[$name] = []; // Инициализируем массив действий
+                    $item[$name] = [];
                     $item[$name][] = [
                         'href' => $this->urlBuilder->getUrl(
                             'wishreward/wheel/edit',
