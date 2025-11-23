@@ -2,8 +2,7 @@ define([
     'jquery',
     'mage/translate',
     'Doroshko_WishReward/js/lotteryWheelWidget',
-    'mage/validation',
-    'mage/cookies',
+    'mage/validation'
 ], function ($, $t) {
     'use strict';
 
@@ -31,40 +30,6 @@ define([
 
         let errorTimer;
 
-        function setCookie(name, value, seconds) {
-            const expires = new Date();
-            expires.setTime(expires.getTime() + seconds * 1000);
-            $.cookie(name, value, {
-                expires: seconds / 86400,
-                path: '/',
-                sameSite: 'Lax',
-            });
-        }
-
-        function getCookie(name) {
-            return $.cookie(name);
-        }
-
-        function getCookieLifetime() {
-            const per = parseInt(config.attemptsPeriod || 1, 10);
-            const unit = config.attemptsPeriodUnit;
-
-            if (unit === 'forever') {
-                return 60 * 60 * 24 * 365 * 10;
-            }
-
-            const multipliers = {
-                day: 86400,
-                days: 86400,
-                week: 7 * 86400,
-                month: 30 * 86400,
-                year: 365 * 86400,
-                years: 365 * 86400,
-            };
-
-            return (multipliers[unit] || multipliers['day']) * per;
-        }
-
         function hashEmail(email) {
             try {
                 return btoa(encodeURIComponent(email)).slice(0, 20);
@@ -72,46 +37,6 @@ define([
                 console.warn('Failed to hash email:', e);
                 return '';
             }
-        }
-
-        function getSpinCookieKey(email) {
-            return 'wishreward_' + hashEmail(email);
-        }
-
-        function getSpinAttempts(email) {
-            const key = getSpinCookieKey(email);
-            const raw = getCookie(key);
-            if (!raw) return [];
-
-            try {
-                const parsed = JSON.parse(raw);
-                return Array.isArray(parsed) ? parsed : [];
-            } catch (e) {
-                return [];
-            }
-        }
-
-        function addSpinAttempt(email) {
-            const key = getSpinCookieKey(email);
-            const lifetime = getCookieLifetime();
-            const now = Math.floor(Date.now() / 1000);
-            const cutoff = now - lifetime;
-
-            let attempts = getSpinAttempts(email);
-            attempts = attempts.filter((ts) => ts > cutoff);
-
-            attempts.push(now);
-            setCookie(key, JSON.stringify(attempts), lifetime);
-        }
-
-        function canSpin(email) {
-            const maxAttempts = parseInt(config.attemptsPerUser, 10) || 1;
-            const lifetime = getCookieLifetime();
-            const now = Math.floor(Date.now() / 1000);
-            const cutoff = now - lifetime;
-
-            const attempts = getSpinAttempts(email).filter((ts) => ts > cutoff);
-            return attempts.length < maxAttempts;
         }
 
         function init() {
@@ -186,11 +111,6 @@ define([
                 return;
             }
 
-            if (email && !canSpin(email)) {
-                showError($t('You have reached the maximum number of spins allowed.'));
-                return;
-            }
-
             const formData = $form.serializeArray();
             const postData = {};
 
@@ -207,17 +127,12 @@ define([
             postData.page_url = window.location.href.substring(0, 512);
             postData.referrer_url = document.referrer || null;
             postData.user_agent = navigator.userAgent.substring(0, 512);
-            postData.spin_count_session = getSpinAttempts(email).length;
 
             console.log('spin data:', postData);
 
             $.post(config.ajaxUrl, postData)
                 .done(function (response) {
-                    if (email) {
-                        addSpinAttempt(email);
-                    }
-
-                    canSpin(email) ? $(elements.spinMoreButton).show() : $(elements.spinMoreButton).hide();
+                    // canSpin(email) ? $(elements.spinMoreButton).show() : $(elements.spinMoreButton).hide();
                     $(elements.spinMoreButton).on('click', handleClickSpinMore);
                     
                     onSpinSuccess(response, email);

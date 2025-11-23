@@ -53,43 +53,21 @@ class InitViewModel implements ArgumentInterface
                 return false;
             }
 
-            $email = $this->customerSession->getCustomer()->getEmail();
+            $customer = $this->customerSession->getCustomer();
+            $email = $customer ? $customer->getEmail() : null;
 
-            if ($email) {
-                return $this->spinLimitValidator->canSpin($email, (int)$this->wheel->getWheelId());
+            if (!$email) {
+                return false;
             }
 
-            $cookieName = 'wishreward_guest_attempts';
-            $cookieValue = $_COOKIE[$cookieName] ?? null;
+            return $this->spinLimitValidator->canSpin($email, (int)$this->wheel->getWheelId());
 
-            if (!$cookieValue) {
-                return true;
-            }
-
-            $attempts = json_decode($cookieValue, true);
-
-            if (!is_array($attempts)) {
-                $attempts = [];
-            }
-
-            $periodDays = (int) $this->wheel->getAttemptsPeriodUnit() ?: 1;
-            $periodSeconds = $periodDays * 86400;
-
-            $maxAttempts = (int) $this->wheel->getAttemptsPerUser() ?: 1;
-
-            $now = time();
-            $cutoff = $now - $periodSeconds;
-
-            $recentAttempts = array_filter($attempts, function ($ts) use ($cutoff) {
-                return is_numeric($ts) && $ts > $cutoff;
-            });
-
-            return count($recentAttempts) < $maxAttempts;
         } catch (\Throwable $e) {
             $this->logger->error('Error checking canSpin: ' . $e->getMessage(), [
                 'wheel_id' => $this->wheel ? $this->wheel->getWheelId() : null,
-                'email' => $email ?? null
+                'email'    => $email ?? null,
             ]);
+
             return false;
         }
     }
