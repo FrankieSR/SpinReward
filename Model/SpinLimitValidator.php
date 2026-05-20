@@ -1,30 +1,26 @@
 <?php
 declare(strict_types=1);
 
-namespace Doroshko\WishReward\Model;
+namespace Doroshko\SpinReward\Model;
 
-use Doroshko\WishReward\Api\SpinLimitValidatorInterface;
-use Doroshko\WishReward\Api\SpinAnalyticsProviderInterface;
-use Doroshko\WishReward\Api\WheelRepositoryInterface;
-use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
+use Doroshko\SpinReward\Api\SpinLimitValidatorInterface;
+use Doroshko\SpinReward\Api\SpinAnalyticsProviderInterface;
+use Doroshko\SpinReward\Api\WheelRepositoryInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Psr\Log\LoggerInterface;
 
 class SpinLimitValidator implements SpinLimitValidatorInterface
 {
     private SpinAnalyticsProviderInterface $analyticsProvider;
-    private TimezoneInterface $timezone;
     private WheelRepositoryInterface $wheelRepository;
     private LoggerInterface $logger;
 
     public function __construct(
         SpinAnalyticsProviderInterface $analyticsProvider,
-        TimezoneInterface $timezone,
         WheelRepositoryInterface $wheelRepository,
         LoggerInterface $logger
     ) {
         $this->analyticsProvider = $analyticsProvider;
-        $this->timezone = $timezone;
         $this->wheelRepository = $wheelRepository;
         $this->logger = $logger;
     }
@@ -82,7 +78,7 @@ class SpinLimitValidator implements SpinLimitValidatorInterface
 
     private function getDateRangeForPeriod(string $periodUnit): array
     {
-        $now = $this->timezone->date();
+        $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
 
         switch (strtolower($periodUnit)) {
             case 'week':
@@ -92,6 +88,14 @@ class SpinLimitValidator implements SpinLimitValidatorInterface
             case 'month':
                 $start = $now->modify('first day of this month')->format('Y-m-d 00:00:00');
                 $end = $now->modify('last day of this month')->format('Y-m-d 23:59:59');
+                break;
+            case 'year':
+                $start = $now->modify('first day of january this year')->format('Y-m-d 00:00:00');
+                $end = $now->modify('last day of december this year')->format('Y-m-d 23:59:59');
+                break;
+            case 'forever':
+                $start = '1970-01-01 00:00:00';
+                $end = $now->format('Y-m-d H:i:s');
                 break;
             case 'day':
             default:

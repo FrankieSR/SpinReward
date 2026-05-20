@@ -1,0 +1,96 @@
+<div class="fieldset-wrapper wishreward-popup-settings"
+     css="$data.additionalClasses"
+     attr="'data-level': $data.level, 'data-index': index"
+     data-bind="visible: $data.visible === undefined ? true: $data.visible">
+    <div class="fieldset-wrapper-title"
+         attr="tabindex: !collapsible ? -1 : 0,
+               'data-state-collapsible': collapsible ? opened() ? 'open' : 'closed' : null"
+         click="toggleOpened"
+         keyboard="13: toggleOpened"
+         if="label">
+        <strong css="'admin__collapsible-title': collapsible,
+                      title: !collapsible,
+                      '_changed': changed,
+                      '_loading': loading,
+                      '_error': error">
+            <span translate="label"></span>
+            <span class="admin__page-nav-item-messages" if="collapsible">
+                <span class="admin__page-nav-item-message _changed">
+                    <span class="admin__page-nav-item-message-icon"
+                          role="tooltip"
+                          tabindex="0"
+                          aria-labelledby="changed-message-tooltip"></span>
+                    <span class="admin__page-nav-item-message-tooltip" id="changed-message-tooltip"
+                          data-bind="i18n: 'Changes have been made to this section that have not been saved.'"></span>
+                </span>
+                <span class="admin__page-nav-item-message _error">
+                    <span class="admin__page-nav-item-message-icon"
+                          role="tooltip"
+                          tabindex="0"
+                          aria-labelledby="error-message-tooltip"></span>
+                    <span class="admin__page-nav-item-message-tooltip" id="error-message-tooltip"
+                          data-bind="i18n: 'This tab contains invalid data. Please resolve this before saving.'"></span>
+                </span>
+                <span class="admin__page-nav-item-message-loader">
+                    <span class="spinner">
+                       <span repeat="8"></span>
+                    </span>
+               </span>
+            </span>
+        </strong>
+    </div>
+
+    <div class="admin__fieldset-wrapper-content"
+         css="'admin__collapsible-content': collapsible, '_show': opened, '_hide': !opened()">
+        <div class="wishreward-popup-settings__intro">
+            <p class="wishreward-popup-settings__eyebrow">Popup layout</p>
+            <p class="wishreward-popup-settings__lede" data-bind="text: getPopupCopy()"></p>
+        </div>
+
+        <div class="wishreward-popup-settings__layout">
+            <section class="wishreward-popup-settings__mock-popup">
+                <header class="wishreward-popup-settings__mock-popup-zone wishreward-popup-settings__mock-popup-zone--header">
+                    <p class="wishreward-popup-settings__zone-label">Header</p>
+                    <div class="wishreward-popup-settings__slot">
+                        <div each="data: getSlotElements('header'), as: 'element'" render=""></div>
+                    </div>
+                </header>
+
+                <div class="wishreward-popup-settings__mock-popup-zone wishreward-popup-settings__mock-popup-zone--body">
+                    <p class="wishreward-popup-settings__zone-label">Main copy</p>
+                    <div class="wishreward-popup-settings__slot">
+                        <div each="data: getSlotElements('body'), as: 'element'" render=""></div>
+                    </div>
+                </div>
+
+                <footer class="wishreward-popup-settings__mock-popup-zone wishreward-popup-settings__mock-popup-zone--footer">
+                    <p class="wishreward-popup-settings__zone-label">Primary CTA</p>
+                    <div class="wishreward-popup-settings__slot">
+                        <div each="data: getSlotElements('footer'), as: 'element'" render=""></div>
+                    </div>
+                </footer>
+            </section>
+
+            <aside class="wishreward-popup-settings__advanced">
+                <div class="wishreward-popup-settings__advanced-head">
+                    <p class="wishreward-popup-settings__eyebrow">Advanced fields</p>
+                    <p class="wishreward-popup-settings__lede" data-bind="text: getAdvancedCopy()"></p>
+                </div>
+
+                <section class="wishreward-popup-settings__advanced-card">
+                    <p class="wishreward-popup-settings__zone-label">Secondary labels</p>
+                    <div class="wishreward-popup-settings__slot wishreward-popup-settings__slot--stacked">
+                        <div each="data: getSlotElements('secondary'), as: 'element'" render=""></div>
+                    </div>
+                </section>
+
+                <section class="wishreward-popup-settings__advanced-card">
+                    <p class="wishreward-popup-settings__zone-label">Terms and toggle</p>
+                    <div class="wishreward-popup-settings__slot wishreward-popup-settings__slot--stacked">
+                        <div each="data: getSlotElements('advanced'), as: 'element'" render=""></div>
+                    </div>
+                </section>
+            </aside>
+        </div>
+    </div>
+</div>

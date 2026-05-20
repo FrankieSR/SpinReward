@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_layout.xsd">
     <head>
-        <css src="Doroshko_WishReward::css/wheel-config-visual.css"/>
+        <css src="Doroshko_SpinReward::css/wheel-config-visual.css"/>
     </head>
     <body>
         <referenceContainer name="content">

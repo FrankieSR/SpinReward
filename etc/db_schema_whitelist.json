@@ -1,42 +1,195 @@
 {
-    "wishreward_wishes": {
-        "column": {
-            "wish_id": true,
-            "customer_id": true,
-            "wish_message": true,
-            "created_at": true
-        },
-        "constraint": {
-            "PRIMARY": true,
-            "WISHREWARD_WISHES_CUSTOMER_ID_CUSTOMER_ENTITY_ENTITY_ID": true,
-            "WISHREWARD_WISHES_CUSTOMER_ID": true
-        }
-    },
     "wishreward_wheel": {
         "column": {
             "wheel_id": true,
             "title": true,
             "is_active": true,
-            "start_date": true,
-            "end_date": true,
+            "created_at": true,
+            "updated_at": true,
             "win_message": true,
             "no_win_message": true,
             "wheel_config": true,
+            "rotation_duration": true,
             "storeviews": true,
             "allowed_customer_groups": true,
-            "created_at": true,
-            "updated_at": true,
             "is_cta_enabled": true,
             "cta_label": true,
             "cta_button_text": true,
             "cta_image": true,
             "cta_position": true,
             "cta_custom_css": true,
+            "popup_title": true,
             "popup_description": true,
-            "is_wish_area_enabled": true
+            "is_wish_area_enabled": true,
+            "popup_delay": true,
+            "popup_scroll_trigger": true,
+            "popup_button_text": true,
+            "popup_company_logo": true,
+            "popup_company_text": true,
+            "popup_decline_text": true,
+            "popup_close_text": true,
+            "popup_terms_text": true,
+            "is_scroll_enabled": true,
+            "scroll_percentage": true,
+            "is_timeout_enabled": true,
+            "timeout_duration": true,
+            "is_exit_enabled": true,
+            "attempts_per_user": true,
+            "attempts_period_unit": true,
+            "start_date": true,
+            "end_date": true,
+            "popup_theme": true
         },
         "constraint": {
             "PRIMARY": true
+        },
+        "index": {
+            "WISHREWARD_WHEEL_IS_ACTIVE_IDX": true,
+            "WISHREWARD_WHEEL_DATE_RANGE_IDX": true
+        }
+    },
+    "wishreward_spin_analytics": {
+        "column": {
+            "id": true,
+            "wheel_id": true,
+            "customer_id": true,
+            "email": true,
+            "spin_result": true,
+            "spin_prize_label": true,
+            "spin_date": true,
+            "ip_address": true,
+            "is_guest": true,
+            "consent_given": true,
+            "is_redeemed": true,
+            "redeemed_at": true,
+            "coupon_code": true,
+            "order_id": true,
+            "order_increment_id": true,
+            "order_status": true,
+            "store_id": true,
+            "website_id": true,
+            "spin_status": true,
+            "block_reason": true,
+            "sector_id": true,
+            "sector_probability_snapshot": true,
+            "ml_status": true,
+            "ml_score": true,
+            "ml_category": true,
+            "ml_duration_ms": true,
+            "email_send_status": true,
+            "email_error": true,
+            "email_sent_at": true,
+            "coupon_applied_at": true,
+            "base_subtotal": true,
+            "base_discount_amount": true,
+            "base_grand_total": true,
+            "utm_source": true,
+            "utm_medium": true,
+            "utm_campaign": true,
+            "user_agent": true,
+            "device_type": true,
+            "session_id": true,
+            "page_url": true,
+            "referrer_url": true,
+            "spin_count_session": true,
+            "created_at": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "FK_WISHREWARD_SPIN_ANALYTICS_WHEEL_ID": true
+        },
+        "index": {
+            "IDX_SPIN_EMAIL": true,
+            "IDX_SPIN_EMAIL_WHEEL_DATE": true,
+            "IDX_SPIN_CUSTOMER_ID": true,
+            "IDX_SPIN_CUSTOMER_WHEEL_DATE": true,
+            "IDX_SPIN_DATE": true,
+            "IDX_SPIN_WHEEL_ID": true,
+            "IDX_SPIN_UTM_SOURCE": true,
+            "IDX_SPIN_SESSION_ID": true,
+            "IDX_SPIN_PAGE_URL": true,
+            "IDX_SPIN_COUPON_CODE": true,
+            "IDX_SPIN_ORDER_ID": true,
+            "IDX_SPIN_STATUS": true,
+            "IDX_SPIN_BLOCK_REASON": true,
+            "IDX_SPIN_ML_STATUS": true,
+            "IDX_SPIN_STORE_ID": true,
+            "IDX_SPIN_WEBSITE_ID": true,
+            "IDX_SPIN_SECTOR_ID": true
+        }
+    },
+    "wishreward_spin_event": {
+        "column": {
+            "event_id": true,
+            "spin_id": true,
+            "wheel_id": true,
+            "store_id": true,
+            "website_id": true,
+            "event_type": true,
+            "event_value": true,
+            "email_hash": true,
+            "ip_hash": true,
+            "session_hash": true,
+            "sector_id": true,
+            "sector_label": true,
+            "coupon_code_hash": true,
+            "order_id": true,
+            "order_increment_id": true,
+            "block_reason": true,
+            "ml_status": true,
+            "ml_score": true,
+            "ml_category": true,
+            "ml_duration_ms": true,
+            "metadata_json": true,
+            "created_at": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        },
+        "index": {
+            "WISHREWARD_SPIN_EVENT_TYPE_IDX": true,
+            "WISHREWARD_SPIN_EVENT_WHEEL_IDX": true,
+            "WISHREWARD_SPIN_EVENT_STORE_IDX": true,
+            "WISHREWARD_SPIN_EVENT_SPIN_IDX": true,
+            "WISHREWARD_SPIN_EVENT_DATE_IDX": true
+        }
+    },
+    "wishreward_analytics_daily": {
+        "column": {
+            "aggregate_id": true,
+            "aggregate_date": true,
+            "wheel_id": true,
+            "store_id": true,
+            "website_id": true,
+            "popup_impressions": true,
+            "cta_clicks": true,
+            "popup_opens": true,
+            "spin_submits": true,
+            "spin_validated": true,
+            "ml_passed": true,
+            "ml_rejected": true,
+            "wins": true,
+            "losses": true,
+            "coupons_generated": true,
+            "emails_sent": true,
+            "emails_failed": true,
+            "coupons_applied": true,
+            "orders_count": true,
+            "blocked_attempts": true,
+            "limit_blocked": true,
+            "revenue": true,
+            "discount_amount": true,
+            "created_at": true,
+            "updated_at": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "WISHREWARD_ANALYTICS_DAILY_UNQ": true
+        },
+        "index": {
+            "WISHREWARD_ANALYTICS_DAILY_DATE_IDX": true,
+            "WISHREWARD_ANALYTICS_DAILY_WHEEL_IDX": true,
+            "WISHREWARD_ANALYTICS_DAILY_STORE_IDX": true
         }
     }
 }

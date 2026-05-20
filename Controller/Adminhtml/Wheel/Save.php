@@ -2,25 +2,26 @@
 
 declare(strict_types=1);
 
-namespace Doroshko\WishReward\Controller\Adminhtml\Wheel;
+namespace Doroshko\SpinReward\Controller\Adminhtml\Wheel;
 
 use Magento\Backend\App\Action;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Event\ManagerInterface as EventManagerInterface;
-use Doroshko\WishReward\Api\WheelRepositoryInterface;
-use Doroshko\WishReward\Api\Data\WheelInterface;
-use Doroshko\WishReward\Api\Data\WheelInterfaceFactory;
+use Doroshko\SpinReward\Api\WheelRepositoryInterface;
+use Doroshko\SpinReward\Api\Data\WheelInterface;
+use Doroshko\SpinReward\Api\Data\WheelInterfaceFactory;
 use Psr\Log\LoggerInterface;
 use Magento\MediaStorage\Model\File\UploaderFactory;
 use Magento\Framework\Filesystem;
 use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\Stdlib\DateTime\Filter\Date as DateFilter;
 
 class Save extends Action implements HttpPostActionInterface
 {
     /** @var string Admin resource for wheel editing */
-    public const ADMIN_RESOURCE = 'DOROSHKO_WISHREWARD::WHEEL_EDIT';
+    public const ADMIN_RESOURCE = 'Doroshko_SpinReward::wheel_edit';
     /** @var string Event dispatched before saving wheel */
     private const EVENT_WHEEL_BEFORE_SAVE = 'wishreward_wheel_before_save';
     /** @var string Event dispatched after saving wheel */
@@ -42,7 +43,7 @@ class Save extends Action implements HttpPostActionInterface
     /** @var array<int, string> Allowed popup themes */
     private const ALLOWED_POPUP_THEMES = ['light', 'dark'];
     /** @var array<int, string> Allowed attempts period units */
-    private const ALLOWED_ATTEMPTS_UNITS = ['day', 'week', 'month'];
+    private const ALLOWED_ATTEMPTS_UNITS = ['day', 'week', 'month', 'year', 'forever'];
 
     private WheelRepositoryInterface $wheelRepository;
     private WheelInterfaceFactory $wheelFactory;
@@ -50,6 +51,7 @@ class Save extends Action implements HttpPostActionInterface
     private LoggerInterface $logger;
     private UploaderFactory $uploaderFactory;
     private Filesystem $filesystem;
+    private DateFilter $dateFilter;
 
     /**
      * Save constructor.
@@ -61,6 +63,7 @@ class Save extends Action implements HttpPostActionInterface
      * @param LoggerInterface $logger
      * @param UploaderFactory $uploaderFactory
      * @param Filesystem $filesystem
+     * @param DateFilter $dateFilter
      */
     public function __construct(
         Action\Context $context,
@@ -69,7 +72,8 @@ class Save extends Action implements HttpPostActionInterface
         EventManagerInterface $eventManager,
         LoggerInterface $logger,
         UploaderFactory $uploaderFactory,
-        Filesystem $filesystem
+        Filesystem $filesystem,
+        DateFilter $dateFilter
     ) {
         parent::__construct($context);
         $this->wheelRepository = $wheelRepository;
@@ -78,6 +82,7 @@ class Save extends Action implements HttpPostActionInterface
         $this->logger = $logger;
         $this->uploaderFactory = $uploaderFactory;
         $this->filesystem = $filesystem;
+        $this->dateFilter = $dateFilter;
     }
 
     /**
@@ -134,27 +139,18 @@ class Save extends Action implements HttpPostActionInterface
             throw new LocalizedException(__('Title is required.'));
         }
 
-        if (!empty($data[WheelInterface::START_DATE])) {
-            $startDate = \DateTime::createFromFormat('Y-m-d', $data[WheelInterface::START_DATE]);
-            $errors = \DateTime::getLastErrors();
-            if ($startDate === false || $errors['warning_count'] > 0 || $errors['error_count'] > 0) {
-                throw new LocalizedException(__('Invalid start date format.'));
-            }
+        $startDate = $this->parseDateField($data[WheelInterface::START_DATE] ?? null);
+        if (!empty($data[WheelInterface::START_DATE]) && $startDate === null) {
+            throw new LocalizedException(__('Invalid start date format.'));
         }
 
-        if (!empty($data[WheelInterface::END_DATE])) {
-            $endDate = \DateTime::createFromFormat('Y-m-d', $data[WheelInterface::END_DATE]);
-            $errors = \DateTime::getLastErrors();
-            if ($endDate === false || $errors['warning_count'] > 0 || $errors['error_count'] > 0) {
-                throw new LocalizedException(__('Invalid end date format.'));
-            }
-            if (!empty($data[WheelInterface::START_DATE])) {
-                $startDate = new \DateTime($data[WheelInterface::START_DATE]);
-                $endDate = new \DateTime($data[WheelInterface::END_DATE]);
-                if ($endDate < $startDate) {
-                    throw new LocalizedException(__('End date cannot be earlier than start date.'));
-                }
-            }
+        $endDate = $this->parseDateField($data[WheelInterface::END_DATE] ?? null);
+        if (!empty($data[WheelInterface::END_DATE]) && $endDate === null) {
+            throw new LocalizedException(__('Invalid end date format.'));
+        }
+
+        if ($startDate !== null && $endDate !== null && $endDate < $startDate) {
+            throw new LocalizedException(__('End date cannot be earlier than start date.'));
         }
 
         if (!empty($data[WheelInterface::WHEEL_CONFIG])) {
@@ -231,8 +227,8 @@ class Save extends Action implements HttpPostActionInterface
         $wheel->setIsActive((bool)($data[WheelInterface::IS_ACTIVE] ?? false));
         $wheel->setWinMessage((string)($data[WheelInterface::WIN_MESSAGE] ?? ''));
         $wheel->setNoWinMessage((string)($data[WheelInterface::NO_WIN_MESSAGE] ?? ''));
-        $wheel->setStartDate($data[WheelInterface::START_DATE] ?? null);
-        $wheel->setEndDate($data[WheelInterface::END_DATE] ?? null);
+        $wheel->setStartDate($this->normalizeDateValue($data[WheelInterface::START_DATE] ?? null));
+        $wheel->setEndDate($this->normalizeDateValue($data[WheelInterface::END_DATE] ?? null));
         $wheel->setStoreviews($this->arrayToCommaString($this->normalizeToArray($data[WheelInterface::STOREVIEWS] ?? ['0'])));
         $wheel->setAllowedCustomerGroups($this->arrayToCommaString($this->normalizeToArray($data[WheelInterface::ALLOWED_CUSTOMER_GROUPS] ?? [])));
         $wheel->setWheelConfig($this->normalizeWheelConfig($data[WheelInterface::WHEEL_CONFIG] ?? '[]'));
@@ -390,5 +386,59 @@ class Save extends Action implements HttpPostActionInterface
             return $encoded === false ? '[]' : $encoded;
         }
         return '[]';
+    }
+
+    private function parseDateField(?string $value): ?\DateTimeImmutable
+    {
+        $value = trim((string)$value);
+        if ($value === '') {
+            return null;
+        }
+
+        if ($value === '0000-00-00' || str_starts_with($value, '0000-00-00 ')) {
+            return null;
+        }
+
+        $formats = [
+            'Y-m-d',
+            'Y-m-d H:i:s',
+            'Y-m-d\\TH:i:sP',
+            'Y-m-d\\TH:i:s.uP',
+            'Y-m-d\\TH:i:s.vP',
+        ];
+
+        foreach ($formats as $format) {
+            $date = \DateTimeImmutable::createFromFormat('!' . $format, $value);
+            $errors = \DateTimeImmutable::getLastErrors();
+            if ($date !== false && !$this->hasDateErrors($errors)) {
+                return $date;
+            }
+        }
+
+        try {
+            $normalized = $this->dateFilter->filter($value);
+            if (is_string($normalized) && $normalized !== '') {
+                return \DateTimeImmutable::createFromFormat('!Y-m-d', $normalized) ?: null;
+            }
+        } catch (\Throwable $e) {
+            return null;
+        }
+
+        return null;
+    }
+
+    private function normalizeDateValue(?string $value): ?string
+    {
+        $date = $this->parseDateField($value);
+        return $date ? $date->format('Y-m-d') : null;
+    }
+
+    private function hasDateErrors(array|false $errors): bool
+    {
+        if ($errors === false) {
+            return false;
+        }
+
+        return ($errors['warning_count'] ?? 0) > 0 || ($errors['error_count'] ?? 0) > 0;
     }
 }

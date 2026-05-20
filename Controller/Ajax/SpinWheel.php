@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Doroshko\WishReward\Controller\Ajax;
+namespace Doroshko\SpinReward\Controller\Ajax;
 
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\RequestInterface;
@@ -13,18 +13,21 @@ use Magento\Framework\Translate\Inline\StateInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Psr\Log\LoggerInterface;
-use Doroshko\WishReward\Api\WheelRepositoryInterface;
-use Doroshko\WishReward\Api\SpinAnalyticsRepositoryInterface;
-use Doroshko\WishReward\Api\SpinLimitValidatorInterface;
-use Doroshko\WishReward\Model\CouponGenerator;
-use Doroshko\WishReward\Service\ProbabilityCalculator;
-use Doroshko\WishReward\Model\LocalMLValidator;
+use Doroshko\SpinReward\Api\WheelRepositoryInterface;
+use Doroshko\SpinReward\Api\SpinAnalyticsRepositoryInterface;
+use Doroshko\SpinReward\Api\SpinLimitValidatorInterface;
+use Doroshko\SpinReward\Model\Analytics\EventLogger;
+use Doroshko\SpinReward\Model\CouponGenerator;
+use Doroshko\SpinReward\Service\ProbabilityCalculator;
+use Doroshko\SpinReward\Model\WishValidationValidator;
 use Magento\Customer\Model\Session;
 use Magento\Framework\Exception\MailException;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Validator\EmailAddress as EmailValidator;
 use Magento\Framework\HTTP\Header;
 use Magento\Framework\Session\SessionManagerInterface;
+use Magento\Framework\App\ResourceConnection;
+use Doroshko\SpinReward\Model\SpinCompletionState;
 
 /**
  * Controller for spinning the wheel and sending a coupon email
@@ -38,9 +41,11 @@ class SpinWheel implements HttpPostActionInterface
     private const ERROR_EMAIL_REQUIRED = 'Email is required.';
     private const ERROR_COUPON_GENERATION_FAILED = 'Failed to generate coupon.';
     private const ERROR_PROCESSING_REQUEST = 'An error occurred while processing your request.';
-    private const ERROR_SPIN_LIMIT_REACHED = 'You have reached the spin limit for today.';
+    private const ERROR_SPIN_LIMIT_REACHED = 'You have reached the spin limit.';
     private const ERROR_CONSENT_REQUIRED = 'Consent is required.';
     private const ERROR_EMAIL_SENDING_FAILED = 'Failed to send coupon email.';
+    private const ERROR_WHEEL_NOT_AVAILABLE = 'Wheel is not available.';
+    private const ERROR_SPIN_LOCKED = 'A spin is already in progress. Please try again.';
     private const EMAIL_TEMPLATE_CONFIG_PATH = 'wishreward_settings/general/winning_coupon_email_template';
 
     private JsonFactory $jsonFactory;
@@ -51,7 +56,7 @@ class SpinWheel implements HttpPostActionInterface
     
     private CouponGenerator $couponGenerator;
     private ProbabilityCalculator $probabilityCalculator;
-    private LocalMLValidator $mlValidator;
+    private WishValidationValidator $mlValidator;
     private Session $customerSession;
     private TransportBuilder $transportBuilder;
     private StateInterface $inlineTranslation;
@@ -62,6 +67,9 @@ class SpinWheel implements HttpPostActionInterface
     private Header $httpHeader;
     private SessionManagerInterface $sessionManager;
     private SpinLimitValidatorInterface $spinLimitValidator;
+    private ResourceConnection $resourceConnection;
+    private EventLogger $eventLogger;
+    private SpinCompletionState $spinCompletionState;
 
     public function __construct(
         RequestInterface $request,
@@ -72,7 +80,7 @@ class SpinWheel implements HttpPostActionInterface
         SpinLimitValidatorInterface $spinLimitValidator,
         CouponGenerator $couponGenerator,
         ProbabilityCalculator $probabilityCalculator,
-        LocalMLValidator $mlValidator,
+        WishValidationValidator $mlValidator,
         Session $customerSession,
         TransportBuilder $transportBuilder,
         StateInterface $inlineTranslation,
@@ -81,7 +89,10 @@ class SpinWheel implements HttpPostActionInterface
         ManagerInterface $messageManager,
         EmailValidator $emailValidator,
         Header $httpHeader,
-        SessionManagerInterface $sessionManager
+        SessionManagerInterface $sessionManager,
+        ResourceConnection $resourceConnection,
+        EventLogger $eventLogger,
+        SpinCompletionState $spinCompletionState
     ) {
         $this->request = $request;
         $this->jsonFactory = $jsonFactory;
@@ -101,6 +112,9 @@ class SpinWheel implements HttpPostActionInterface
         $this->emailValidator = $emailValidator;
         $this->httpHeader = $httpHeader;
         $this->sessionManager = $sessionManager;
+        $this->resourceConnection = $resourceConnection;
+        $this->eventLogger = $eventLogger;
+        $this->spinCompletionState = $spinCompletionState;
     }
 
     /**
@@ -110,20 +124,17 @@ class SpinWheel implements HttpPostActionInterface
     {
         $resultJson = $this->jsonFactory->create();
         $postData = $this->request->getPostValue();
+        $wheelId = (int)($postData['wheel_id'] ?? 0);
 
         try {
-            $validationResult = $this->validateRequest($postData);
-            if (!$validationResult['success']) {
-                return $resultJson->setData($validationResult);
+            if ($wheelId <= 0) {
+                return $this->createErrorResponse(self::ERROR_INVALID_WHEEL_ID, 400);
             }
 
-            $wheelId = (int)$postData['wheel_id'];
-            $email = $validationResult['email'];
-            $consentGiven = (bool)($postData['consent_given'] ?? false);
-
-            $wheel = $this->wheelRepository->getById($wheelId);
-            if (!$wheel->isActive()) {
-                return $this->createErrorResponse(self::ERROR_WHEEL_NOT_ACTIVE);
+            $wheel = $this->wheelRepository->getEligibleWheelById($wheelId);
+            if (!$wheel) {
+                $this->logger->warning('Wheel is not eligible for spin request', ['wheel_id' => $wheelId]);
+                return $this->createErrorResponse(self::ERROR_WHEEL_NOT_AVAILABLE, 404);
             }
 
             $sectors = $this->getWheelSectors($wheel);
@@ -131,40 +142,214 @@ class SpinWheel implements HttpPostActionInterface
                 return $this->createErrorResponse(self::ERROR_SECTORS_NOT_CONFIGURED);
             }
 
-            if ($wheel->getIsWishAreaEnabled()) {
-                $wishValidation = $this->validateWishMessage($postData['wish'] ?? '');
-                if (!$wishValidation['success']) {
-                    return $resultJson->setData($wishValidation);
-                }
+            $validationResult = $this->validateRequest($postData);
+            $email = (string)($validationResult['email'] ?? trim((string)($postData['email'] ?? '')));
+            $consentGiven = (bool)($postData['consent_given'] ?? false);
+            $spinId = $this->createSpinRecord($wheelId, $email, $wheel, $postData, $sectors, $consentGiven);
+            $this->eventLogger->recordEvent('spin_submit', [
+                'spin_id' => $spinId,
+                'wheel_id' => $wheelId,
+                'store_id' => (int)($postData['store_id'] ?? $this->storeManager->getStore()->getId()),
+                'website_id' => (int)($postData['website_id'] ?? $this->storeManager->getStore()->getWebsiteId()),
+                'email' => $email,
+                'metadata' => [
+                    'device_type' => $postData['device_type'] ?? null,
+                    'utm_source' => $postData['utm_source'] ?? null,
+                    'utm_medium' => $postData['utm_medium'] ?? null,
+                    'utm_campaign' => $postData['utm_campaign'] ?? null,
+                ],
+            ]);
+
+            if (!$validationResult['success']) {
+                $blockReason = (string)($validationResult['message'] ?? self::ERROR_PROCESSING_REQUEST);
+                $this->markSpinBlocked($spinId, $blockReason);
+                $this->eventLogger->recordEvent('validation_failed', [
+                    'spin_id' => $spinId,
+                    'wheel_id' => $wheelId,
+                    'store_id' => (int)($postData['store_id'] ?? $this->storeManager->getStore()->getId()),
+                    'website_id' => (int)($postData['website_id'] ?? $this->storeManager->getStore()->getWebsiteId()),
+                    'email' => $email,
+                    'block_reason' => $blockReason,
+                ]);
+
+                return $resultJson->setData($validationResult);
             }
 
-            $winningSector = $this->probabilityCalculator->getWinningSector($sectors);
+            $lockName = $this->buildSpinLockName($wheelId, $email, $wheel->getAttemptsPeriodUnit());
+            if (!$this->acquireSpinLock($lockName)) {
+                $this->markSpinBlocked($spinId, self::ERROR_SPIN_LOCKED);
+
+                return $this->createErrorResponse(self::ERROR_SPIN_LOCKED, 429);
+            }
+
+            $winningSector = [];
             $couponCode = null;
+            $emailResult = ['success' => true];
 
-            if ($ruleId = ($winningSector['rule_id'] ?? null)) {
-                $couponCode = $this->generateCoupon($ruleId, $winningSector['id']);
-                if (!$couponCode) {
-                    return $this->createErrorResponse(self::ERROR_COUPON_GENERATION_FAILED);
+            try {
+                if ($wheel->getIsWishAreaEnabled()) {
+                    $wishStartedAt = microtime(true);
+                    $wishValidation = $this->validateWishMessage((string)($postData['wish'] ?? ''));
+                    $wishDurationMs = (int)round((microtime(true) - $wishStartedAt) * 1000);
+
+                    if (!$wishValidation['success']) {
+                        $mlStatus = 'rejected';
+                        $this->updateSpinRecord($spinId, [
+                            'spin_status' => 'blocked',
+                            'block_reason' => (string)($wishValidation['reason'] ?? $wishValidation['message'] ?? self::ERROR_WISH_REQUIRED),
+                            'ml_status' => $mlStatus,
+                            'ml_category' => (string)($wishValidation['reason'] ?? 'wish_validation_failed'),
+                            'ml_duration_ms' => $wishDurationMs,
+                        ]);
+                        $this->eventLogger->recordEvent('ml_rejected', [
+                            'spin_id' => $spinId,
+                            'wheel_id' => $wheelId,
+                            'store_id' => (int)($postData['store_id'] ?? $this->storeManager->getStore()->getId()),
+                            'website_id' => (int)($postData['website_id'] ?? $this->storeManager->getStore()->getWebsiteId()),
+                            'email' => $email,
+                            'block_reason' => (string)($wishValidation['reason'] ?? 'wish_validation_failed'),
+                            'ml_status' => $mlStatus,
+                            'ml_category' => (string)($wishValidation['reason'] ?? 'wish_validation_failed'),
+                            'ml_duration_ms' => $wishDurationMs,
+                            'metadata' => [
+                                'wish_validation' => $wishValidation,
+                            ],
+                        ]);
+                        $this->updateSpinRecord($spinId, [
+                            'spin_result' => 'blocked',
+                        ]);
+
+                        return $resultJson->setData($wishValidation);
+                    }
+
+                    $this->updateSpinRecord($spinId, [
+                        'ml_status' => 'passed',
+                        'ml_duration_ms' => $wishDurationMs,
+                    ]);
+                    $this->eventLogger->recordEvent('ml_passed', [
+                        'spin_id' => $spinId,
+                        'wheel_id' => $wheelId,
+                        'store_id' => (int)($postData['store_id'] ?? $this->storeManager->getStore()->getId()),
+                        'website_id' => (int)($postData['website_id'] ?? $this->storeManager->getStore()->getWebsiteId()),
+                        'email' => $email,
+                        'ml_status' => 'passed',
+                        'ml_duration_ms' => $wishDurationMs,
+                    ]);
                 }
 
-                // $this->logger->warning('111 Invalid wheel_id provided: ' . $winningSector);
+                if (!$this->spinLimitValidator->canSpin($email, $wheelId)) {
+                    $this->markSpinBlocked($spinId, self::ERROR_SPIN_LIMIT_REACHED);
+                    $this->eventLogger->recordEvent('limit_blocked', [
+                        'spin_id' => $spinId,
+                        'wheel_id' => $wheelId,
+                        'store_id' => (int)($postData['store_id'] ?? $this->storeManager->getStore()->getId()),
+                        'website_id' => (int)($postData['website_id'] ?? $this->storeManager->getStore()->getWebsiteId()),
+                        'email' => $email,
+                        'block_reason' => 'limit_blocked',
+                    ]);
 
-                $emailResult = $this->sendCouponEmail($email, $couponCode, $winningSector['label']);
-                if (!$emailResult['success']) {
-                    return $resultJson->setData($emailResult);
+                    return $resultJson->setData([
+                        'success' => false,
+                        'message' => __(self::ERROR_SPIN_LIMIT_REACHED)
+                    ]);
                 }
+
+                $winningSector = $this->probabilityCalculator->getWinningSector($sectors);
+                $isWin = !empty($winningSector['rule_id']);
+
+                if ($ruleId = ($winningSector['rule_id'] ?? null)) {
+                    $couponCode = $this->generateCoupon((int)$ruleId, (string)($winningSector['id'] ?? ''));
+                    if (!$couponCode) {
+                        $this->markSpinBlocked($spinId, self::ERROR_COUPON_GENERATION_FAILED);
+                        $this->eventLogger->recordEvent('spin_blocked', [
+                            'spin_id' => $spinId,
+                            'wheel_id' => $wheelId,
+                            'store_id' => (int)($postData['store_id'] ?? $this->storeManager->getStore()->getId()),
+                            'website_id' => (int)($postData['website_id'] ?? $this->storeManager->getStore()->getWebsiteId()),
+                            'email' => $email,
+                            'block_reason' => self::ERROR_COUPON_GENERATION_FAILED,
+                        ]);
+                        throw new LocalizedException(__(self::ERROR_COUPON_GENERATION_FAILED));
+                    }
+
+                    $this->eventLogger->recordEvent('coupon_generated', [
+                        'spin_id' => $spinId,
+                        'wheel_id' => $wheelId,
+                        'store_id' => (int)($postData['store_id'] ?? $this->storeManager->getStore()->getId()),
+                        'website_id' => (int)($postData['website_id'] ?? $this->storeManager->getStore()->getWebsiteId()),
+                        'email' => $email,
+                        'sector_id' => (string)($winningSector['id'] ?? ''),
+                        'sector_label' => (string)($winningSector['label'] ?? ''),
+                        'coupon_code' => $couponCode,
+                    ]);
+                }
+
+                $this->eventLogger->recordEvent('spin_validated', [
+                    'spin_id' => $spinId,
+                    'wheel_id' => $wheelId,
+                    'store_id' => (int)($postData['store_id'] ?? $this->storeManager->getStore()->getId()),
+                    'website_id' => (int)($postData['website_id'] ?? $this->storeManager->getStore()->getWebsiteId()),
+                    'email' => $email,
+                    'sector_id' => (string)($winningSector['id'] ?? ''),
+                    'sector_label' => (string)($winningSector['label'] ?? ''),
+                    'is_win' => !empty($couponCode),
+                ]);
+
+                $spinStatus = $couponCode ? 'completed' : 'completed';
+                $spinResult = $couponCode ? 'win' : 'lose';
+                $this->updateSpinRecord($spinId, [
+                    'spin_status' => $spinStatus,
+                    'spin_result' => $spinResult,
+                    'sector_id' => (string)($winningSector['id'] ?? ''),
+                    'spin_prize_label' => (string)($winningSector['label'] ?? ''),
+                    'coupon_code' => $couponCode,
+                    'block_reason' => null,
+                    'ml_status' => $wheel->getIsWishAreaEnabled() ? 'passed' : null,
+                ]);
+
+                $this->spinCompletionState->markCompleted($wheel, [
+                    'result' => $spinResult,
+                    'coupon_code' => $couponCode,
+                    'message' => $couponCode
+                        ? (string)($wheel->getWinMessage() ?: __('Congratulations'))
+                        : (string)($wheel->getNoWinMessage() ?: __('Maybe next time')),
+                    'sector_label' => (string)($winningSector['label'] ?? ''),
+                    'spin_result' => $spinResult,
+                ]);
+            } finally {
+                $this->releaseSpinLock($lockName);
             }
 
-            $this->saveSpinAnalytics($wheelId, $email, $couponCode ?? (string) __('No Coupon Code'), $winningSector['label'], $consentGiven, $postData);
+            if ($couponCode) {
+                $emailResult = $this->sendCouponEmail($email, $couponCode, (string)($winningSector['label'] ?? ''));
+                $this->updateSpinRecord($spinId, [
+                    'email_send_status' => !empty($emailResult['success']) ? 'sent' : 'failed',
+                    'email_error' => $emailResult['success'] ? null : (string)($emailResult['message'] ?? self::ERROR_EMAIL_SENDING_FAILED),
+                    'email_sent_at' => !empty($emailResult['success']) ? gmdate('Y-m-d H:i:s') : null,
+                ]);
+                $this->eventLogger->recordEvent(!empty($emailResult['success']) ? 'email_sent' : 'email_failed', [
+                    'spin_id' => $spinId,
+                    'wheel_id' => $wheelId,
+                    'store_id' => (int)($postData['store_id'] ?? $this->storeManager->getStore()->getId()),
+                    'website_id' => (int)($postData['website_id'] ?? $this->storeManager->getStore()->getWebsiteId()),
+                    'email' => $email,
+                    'coupon_code' => $couponCode,
+                    'ml_status' => $wheel->getIsWishAreaEnabled() ? 'passed' : null,
+                    'metadata' => [
+                        'success' => !empty($emailResult['success']),
+                    ],
+                ]);
+            }
 
             return $resultJson->setData([
                 'success' => true,
-                'sector_id' => $winningSector['id'],
-                'result_text' => $winningSector['result_text'],
+                'sector_id' => $winningSector['id'] ?? null,
+                'spin_result' => $spinResult,
+                'result_text' => $winningSector['result_text'] ?? null,
                 'coupon_code' => $couponCode,
                 'message' => $couponCode
-                    ? __('You won: %1. Check your email for the coupon code.', $winningSector['label'])
-                    : __('Try again: %1', $winningSector['label'])
+                    ? (string)($wheel->getWinMessage() ?: __('Congratulations'))
+                    : (string)($wheel->getNoWinMessage() ?: __('Maybe next time'))
             ]);
         } catch (LocalizedException $e) {
             $this->logger->error('Localized exception in SpinWheel: ' . $e->getMessage(), ['exception' => $e]);
@@ -183,14 +368,10 @@ class SpinWheel implements HttpPostActionInterface
      */
     private function validateRequest(array $postData): array
     {
-        $wheelId = (int)($postData['wheel_id'] ?? 0);
+        $email = $this->customerSession->isLoggedIn()
+            ? trim((string)$this->customerSession->getCustomer()->getEmail())
+            : trim((string)($postData['email'] ?? ''));
 
-        if ($wheelId <= 0) {
-            $this->logger->warning('Invalid wheel_id provided: ' . $wheelId);
-            return ['success' => false, 'message' => __(self::ERROR_INVALID_WHEEL_ID)];
-        }
-
-        $email = trim($postData['email'] ?? '') ?: ($this->customerSession->isLoggedIn() ? $this->customerSession->getCustomer()->getEmail() : '');
         if (empty($email)) {
             return ['success' => false, 'message' => __(self::ERROR_EMAIL_REQUIRED)];
         }
@@ -201,10 +382,6 @@ class SpinWheel implements HttpPostActionInterface
 
         if (!(bool)($postData['consent_given'] ?? false)) {
             return ['success' => false, 'message' => __(self::ERROR_CONSENT_REQUIRED)];
-        }
-
-        if (!$this->spinLimitValidator->canSpin($email, $wheelId)) {
-            return ['success' => false, 'message' => __(self::ERROR_SPIN_LIMIT_REACHED)];
         }
 
         return ['success' => true, 'email' => $email];
@@ -279,6 +456,8 @@ class SpinWheel implements HttpPostActionInterface
      */
     private function sendCouponEmail(string $email, string $couponCode, string $sectorLabel): array
     {
+        $translationSuspended = false;
+
         try {
             $customerName = $this->customerSession->isLoggedIn() ? $this->customerSession->getCustomer()->getName() : 'Customer';
             $store = $this->storeManager->getStore();
@@ -294,7 +473,7 @@ class SpinWheel implements HttpPostActionInterface
             if (!$templateId) {
                 $this->logger->error('Email template not configured in wishreward_settings/general/winning_coupon_email_template');
                 return [
-                    'success' => true,
+                    'success' => false,
                     'message' => __('You won: %1. Email sending failed due to missing template configuration.', $sectorLabel)
                 ];
             }
@@ -306,6 +485,7 @@ class SpinWheel implements HttpPostActionInterface
             ];
 
             $this->inlineTranslation->suspend();
+            $translationSuspended = true;
             $transport = $this->transportBuilder
                 ->setTemplateIdentifier($templateId)
                 ->setTemplateOptions([
@@ -318,7 +498,6 @@ class SpinWheel implements HttpPostActionInterface
                 ->getTransport();
 
             $transport->sendMessage();
-            $this->inlineTranslation->resume();
             $this->messageManager->addSuccessMessage(__('Coupon email sent to %1.', $email));
 
             return ['success' => true];
@@ -326,59 +505,138 @@ class SpinWheel implements HttpPostActionInterface
             $this->logger->error('Email sending failed: ' . $e->getMessage(), ['exception' => $e]);
             $this->messageManager->addErrorMessage(__('Failed to send coupon email, please contact support.'));
             return [
-                'success' => true,
+                'success' => false,
                 'message' => __('You won: %1. Email sending failed, please contact support.', $sectorLabel)
             ];
+        } finally {
+            if ($translationSuspended) {
+                $this->inlineTranslation->resume();
+            }
         }
     }
 
-    /**
-     * Save spin log
-     *
-     * @param int $wheelId
-     * @param string $email
-     * @param string $spinResult
-     * @param bool $consentGiven
-     * @param array $postData
-     */
-    private function saveSpinAnalytics(int $wheelId, string $email, string $spinResult, string $ruleLabel, bool $consentGiven, array $postData): void
+    private function createSpinRecord(int $wheelId, string $email, $wheel, array $postData, array $sectors, bool $consentGiven): int
     {
-        $utmSource = $postData['utm_source'] ?? null;
-        $utmMedium = $postData['utm_medium'] ?? null;
-        $utmCampaign = $postData['utm_campaign'] ?? null;
-        $userAgent = $this->httpHeader->getHttpUserAgent();
-
-        $deviceType = $postData['device_type'] ?? null;
-        $validDeviceTypes = ['mobile', 'tablet', 'desktop'];
-
-        if ($deviceType && !in_array($deviceType, $validDeviceTypes, true)) {
-            $this->logger->warning('Invalid device_type provided: ' . $deviceType);
-            $deviceType = null;
-        }
-
-        $sessionId = $this->sessionManager->getSessionId();
-
-        $analyticsData = [
+        $data = [
             'wheel_id' => $wheelId,
-            'customer_id' => $this->customerSession->isLoggedIn() ? $this->customerSession->getCustomerId() : null,
+            'customer_id' => $this->customerSession->isLoggedIn() ? (int)$this->customerSession->getCustomerId() : null,
             'email' => $email,
-            'spin_result' => $spinResult,
-            'spin_prize_label' => $ruleLabel,
-            'spin_date' => date('Y-m-d H:i:s'),
-            'ip_address' => $this->anonymizeIp($this->request->getClientIp()),
+            'spin_result' => 'submitted',
+            'spin_prize_label' => null,
+            'coupon_code' => null,
+            'spin_date' => gmdate('Y-m-d H:i:s'),
+            'ip_address' => $this->anonymizeIp(method_exists($this->request, 'getClientIp') ? $this->request->getClientIp() : null),
             'is_guest' => $this->customerSession->isLoggedIn() ? 0 : 1,
             'consent_given' => $consentGiven ? 1 : 0,
-            'utm_source' => $utmSource,
-            'utm_medium' => $utmMedium,
-            'utm_campaign' => $utmCampaign,
-            'user_agent' => substr($userAgent, 0, 512),
-            'device_type' => $deviceType,
-            'session_id' => $sessionId,
+            'store_id' => (int)($postData['store_id'] ?? $this->storeManager->getStore()->getId()),
+            'website_id' => (int)($postData['website_id'] ?? $this->storeManager->getStore()->getWebsiteId()),
+            'spin_status' => 'submitted',
+            'block_reason' => null,
+            'sector_probability_snapshot' => json_encode($sectors, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            'utm_source' => $postData['utm_source'] ?? null,
+            'utm_medium' => $postData['utm_medium'] ?? null,
+            'utm_campaign' => $postData['utm_campaign'] ?? null,
+            'user_agent' => substr((string)$this->httpHeader->getHttpUserAgent(), 0, 512),
+            'device_type' => $this->normalizeDeviceType($postData['device_type'] ?? null),
+            'session_id' => $this->sessionManager->getSessionId(),
+            'page_url' => $postData['page_url'] ?? (method_exists($this->request, 'getServer') ? $this->request->getServer('HTTP_REFERER') : null),
+            'referrer_url' => $postData['referrer_url'] ?? (method_exists($this->request, 'getServer') ? $this->request->getServer('HTTP_REFERER') : null),
             'is_redeemed' => 0,
-            'redeemed_at' => null
+            'redeemed_at' => null,
+            'spin_count_session' => 0,
+            'email_send_status' => null,
+            'email_error' => null,
+            'email_sent_at' => null,
+            'coupon_applied_at' => null,
+            'base_subtotal' => null,
+            'base_discount_amount' => null,
+            'base_grand_total' => null,
         ];
 
-        $this->spinAnalyticsRepository->saveSpin($analyticsData);
+        return $this->spinAnalyticsRepository->saveSpin($data);
+    }
+
+    private function updateSpinRecord(int $spinId, array $data): void
+    {
+        if ($spinId <= 0) {
+            return;
+        }
+
+        $this->spinAnalyticsRepository->updateSpin($spinId, $data);
+    }
+
+    private function markSpinBlocked(int $spinId, string $blockReason): void
+    {
+        $this->updateSpinRecord($spinId, [
+            'spin_status' => 'blocked',
+            'spin_result' => 'blocked',
+            'block_reason' => $blockReason,
+        ]);
+    }
+
+    private function normalizeDeviceType(mixed $deviceType): ?string
+    {
+        $deviceType = strtolower(trim((string)$deviceType));
+        $validDeviceTypes = ['mobile', 'tablet', 'desktop'];
+
+        if ($deviceType === '') {
+            return null;
+        }
+
+        if (!in_array($deviceType, $validDeviceTypes, true)) {
+            $this->logger->warning('Invalid device_type provided: ' . $deviceType);
+            return null;
+        }
+
+        return $deviceType;
+    }
+
+    private function buildSpinLockName(int $wheelId, string $email, string $periodUnit): string
+    {
+        $bucket = $this->getPeriodBucket($periodUnit);
+        $raw = sprintf('%d|%s|%s', $wheelId, strtolower(trim($email)), $bucket);
+
+        return 'wishreward_spin_' . substr(sha1($raw), 0, 40);
+    }
+
+    private function getPeriodBucket(string $periodUnit): string
+    {
+        $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+
+        return match (strtolower($periodUnit)) {
+            'week' => $now->format('o-\WW'),
+            'month' => $now->format('Y-m'),
+            'year' => $now->format('Y'),
+            'forever' => 'forever',
+            default => $now->format('Y-m-d'),
+        };
+    }
+
+    private function acquireSpinLock(string $lockName, int $timeoutSeconds = 3): bool
+    {
+        try {
+            $result = $this->resourceConnection->getConnection()->fetchOne(
+                'SELECT GET_LOCK(?, ?)',
+                [$lockName, $timeoutSeconds]
+            );
+
+            return (string)$result === '1';
+        } catch (\Throwable $e) {
+            $this->logger->error('Failed to acquire spin lock', ['lock' => $lockName, 'error' => $e->getMessage()]);
+            return false;
+        }
+    }
+
+    private function releaseSpinLock(string $lockName): void
+    {
+        try {
+            $this->resourceConnection->getConnection()->fetchOne(
+                'SELECT RELEASE_LOCK(?)',
+                [$lockName]
+            );
+        } catch (\Throwable $e) {
+            $this->logger->warning('Failed to release spin lock', ['lock' => $lockName, 'error' => $e->getMessage()]);
+        }
     }
 
     /**
@@ -387,9 +645,11 @@ class SpinWheel implements HttpPostActionInterface
      * @param string $message
      * @return Json
      */
-    private function createErrorResponse(string $message): Json
+    private function createErrorResponse(string $message, int $statusCode = 400): Json
     {
-        return $this->jsonFactory->create()->setData(['success' => false, 'message' => __($message)]);
+        return $this->jsonFactory->create()
+            ->setHttpResponseCode($statusCode)
+            ->setData(['success' => false, 'message' => __($message)]);
     }
 
     /**
@@ -398,8 +658,26 @@ class SpinWheel implements HttpPostActionInterface
      * @param string $ip
      * @return string
      */
-    private function anonymizeIp(string $ip): string
+    private function anonymizeIp(?string $ip): ?string
     {
-        return preg_replace('/\.\d+$/', '.xxx', $ip);
+        if (!$ip) {
+            return null;
+        }
+
+        $packed = @inet_pton($ip);
+        if ($packed === false) {
+            return null;
+        }
+
+        $length = strlen($packed);
+        if ($length === 4) {
+            return inet_ntop(substr($packed, 0, 3) . "\x00");
+        }
+
+        if ($length === 16) {
+            return inet_ntop(substr($packed, 0, 8) . str_repeat("\x00", 8));
+        }
+
+        return null;
     }
 }

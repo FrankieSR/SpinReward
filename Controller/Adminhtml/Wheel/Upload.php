@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Doroshko\WishReward\Controller\Adminhtml\Wheel;
+namespace Doroshko\SpinReward\Controller\Adminhtml\Wheel;
 
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
@@ -78,6 +78,6 @@ class Upload extends Action
 
     protected function _isAllowed(): bool
     {
-        return $this->_authorization->isAllowed('Doroshko_WishReward::wheel_edit');
+        return $this->_authorization->isAllowed('Doroshko_SpinReward::wheel_edit');
     }
 }

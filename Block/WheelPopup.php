@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Doroshko\WishReward\Block;
+namespace Doroshko\SpinReward\Block;
 
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Element\Template;
@@ -10,9 +10,10 @@ use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\UrlInterface;
 use Psr\Log\LoggerInterface;
 use Magento\Framework\Escaper;
-use Doroshko\WishReward\Api\WheelRepositoryInterface;
-use Doroshko\WishReward\Api\Data\WheelInterface;
+use Doroshko\SpinReward\Api\WheelRepositoryInterface;
+use Doroshko\SpinReward\Api\Data\WheelInterface;
 use Magento\Framework\Data\Form\FormKey;
+use Doroshko\SpinReward\Model\SpinCompletionState;
 
 class WheelPopup extends Template
 {
@@ -21,12 +22,14 @@ class WheelPopup extends Template
     private WheelRepositoryInterface $wheelRepository;
     private Escaper $escaper;
     private FormKey $formKey;
+    private SpinCompletionState $spinCompletionState;
 
     public function __construct(
         Template\Context $context,
         WheelRepositoryInterface $wheelRepository,
         Escaper $escaper,
         FormKey $formKey,
+        SpinCompletionState $spinCompletionState,
         array $data = []
     ) {
         parent::__construct($context, $data);
@@ -35,6 +38,7 @@ class WheelPopup extends Template
         $this->wheelRepository = $wheelRepository;
         $this->escaper = $escaper;
         $this->formKey = $formKey;
+        $this->spinCompletionState = $spinCompletionState;
     }
 
     /**
@@ -45,6 +49,11 @@ class WheelPopup extends Template
     public function getEligibleWheel(): ?WheelInterface
     {
         try {
+            $wheel = $this->getData('wheel');
+            if ($wheel instanceof WheelInterface) {
+                return $this->wheelRepository->isEligibleWheel($wheel) ? $wheel : null;
+            }
+
             return $this->wheelRepository->getEligiblePopup();
         } catch (\Exception $e) {
             $this->logger->error('Error fetching wheel: ' . $e->getMessage());
@@ -88,5 +97,24 @@ class WheelPopup extends Template
     public function getFormKey()
     {
         return $this->formKey->getFormKey();
+    }
+
+    public function shouldRenderPopup(): bool
+    {
+        $wheel = $this->getEligibleWheel();
+        if (!$wheel) {
+            return false;
+        }
+
+        try {
+            return !$this->spinCompletionState->isCompleted($wheel);
+        } catch (\Throwable $e) {
+            $this->logger->warning('Failed to resolve popup suppression state', [
+                'wheel_id' => $wheel->getWheelId(),
+                'error' => $e->getMessage(),
+            ]);
+
+            return false;
+        }
     }
 }

@@ -1,7 +1,7 @@
 define([
     'jquery',
     'mage/translate',
-    'Doroshko_WishReward/js/lotteryWheelWidget',
+    'Doroshko_SpinReward/js/lotteryWheelWidget',
     'mage/validation'
 ], function ($, $t) {
     'use strict';
@@ -24,18 +24,79 @@ define([
             consentInput: '#consent-input',
             errorContainer: '.wishreward__error',
             errorMessage: '.wishreward__message-text--error',
-            submitButton: '.wishreward__button',
+            submitButton: '.wishreward__button--primary',
             spinMoreButton: '.wishreward-spin-more',
         };
 
         let errorTimer;
 
-        function hashEmail(email) {
+        function getCompletionStorageKey() {
+            return config.completionKey || null;
+        }
+
+        function getCompletionExpiryDate() {
+            const now = new Date();
+            const periodUnit = String(config.attemptsPeriodUnit || 'day').toLowerCase();
+
+            switch (periodUnit) {
+                case 'week': {
+                    const daysUntilSunday = (7 - now.getUTCDay()) % 7;
+                    return new Date(Date.UTC(
+                        now.getUTCFullYear(),
+                        now.getUTCMonth(),
+                        now.getUTCDate() + daysUntilSunday,
+                        23,
+                        59,
+                        59,
+                        999
+                    ));
+                }
+                case 'month':
+                    return new Date(Date.UTC(
+                        now.getUTCFullYear(),
+                        now.getUTCMonth() + 1,
+                        0,
+                        23,
+                        59,
+                        59,
+                        999
+                    ));
+                case 'year':
+                    return new Date(Date.UTC(now.getUTCFullYear(), 11, 31, 23, 59, 59, 999));
+                case 'forever':
+                    return new Date(Date.UTC(now.getUTCFullYear() + 10, 0, 1, 0, 0, 0, 0));
+                case 'day':
+                default:
+                    return new Date(Date.UTC(
+                        now.getUTCFullYear(),
+                        now.getUTCMonth(),
+                        now.getUTCDate(),
+                        23,
+                        59,
+                        59,
+                        999
+                    ));
+            }
+        }
+
+        function markWheelCompleted() {
+            const storageKey = getCompletionStorageKey();
+
+            if (!storageKey) {
+                return;
+            }
+
+            const expiresAt = getCompletionExpiryDate().getTime();
+
             try {
-                return btoa(encodeURIComponent(email)).slice(0, 20);
+                if (window.localStorage) {
+                    window.localStorage.setItem(storageKey, JSON.stringify({
+                        completedAt: Date.now(),
+                        expiresAt: expiresAt
+                    }));
+                }
             } catch (e) {
-                console.warn('Failed to hash email:', e);
-                return '';
+                // Ignore storage failures; cookie fallback now comes from backend.
             }
         }
 
@@ -104,7 +165,7 @@ define([
                 return;
             }
 
-            $('.submitButton').attr('disabled', 'disabled');
+            $(elements.submitButton).prop('disabled', true);
 
             if (!$(elements.consentInput).is(':checked'))   {
                 showError($t('You must agree to the Privacy Policy'));
@@ -124,11 +185,9 @@ define([
             postData.utm_source = utmParams.utm_source;
             postData.utm_medium = utmParams.utm_medium;
             postData.utm_campaign = utmParams.utm_campaign;
-            postData.page_url = window.location.href.substring(0, 512);
-            postData.referrer_url = document.referrer || null;
-            postData.user_agent = navigator.userAgent.substring(0, 512);
 
-            console.log('spin data:', postData);
+            postData.page_url = window.location.href;
+            postData.referrer_url = document.referrer || null;
 
             $.post(config.ajaxUrl, postData)
                 .done(function (response) {
@@ -136,11 +195,11 @@ define([
                     $(elements.spinMoreButton).on('click', handleClickSpinMore);
                     
                     onSpinSuccess(response, email);
-                })
-                .fail(onSpinError)
-                .always(() => {
-                    $('.submitButton').attr('disabled', '');
-                });
+            })
+            .fail(onSpinError)
+            .always(() => {
+                $(elements.submitButton).prop('disabled', false);
+            });
         }
 
         function handleClickSpinMore() {
@@ -158,6 +217,7 @@ define([
             }
 
             clearError();
+            markWheelCompleted();
 
             $(elements.wheelBox).lotteryWheel(
                 'spinToItem',
@@ -167,6 +227,12 @@ define([
                 () => {
                     hideInitialUI();
                     displayResult(response);
+                    window.dispatchEvent(new CustomEvent('wishreward:spin-completed', {
+                        detail: {
+                            wheelId: config.wheelId,
+                            response: response
+                        }
+                    }));
                 }
             );
         }

@@ -1,8 +1,8 @@
 <?php
 
-namespace Doroshko\WishReward\Model;
+namespace Doroshko\SpinReward\Model;
 
-class LocalMLValidator
+class WishValidationValidator
 {
     private array $model;
 
@@ -13,15 +13,15 @@ class LocalMLValidator
 
     private function loadModel(): void
     {
-        $modelPath = BP . '/app/code/Doroshko/WishReward/etc/model.json';
+        $modelPath = BP . '/app/code/Doroshko/SpinReward/etc/model.json';
         if (!file_exists($modelPath)) {
-            throw new \Exception('ML model not found');
+            throw new \Exception('Validation model not found');
         }
 
         $this->model = json_decode(file_get_contents($modelPath), true);
 
         if (!isset($this->model['classes'], $this->model['vocabulary'], $this->model['class_log_prior'], $this->model['feature_log_prob'])) {
-            throw new \Exception('ML model structure is invalid');
+            throw new \Exception('Validation model structure is invalid');
         }
     }
 
@@ -56,12 +56,12 @@ class LocalMLValidator
                 'status' => 'valid',
                 'reason' => 'Text successfully classified as valid.'
             ];
-        } else {
-            return [
-                'status' => 'invalid',
-                'reason' => 'Text does not match valid classification criteria.'
-            ];
         }
+
+        return [
+            'status' => 'invalid',
+            'reason' => 'Text does not match valid classification criteria.'
+        ];
     }
 
     private function vectorize(string $text): array

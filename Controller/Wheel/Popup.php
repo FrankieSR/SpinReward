@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Doroshko\WishReward\Controller\Wheel;
+namespace Doroshko\SpinReward\Controller\Wheel;
 
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\Action\Context;
@@ -10,29 +10,35 @@ use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Result\LayoutFactory;
-use Doroshko\WishReward\Api\WheelRepositoryInterface;
+use Doroshko\SpinReward\Api\WheelRepositoryInterface;
+use Doroshko\SpinReward\Model\SpinCompletionState;
 use Psr\Log\LoggerInterface;
 
 class Popup implements HttpPostActionInterface
 {
+    private const ERROR_WHEEL_NOT_AVAILABLE = 'Wheel is not available.';
+
     private JsonFactory $jsonFactory;
     private LayoutFactory $layoutFactory;
     private WheelRepositoryInterface $wheelRepository;
     private LoggerInterface $logger;
     private Context $context;
+    private SpinCompletionState $spinCompletionState;
 
     public function __construct(
         Context $context,
         JsonFactory $jsonFactory,
         LayoutFactory $layoutFactory,
         WheelRepositoryInterface $wheelRepository,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        SpinCompletionState $spinCompletionState
     ) {
         $this->context = $context;
         $this->jsonFactory = $jsonFactory;
         $this->layoutFactory = $layoutFactory;
         $this->wheelRepository = $wheelRepository;
         $this->logger = $logger;
+        $this->spinCompletionState = $spinCompletionState;
     }
 
     public function execute(): Json
@@ -49,13 +55,20 @@ class Popup implements HttpPostActionInterface
         }
 
         try {
-            $wheel = $this->wheelRepository->getById($wheelId);
-
-            if (!$wheel->isActive()) {
-                $this->logger->info('Wheel ID ' . $wheelId . ' is not active.');
+            $wheel = $this->wheelRepository->getEligibleWheelById($wheelId);
+            if (!$wheel) {
+                $this->logger->info('Wheel ID ' . $wheelId . ' is not eligible for current context.');
                 return $resultJson->setData([
                     'success' => false,
-                    'message' => __('Wheel is not active.')
+                    'message' => __(self::ERROR_WHEEL_NOT_AVAILABLE)
+                ])->setHttpResponseCode(404);
+            }
+
+            if ($this->spinCompletionState->isCompleted($wheel)) {
+                return $resultJson->setData([
+                    'success' => true,
+                    'already_completed' => true,
+                    'result' => $this->spinCompletionState->getResultState($wheel)
                 ]);
             }
 

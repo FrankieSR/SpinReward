@@ -1,34 +1,34 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
     <menu>
-        <add id="Doroshko_WishReward::main"
-            title="Wish Reward"
-            module="Doroshko_WishReward"
+        <add id="Doroshko_SpinReward::main"
+            title="Spin Reward"
+            module="Doroshko_SpinReward"
             sortOrder="55"
-            resource="Doroshko_WishReward::main" />
+            resource="Doroshko_SpinReward::main" />
 
-        <add id="Doroshko_WishReward::config"
+        <add id="Doroshko_SpinReward::config"
             title="Configuration"
-            module="Doroshko_WishReward"
+            module="Doroshko_SpinReward"
             sortOrder="60"
-            parent="Doroshko_WishReward::main"
+            parent="Doroshko_SpinReward::main"
             action="adminhtml/system_config/edit/section/wishreward_settings"
-            resource="Doroshko_WishReward::config" />
+            resource="Doroshko_SpinReward::config" />
 
-        <add id="Doroshko_WishReward::wheels" 
-            title="Wheels of Fortune"
-            module="Doroshko_WishReward"
+        <add id="Doroshko_SpinReward::wheels" 
+            title="Spin Reward Wheels"
+            module="Doroshko_SpinReward"
             sortOrder="40"
-            parent="Doroshko_WishReward::main"
+            parent="Doroshko_SpinReward::main"
             action="wishreward/wheel/index"
-            resource="Doroshko_WishReward::wheels"/>
+            resource="Doroshko_SpinReward::wheels"/>
 
-        <add id="Doroshko_WishReward::analytics"
-            title="Spin Results Dashboard"
-            module="Doroshko_WishReward"
+        <add id="Doroshko_SpinReward::analytics"
+            title="Spin Reward Analytics"
+            module="Doroshko_SpinReward"
             sortOrder="50"
-            parent="Doroshko_WishReward::main"
+            parent="Doroshko_SpinReward::main"
             action="wishreward/analytics/index"
-            resource="Doroshko_WishReward::analytics"/>
+            resource="Doroshko_SpinReward::analytics"/>
     </menu>
 </config>

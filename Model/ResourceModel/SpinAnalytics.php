@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Doroshko\WishReward\Model\ResourceModel;
+namespace Doroshko\SpinReward\Model\ResourceModel;
 
 use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 

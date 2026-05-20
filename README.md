@@ -1,6 +1,27 @@
-# Wheel of Fortune Module
+# Spin Reward Module
 
-The **Wheel of Fortune** module allows customers to spin a fortune wheel and receive discount coupons based on configured **Cart Price Rules**.  
+## Requirements
+
+- PHP 8.1+
+- Magento framework 103.0.x
+
+## License
+
+This module is proprietary software.
+
+You may use it in your own Magento projects and in client Magento projects.
+You may modify it for project needs.
+
+You may not:
+
+- resell this module
+- redistribute this module as a standalone product
+- sublicense this module
+- publish this module as your own product
+
+See [LICENSE.md](/Users/artemdoroshko/Sites/magento/src/app/code/Doroshko/SpinReward/LICENSE.md) for the full license text.
+
+The **Spin Reward** module allows customers to spin a reward wheel and receive discount coupons based on configured **Cart Price Rules**.  
 This documentation explains how to create, configure, and manage wheels in the admin panel.
 
 ---
@@ -9,7 +30,7 @@ This documentation explains how to create, configure, and manage wheels in the a
 
 To create a new wheel:
 
-1. Go to **Wish Reward > Wheel of Fortune**
+1. Go to **Spin Reward > Spin Reward Wheels**
 2. Click **Add New Wheel**
 3. Configure the wheel using the tabs described below
 
@@ -54,7 +75,7 @@ Each sector can include:
 
 ## 🪄 3. Popup Settings
 
-This tab defines all the content displayed inside the Wheel of Fortune popup:
+This tab defines all the content displayed inside the Spin Reward popup:
 
 - Headings  
 - Descriptions  
@@ -65,7 +86,7 @@ This tab defines all the content displayed inside the Wheel of Fortune popup:
 
 ## 🔘 4. CTA Configuration
 
-Configures the **Call-to-Action button** that triggers the Wheel of Fortune popup.
+Configures the **Call-to-Action button** that triggers the Spin Reward popup.
 
 If the CTA button is **disabled**, the popup will open based on triggers defined in **Popup Trigger Configuration**.
 

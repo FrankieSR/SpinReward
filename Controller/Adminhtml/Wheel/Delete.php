@@ -1,11 +1,13 @@
 <?php
-namespace Doroshko\WishReward\Controller\Adminhtml\Wheel;
+namespace Doroshko\SpinReward\Controller\Adminhtml\Wheel;
 
 use Magento\Backend\App\Action;
-use Doroshko\WishReward\Api\WheelRepositoryInterface;
+use Doroshko\SpinReward\Api\WheelRepositoryInterface;
 
 class Delete extends Action
 {
+    public const ADMIN_RESOURCE = 'Doroshko_SpinReward::wheel_delete';
+
     protected $wheelRepository;
 
     public function __construct(

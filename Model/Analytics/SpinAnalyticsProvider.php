@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace Doroshko\WishReward\Model\Analytics;
+namespace Doroshko\SpinReward\Model\Analytics;
 
-use Doroshko\WishReward\Api\SpinAnalyticsProviderInterface;
-use Doroshko\WishReward\Model\ResourceModel\SpinAnalytics\CollectionFactory as SpinAnalyticsCollectionFactory;
+use Doroshko\SpinReward\Api\SpinAnalyticsProviderInterface;
+use Doroshko\SpinReward\Model\ResourceModel\SpinAnalytics\CollectionFactory as SpinAnalyticsCollectionFactory;
 
 class SpinAnalyticsProvider implements SpinAnalyticsProviderInterface
 {
@@ -27,6 +27,7 @@ class SpinAnalyticsProvider implements SpinAnalyticsProviderInterface
     {
         $collection = $this->collectionFactory->create();
         $collection->addFieldToFilter('email', $email);
+        $collection->getSelect()->where('(spin_status IS NULL OR spin_status = ?)', 'completed');
 
         if ($date) {
             $collection->addFieldToFilter('spin_date', ['gteq' => $date . ' 00:00:00']);
@@ -52,6 +53,22 @@ class SpinAnalyticsProvider implements SpinAnalyticsProviderInterface
         $collection->addFieldToFilter('wheel_id', $wheelId);
         $collection->addFieldToFilter('spin_date', ['gteq' => $startDate]);
         $collection->addFieldToFilter('spin_date', ['lteq' => $endDate]);
+        $collection->getSelect()->where('(spin_status IS NULL OR spin_status = ?)', 'completed');
+
+        return (int)$collection->getSize();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getSpinCountByCustomerAndWheel(int $customerId, int $wheelId, string $startDate, string $endDate): int
+    {
+        $collection = $this->collectionFactory->create();
+        $collection->addFieldToFilter('customer_id', $customerId);
+        $collection->addFieldToFilter('wheel_id', $wheelId);
+        $collection->addFieldToFilter('spin_date', ['gteq' => $startDate]);
+        $collection->addFieldToFilter('spin_date', ['lteq' => $endDate]);
+        $collection->getSelect()->where('(spin_status IS NULL OR spin_status = ?)', 'completed');
 
         return (int)$collection->getSize();
     }

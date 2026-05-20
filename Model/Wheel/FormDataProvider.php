@@ -1,16 +1,17 @@
 <?php
 declare(strict_types=1);
 
-namespace Doroshko\WishReward\Model\Wheel;
+namespace Doroshko\SpinReward\Model\Wheel;
 
 use Magento\Ui\DataProvider\AbstractDataProvider;
-use Doroshko\WishReward\Model\ResourceModel\Wheel\CollectionFactory;
+use Doroshko\SpinReward\Model\ResourceModel\Wheel\CollectionFactory;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Filesystem;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\UrlInterface;
-use Doroshko\WishReward\Model\Config\Source\CartPriceRules;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
+use Doroshko\SpinReward\Model\Config\Source\CartPriceRules;
 
 class FormDataProvider extends AbstractDataProvider
 {
@@ -18,6 +19,7 @@ class FormDataProvider extends AbstractDataProvider
     protected RequestInterface $request;
     protected Filesystem $filesystem;
     protected StoreManagerInterface $storeManager;
+    protected TimezoneInterface $timezone;
     protected CartPriceRules $cartPriceRules;
 
     public function __construct(
@@ -28,6 +30,7 @@ class FormDataProvider extends AbstractDataProvider
         RequestInterface $request,
         Filesystem $filesystem,
         StoreManagerInterface $storeManager,
+        TimezoneInterface $timezone,
         CartPriceRules $cartPriceRules,
         array $meta = [],
         array $data = []
@@ -36,6 +39,7 @@ class FormDataProvider extends AbstractDataProvider
         $this->request = $request;
         $this->filesystem = $filesystem;
         $this->storeManager = $storeManager;
+        $this->timezone = $timezone;
         $this->cartPriceRules = $cartPriceRules;
         parent::__construct($name, $primaryFieldName, $requestFieldName, $meta, $data);
     }
@@ -64,6 +68,8 @@ class FormDataProvider extends AbstractDataProvider
                 $data['wheel_config'] = !empty($data['wheel_config']) ? $data['wheel_config'] : '[]';
 
                 $data['rotation_duration'] = $data['rotation_duration'] ?? 6000;
+                $data['start_date'] = $this->formatDateForForm($data['start_date'] ?? null);
+                $data['end_date'] = $this->formatDateForForm($data['end_date'] ?? null);
 
                 $data['popup_delay'] = isset($data['popup_delay']) ? (int)$data['popup_delay'] : 0;
                 $data['popup_scroll_trigger'] = $data['popup_scroll_trigger'] ?? 'none';
@@ -88,6 +94,31 @@ class FormDataProvider extends AbstractDataProvider
         }
 
         return $this->loadedData;
+    }
+
+    private function formatDateForForm(?string $date): ?string
+    {
+        $date = trim((string)$date);
+        if ($date === '') {
+            return null;
+        }
+
+        try {
+            if ($date === '0000-00-00' || str_starts_with($date, '0000-00-00 ')) {
+                return null;
+            }
+
+            if (preg_match('/^\\d{4}-\\d{2}-\\d{2}$/', $date) === 1) {
+                return $date;
+            }
+
+            $utcDate = new \DateTimeImmutable($date, new \DateTimeZone('UTC'));
+            return $utcDate
+                ->setTimezone(new \DateTimeZone($this->timezone->getConfigTimezone()))
+                ->format('Y-m-d');
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     private function prepareImageData(string $filePath): array

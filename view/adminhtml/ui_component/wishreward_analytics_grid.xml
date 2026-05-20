@@ -7,94 +7,188 @@
         </item>
         <item name="spinner" xsi:type="string">wishreward_statistics_columns</item>
     </argument>
-    <dataSource name="wishreward_analytics_grid_data_source">
-        <argument name="dataProvider" xsi:type="configurableObject">
-            <argument name="class" xsi:type="string">Doroshko\WishReward\Model\Wheel\SpinAnalyticsDataProvider</argument>
-            <argument name="name" xsi:type="string">wishreward_analytics_grid_data_source</argument>
-            <argument name="primaryFieldName" xsi:type="string">id</argument>
-            <argument name="requestFieldName" xsi:type="string">id</argument>
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="component" xsi:type="string">Magento_Ui/js/grid/provider</item>
-                    <item name="update_url" xsi:type="url" path="mui/index/render"/>
-                    <item name="storageConfig" xsi:type="array">
-                        <item name="indexField" xsi:type="string">id</item>
-                    </item>
-                </item>
-            </argument>
-        </argument>
+    <dataSource name="wishreward_analytics_grid_data_source" component="Magento_Ui/js/grid/provider">
+        <settings>
+            <storageConfig>
+                <param name="indexField" xsi:type="string">id</param>
+            </storageConfig>
+            <updateUrl path="mui/index/render"/>
+        </settings>
+        <aclResource>Doroshko_SpinReward::analytics</aclResource>
+        <dataProvider class="Doroshko\SpinReward\Model\Wheel\SpinAnalyticsDataProvider" name="wishreward_analytics_grid_data_source">
+            <settings>
+                <requestFieldName>id</requestFieldName>
+                <primaryFieldName>id</primaryFieldName>
+            </settings>
+        </dataProvider>
     </dataSource>
     <listingToolbar name="listing_top">
+        <bookmark name="bookmarks"/>
+        <columnsControls name="columns_controls"/>
         <filters name="listing_filters"/>
-        <!-- <paging name="listing_paging"/> -->
+        <paging name="listing_paging"/>
     </listingToolbar>
 
     <container name="analytics_dashboard" sortOrder="5">
         <argument name="data" xsi:type="array">
             <item name="config" xsi:type="array">
-                <item name="component" xsi:type="string">Doroshko_WishReward/js/analytics/analytics-dashboard</item>
-                <item name="template" xsi:type="string">Doroshko_WishReward/analytics/analytics-dashboard</item>
+                <item name="component" xsi:type="string">Doroshko_SpinReward/js/analytics/analytics-dashboard</item>
+                <item name="template" xsi:type="string">Doroshko_SpinReward/analytics/analytics-dashboard</item>
+                <item name="payloadUrl" xsi:type="url" path="wishreward/analytics/payload"/>
+                <item name="exportUrl" xsi:type="url" path="wishreward/analytics/exportCsv"/>
             </item>
         </argument>
-        <container name="chart_by_date" sortOrder="10">
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="component" xsi:type="string">Doroshko_WishReward/js/analytics/spin-analytics-chart</item>
-                    <item name="template" xsi:type="string">Doroshko_WishReward/analytics/spin-analytics-chart</item>
-                </item>
-            </argument>
-        </container>
     </container>
     <columns name="wishreward_statistics_columns">
         <column name="id">
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="filter" xsi:type="string">text</item>
-                    <item name="label" xsi:type="string" translate="true">ID</item>
-                </item>
-            </argument>
+            <settings>
+                <filter>textRange</filter>
+                <dataType>number</dataType>
+                <label translate="true">ID</label>
+                <sorting>desc</sorting>
+            </settings>
         </column>
         <column name="wheel_id">
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="filter" xsi:type="string">text</item>
-                    <item name="label" xsi:type="string" translate="true">Wheel ID</item>
-                </item>
-            </argument>
+            <settings>
+                <filter>textRange</filter>
+                <dataType>number</dataType>
+                <label translate="true">Wheel ID</label>
+                <sorting>desc</sorting>
+            </settings>
         </column>
-        <column name="email">
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="filter" xsi:type="string">text</item>
-                    <item name="label" xsi:type="string" translate="true">Email</item>
-                </item>
-            </argument>
+        <column name="store_id">
+            <settings>
+                <filter>textRange</filter>
+                <dataType>number</dataType>
+                <label translate="true">Store</label>
+            </settings>
         </column>
-        <column name="ip_address">
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="filter" xsi:type="string">text</item>
-                    <item name="label" xsi:type="string" translate="true">IP Address</item>
-                </item>
-            </argument>
+        <column name="email" class="Doroshko\SpinReward\Ui\Component\Listing\Column\MaskedEmail">
+            <settings>
+                <filter>text</filter>
+                <dataType>text</dataType>
+                <label translate="true">Email</label>
+            </settings>
+        </column>
+        <column name="ip_address" class="Doroshko\SpinReward\Ui\Component\Listing\Column\MaskedIp">
+            <settings>
+                <filter>text</filter>
+                <dataType>text</dataType>
+                <label translate="true">IP Address</label>
+            </settings>
         </column>
         <column name="spin_result">
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="filter" xsi:type="string">text</item>
-                    <item name="label" xsi:type="string" translate="true">Spin Result Coupon</item>
-                </item>
-            </argument>
+            <settings>
+                <filter>text</filter>
+                <dataType>text</dataType>
+                <label translate="true">Result</label>
+            </settings>
+        </column>
+        <column name="spin_status">
+            <settings>
+                <filter>text</filter>
+                <dataType>text</dataType>
+                <label translate="true">Status</label>
+            </settings>
+        </column>
+        <column name="block_reason">
+            <settings>
+                <filter>text</filter>
+                <dataType>text</dataType>
+                <label translate="true">Block Reason</label>
+            </settings>
+        </column>
+        <column name="spin_prize_label">
+            <settings>
+                <filter>text</filter>
+                <dataType>text</dataType>
+                <label translate="true">Sector / Prize</label>
+            </settings>
+        </column>
+        <column name="sector_id">
+            <settings>
+                <filter>text</filter>
+                <dataType>text</dataType>
+                <label translate="true">Sector ID</label>
+            </settings>
+        </column>
+        <column name="coupon_code">
+            <settings>
+                <filter>text</filter>
+                <dataType>text</dataType>
+                <label translate="true">Coupon</label>
+            </settings>
+        </column>
+        <column name="ml_status">
+            <settings>
+                <filter>text</filter>
+                <dataType>text</dataType>
+                <label translate="true">Validation Status</label>
+            </settings>
+        </column>
+        <column name="email_send_status">
+            <settings>
+                <filter>text</filter>
+                <dataType>text</dataType>
+                <label translate="true">Email Status</label>
+            </settings>
+        </column>
+        <column name="order_id">
+            <settings>
+                <filter>textRange</filter>
+                <dataType>number</dataType>
+                <label translate="true">Order ID</label>
+            </settings>
+        </column>
+        <column name="order_status">
+            <settings>
+                <filter>text</filter>
+                <dataType>text</dataType>
+                <label translate="true">Order Status</label>
+            </settings>
+        </column>
+        <column name="base_grand_total">
+            <settings>
+                <filter>textRange</filter>
+                <dataType>number</dataType>
+                <label translate="true">Grand Total</label>
+            </settings>
+        </column>
+        <column name="base_discount_amount">
+            <settings>
+                <filter>textRange</filter>
+                <dataType>number</dataType>
+                <label translate="true">Discount</label>
+            </settings>
+        </column>
+        <column name="device_type">
+            <settings>
+                <filter>text</filter>
+                <dataType>text</dataType>
+                <label translate="true">Device</label>
+            </settings>
+        </column>
+        <column name="utm_source">
+            <settings>
+                <filter>text</filter>
+                <dataType>text</dataType>
+                <label translate="true">UTM Source</label>
+            </settings>
+        </column>
+        <column name="email_wheel_spin_count">
+            <settings>
+                <filter>textRange</filter>
+                <dataType>number</dataType>
+                <label translate="true">Email / Wheel Spins</label>
+            </settings>
         </column>
         <column name="created_at" class="Magento\Ui\Component\Listing\Columns\Date">
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="filter" xsi:type="string">dateRange</item>
-                    <item name="component" xsi:type="string">Magento_Ui/js/grid/columns/date</item>
-                    <item name="dataType" xsi:type="string">date</item>
-                    <item name="label" xsi:type="string" translate="true">Created At</item>
-                </item>
-            </argument>
+            <settings>
+                <filter>dateRange</filter>
+                <dataType>date</dataType>
+                <label translate="true">Created At</label>
+                <sorting>desc</sorting>
+            </settings>
         </column>
     </columns>
 </listing>

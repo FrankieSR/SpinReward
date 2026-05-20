@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace Doroshko\WishReward\Model\Wheel;
+namespace Doroshko\SpinReward\Model\Wheel;
 
 use Magento\Ui\DataProvider\AbstractDataProvider;
 use Magento\Framework\App\RequestInterface;
-use Doroshko\WishReward\Model\ResourceModel\Wheel\CollectionFactory;
+use Doroshko\SpinReward\Model\ResourceModel\Wheel\CollectionFactory;
 
 class DataProvider extends AbstractDataProvider
 {

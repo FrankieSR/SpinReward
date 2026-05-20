@@ -1,18 +1,20 @@
 <?php
 declare(strict_types=1);
 
-namespace Doroshko\WishReward\Controller\Adminhtml\Wheel;
+namespace Doroshko\SpinReward\Controller\Adminhtml\Wheel;
 
 use Magento\Backend\App\Action;
 use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Controller\ResultFactory;
-use Doroshko\WishReward\Model\WheelFactory;
+use Doroshko\SpinReward\Model\WheelFactory;
 
 /**
  * Controller for editing a Wheel record without using Registry.
  */
 class Edit extends Action
 {
+    public const ADMIN_RESOURCE = 'Doroshko_SpinReward::wheel_edit';
+
     /**
      * @var WheelFactory
      */

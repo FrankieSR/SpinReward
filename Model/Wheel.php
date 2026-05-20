@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Doroshko\WishReward\Model;
+namespace Doroshko\SpinReward\Model;
 
 use Magento\Framework\Model\AbstractModel;
-use Doroshko\WishReward\Api\Data\WheelInterface;
+use Doroshko\SpinReward\Api\Data\WheelInterface;
 
 /**
- * Wheel model representing a WishReward wheel entity.
+ * Wheel model representing a Spin Reward wheel entity.
  *
  * Implements WheelInterface to provide access to wheel configuration and settings.
  */
@@ -16,7 +16,7 @@ class Wheel extends AbstractModel implements WheelInterface
 {
     protected function _construct()
     {
-        $this->_init(\Doroshko\WishReward\Model\ResourceModel\Wheel::class);
+        $this->_init(\Doroshko\SpinReward\Model\ResourceModel\Wheel::class);
     }
 
     /**

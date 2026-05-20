@@ -1,0 +1,171 @@
+.wishreward-popup-settings .admin__fieldset-wrapper-content {
+    padding: 18px 0 0;
+}
+
+.wishreward-popup-settings__intro {
+    margin: 0 0 16px;
+    padding: 14px 16px;
+    border: 1px solid #dbe4f0;
+    border-radius: 14px;
+    background: #f8fafc;
+}
+
+.wishreward-popup-settings__eyebrow {
+    margin: 0 0 6px;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.wishreward-popup-settings__lede {
+    margin: 0;
+    color: #0f172a;
+    font-size: 13px;
+    line-height: 1.65;
+}
+
+.wishreward-popup-settings__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.65fr) minmax(320px, 0.95fr);
+    gap: 16px;
+    align-items: start;
+}
+
+.wishreward-popup-settings__mock-popup,
+.wishreward-popup-settings__advanced-card {
+    border: 1px solid #d9e2ec;
+    border-radius: 20px;
+    background: #ffffff;
+    box-shadow: 0 8px 26px rgba(15, 23, 42, 0.04);
+}
+
+.wishreward-popup-settings__mock-popup {
+    padding: 18px;
+}
+
+.wishreward-popup-settings__mock-popup-zone + .wishreward-popup-settings__mock-popup-zone {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px dashed #e2e8f0;
+}
+
+.wishreward-popup-settings__zone-label {
+    margin: 0 0 12px;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.wishreward-popup-settings__slot {
+    display: grid;
+    gap: 12px;
+}
+
+.wishreward-popup-settings__mock-popup-zone--header .wishreward-popup-settings__slot {
+    grid-template-columns: minmax(220px, 0.9fr) minmax(0, 1fr);
+    align-items: start;
+}
+
+.wishreward-popup-settings__mock-popup-zone--footer .wishreward-popup-settings__slot {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.wishreward-popup-settings__slot--stacked {
+    gap: 14px;
+}
+
+.wishreward-popup-settings__slot .admin__field {
+    margin-bottom: 0;
+}
+
+.wishreward-popup-settings__slot .admin__field-label {
+    margin-bottom: 5px;
+}
+
+.wishreward-popup-settings__slot .admin__field-label > span {
+    color: #0f172a;
+    font-weight: 700;
+}
+
+.wishreward-popup-settings__slot .admin__field-note {
+    margin-top: 5px;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.wishreward-popup-settings__slot .admin__field-error {
+    margin-top: 5px;
+}
+
+.wishreward-popup-settings__slot .admin__control-text,
+.wishreward-popup-settings__slot .admin__control-select,
+.wishreward-popup-settings__slot .admin__control-textarea,
+.wishreward-popup-settings__slot .admin__control-multiselect,
+.wishreward-popup-settings__slot .admin__field-widget input[type="text"],
+.wishreward-popup-settings__slot .admin__field-widget textarea {
+    border-radius: 10px;
+    border-color: #cbd5e1;
+    box-shadow: none;
+    background-color: #ffffff;
+}
+
+.wishreward-popup-settings__slot .admin__control-text,
+.wishreward-popup-settings__slot .admin__control-select,
+.wishreward-popup-settings__slot .admin__field-widget input[type="text"] {
+    min-height: 42px;
+}
+
+.wishreward-popup-settings__slot .admin__control-textarea,
+.wishreward-popup-settings__slot .admin__field-widget textarea {
+    min-height: 110px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    resize: vertical;
+}
+
+.wishreward-popup-settings__slot .file-uploader,
+.wishreward-popup-settings__slot .admin__field-file .file-uploader,
+.wishreward-popup-settings__slot .admin__field-image .file-uploader {
+    border: 1px dashed #cbd5e1;
+    border-radius: 14px;
+    background: #f8fafc;
+    padding: 14px;
+}
+
+.wishreward-popup-settings__slot .switcher,
+.wishreward-popup-settings__slot .admin__field-control [type="checkbox"] {
+    margin-top: 2px;
+}
+
+.wishreward-popup-settings__advanced {
+    display: grid;
+    gap: 14px;
+}
+
+.wishreward-popup-settings__advanced-head {
+    padding: 14px 16px;
+    border: 1px solid #dbe4f0;
+    border-radius: 14px;
+    background: #f8fafc;
+}
+
+.wishreward-popup-settings__advanced-card {
+    padding: 16px;
+}
+
+@media (max-width: 1280px) {
+    .wishreward-popup-settings__layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 960px) {
+    .wishreward-popup-settings__mock-popup-zone--header .wishreward-popup-settings__slot {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Doroshko\WishReward\Model;
+namespace Doroshko\SpinReward\Model;
 
 use Magento\SalesRule\Model\CouponFactory;
 use Magento\SalesRule\Model\ResourceModel\Rule as RuleResource;

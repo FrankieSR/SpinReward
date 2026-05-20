@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Doroshko\WishReward\Service;
+namespace Doroshko\SpinReward\Service;
 
 use Psr\Log\LoggerInterface;
 
@@ -13,6 +13,7 @@ class ProbabilityCalculator
 {
     /** Key for probability field in sector data */
     private const PROBABILITY_KEY = 'probability';
+    private const PROBABILITY_SCALE = 100;
 
     private LoggerInterface $logger;
 
@@ -52,6 +53,7 @@ class ProbabilityCalculator
         }
 
         $totalProbability = 0;
+        $bucketedProbabilities = [];
         foreach ($sectors as $index => $sector) {
             if (!isset($sector[self::PROBABILITY_KEY]) || !is_numeric($sector[self::PROBABILITY_KEY])) {
                 $this->logger->error('Invalid or missing probability in sector', [
@@ -68,7 +70,9 @@ class ProbabilityCalculator
                 ]);
                 throw new \InvalidArgumentException('Probabilities must be non-negative.');
             }
-            $totalProbability += $probability;
+            $bucketedProbability = (int)round($probability * self::PROBABILITY_SCALE);
+            $bucketedProbabilities[$index] = $bucketedProbability;
+            $totalProbability += $bucketedProbability;
         }
 
         if ($totalProbability <= 0) {
@@ -78,12 +82,12 @@ class ProbabilityCalculator
             throw new \InvalidArgumentException('Total probability must be greater than zero.');
         }
 
-        $random = rand(1, (int)$totalProbability);
+        $random = random_int(1, (int)$totalProbability);
 
         $currentSum = 0;
 
-        foreach ($sectors as $sector) {
-            $currentSum += (float)$sector[self::PROBABILITY_KEY];
+        foreach ($sectors as $index => $sector) {
+            $currentSum += $bucketedProbabilities[$index] ?? 0;
 
             if ($random <= $currentSum) {
                 return $sector;

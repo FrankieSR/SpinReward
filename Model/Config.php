@@ -1,6 +1,6 @@
 <?php
 
-namespace Doroshko\WishReward\Model;
+namespace Doroshko\SpinReward\Model;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;

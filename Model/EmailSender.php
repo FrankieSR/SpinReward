@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace Doroshko\WishReward\Model;
+namespace Doroshko\SpinReward\Model;
 
-use Doroshko\WishReward\Api\EmailSenderInterface;
+use Doroshko\SpinReward\Api\EmailSenderInterface;
 use Magento\Framework\Mail\Template\TransportBuilder;
 use Magento\Framework\App\Area;
 use Magento\Framework\App\Config\ScopeConfigInterface;

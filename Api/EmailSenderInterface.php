@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Doroshko\WishReward\Api;
+namespace Doroshko\SpinReward\Api;
 
 interface EmailSenderInterface
 {

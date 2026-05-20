@@ -3,7 +3,7 @@
         xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
     <router id="admin">
         <route id="wishreward" frontName="wishreward">
-            <module name="Doroshko_WishReward" before="Magento_Backend"/>
+            <module name="Doroshko_SpinReward" before="Magento_Backend"/>
         </route>
     </router>
 </config>

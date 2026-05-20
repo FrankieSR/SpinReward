@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-    <type name="Doroshko\WishReward\Model\CouponGenerator">
+    <type name="Doroshko\SpinReward\Model\CouponGenerator">
         <arguments>
             <argument name="couponFactory" xsi:type="object">Magento\SalesRule\Model\CouponFactory</argument>
             <argument name="dateTime" xsi:type="object">Magento\Framework\Stdlib\DateTime\DateTime</argument>
@@ -8,18 +8,18 @@
         </arguments>
     </type>
 
-    <type name="Doroshko\WishReward\Model\Wheel\DataProvider">
+    <type name="Doroshko\SpinReward\Model\Wheel\DataProvider">
         <arguments>
             <argument name="request" xsi:type="object">Magento\Framework\App\Request\Http</argument>
         </arguments>
     </type>
 
-    <type name="Doroshko\WishReward\Model\WheelRepository">
+    <type name="Doroshko\SpinReward\Model\WheelRepository">
         <arguments>
             <argument name="layout" xsi:type="object">Magento\Framework\View\LayoutInterface\Proxy</argument>
         </arguments>
     </type>
 
-    <preference for="Doroshko\WishReward\Api\Data\WheelInterface" type="Doroshko\WishReward\Model\Wheel" />
-    <preference for="Doroshko\WishReward\Api\WheelRepositoryInterface" type="Doroshko\WishReward\Model\WheelRepository" />
+    <preference for="Doroshko\SpinReward\Api\Data\WheelInterface" type="Doroshko\SpinReward\Model\Wheel" />
+    <preference for="Doroshko\SpinReward\Api\WheelRepositoryInterface" type="Doroshko\SpinReward\Model\WheelRepository" />
 </config>

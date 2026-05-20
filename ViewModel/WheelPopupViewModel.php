@@ -1,23 +1,27 @@
 <?php
 declare(strict_types=1);
 
-namespace Doroshko\WishReward\ViewModel;
+namespace Doroshko\SpinReward\ViewModel;
 
 use Magento\Framework\View\Element\Block\ArgumentInterface;
-use Doroshko\WishReward\Api\Data\WheelInterface;
+use Doroshko\SpinReward\Api\Data\WheelInterface;
 use Magento\Customer\Model\Session as CustomerSession;
+use Doroshko\SpinReward\Model\SpinCompletionState;
 
 class WheelPopupViewModel implements ArgumentInterface
 {
     private WheelInterface $wheel;
     private CustomerSession $customerSession;
+    private SpinCompletionState $spinCompletionState;
 
     public function __construct(
         WheelInterface $wheel,
-        CustomerSession $customerSession
+        CustomerSession $customerSession,
+        SpinCompletionState $spinCompletionState
     ) {
         $this->wheel = $wheel;
         $this->customerSession = $customerSession;
+        $this->spinCompletionState = $spinCompletionState;
     }
 
     public function setWheel(WheelInterface $wheel): void
@@ -38,6 +42,24 @@ class WheelPopupViewModel implements ArgumentInterface
     public function getWheelId(): ?int
     {
         return $this->wheel ? $this->wheel->getWheelId() : null;
+    }
+
+    public function getCompletionKey(): ?string
+    {
+        if (!$this->wheel || !$this->wheel->getWheelId()) {
+            return null;
+        }
+
+        return $this->spinCompletionState->getCompletionKey((int)$this->wheel->getWheelId());
+    }
+
+    public function getResultKey(): ?string
+    {
+        if (!$this->wheel || !$this->wheel->getWheelId()) {
+            return null;
+        }
+
+        return $this->spinCompletionState->getResultKey((int)$this->wheel->getWheelId());
     }
 
     public function getTitle(): string

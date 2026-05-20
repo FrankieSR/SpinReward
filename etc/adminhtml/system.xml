@@ -2,12 +2,12 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
         <tab id="wishreward" translate="label" sortOrder="100">
-            <label>Wish Reward</label>
+            <label>Spin Reward</label>
         </tab>
         <section id="wishreward_settings" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Wish Reward Settings</label>
+            <label>Spin Reward Settings</label>
             <tab>wishreward</tab>
-            <resource>Doroshko_WishReward::config</resource>
+            <resource>Doroshko_SpinReward::config</resource>
             <group id="general" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>General Settings</label>
                 <field id="enable_module" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">

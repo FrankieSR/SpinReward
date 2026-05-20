@@ -29,8 +29,8 @@
             </storageConfig>
             <updateUrl path="mui/index/render"/>
         </settings>
-        <aclResource>Doroshko_WishReward::wheels</aclResource>
-        <dataProvider class="Doroshko\WishReward\Model\Wheel\DataProvider" name="wishreward_wheel_listing_data_source">
+        <aclResource>Doroshko_SpinReward::wheels</aclResource>
+        <dataProvider class="Doroshko\SpinReward\Model\Wheel\DataProvider" name="wishreward_wheel_listing_data_source">
             <settings>
                 <requestFieldName>wheel_id</requestFieldName>
                 <primaryFieldName>wheel_id</primaryFieldName>
@@ -135,7 +135,7 @@
             </settings>
         </column>
 
-        <actionsColumn name="actions" class="Doroshko\WishReward\Ui\Component\Listing\Column\Actions" sortOrder="110">
+        <actionsColumn name="actions" class="Doroshko\SpinReward\Ui\Component\Listing\Column\Actions" sortOrder="110">
             <settings>
                 <indexField>wheel_id</indexField>
             </settings>

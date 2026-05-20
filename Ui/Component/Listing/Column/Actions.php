@@ -1,6 +1,6 @@
 <?php
 
-namespace Doroshko\WishReward\Ui\Component\Listing\Column;
+namespace Doroshko\SpinReward\Ui\Component\Listing\Column;
 
 use Magento\Framework\UrlInterface;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;

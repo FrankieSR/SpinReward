@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Doroshko\WishReward\Api;
+namespace Doroshko\SpinReward\Api;
 
 interface SpinAnalyticsProviderInterface
 {
@@ -24,6 +24,17 @@ interface SpinAnalyticsProviderInterface
      * @return int
      */
     public function getSpinCountByEmailAndWheel(string $email, int $wheelId, string $startDate, string $endDate): int;
+
+    /**
+     * Returns the number of spins for the given customer and wheel within the specified date range.
+     *
+     * @param int $customerId
+     * @param int $wheelId
+     * @param string $startDate
+     * @param string $endDate
+     * @return int
+     */
+    public function getSpinCountByCustomerAndWheel(int $customerId, int $wheelId, string $startDate, string $endDate): int;
 
     /**
      * Returns all spins for the given email.

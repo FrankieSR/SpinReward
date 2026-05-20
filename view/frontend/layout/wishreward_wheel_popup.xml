@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <layout xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/layout_generic.xsd" layout="empty">
     <container name="root" output="1">
-        <block class="Doroshko\WishReward\Block\WheelPopup" name="wishreward.wheel.popup" template="Doroshko_WishReward::wheel_popup.phtml">
+        <block class="Doroshko\SpinReward\Block\WheelPopup" name="wishreward.wheel.popup" template="Doroshko_SpinReward::wheel_popup.phtml" cacheable="false">
             <arguments>
-                <argument name="viewModel" xsi:type="object">Doroshko\WishReward\ViewModel\WheelPopupViewModel</argument>
+                <argument name="viewModel" xsi:type="object">Doroshko\SpinReward\ViewModel\WheelPopupViewModel</argument>
             </arguments>
         </block>
     </container>

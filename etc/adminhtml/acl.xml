@@ -3,15 +3,16 @@
         xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
     <acl>
         <resource id="Magento_Backend::admin">
-            <resource id="Doroshko_WishReward::main" title="Wish Reward" sortOrder="55">
-                <resource id="Doroshko_WishReward::config" title="Configuration" />
-                <resource id="Doroshko_WishReward::wishes" title="Wish Rewards" sortOrder="10">
-                    <resource id="Doroshko_WishReward::delete" title="Delete Wishes" sortOrder="20" />
+            <resource id="Doroshko_SpinReward::main" title="Spin Reward" sortOrder="55">
+                <resource id="Doroshko_SpinReward::config" title="Configuration" />
+                <resource id="Doroshko_SpinReward::analytics" title="Spin Reward Analytics" sortOrder="5" />
+                <resource id="Doroshko_SpinReward::wishes" title="Spin Reward Records" sortOrder="10">
+                    <resource id="Doroshko_SpinReward::delete" title="Delete Spin Reward Records" sortOrder="20" />
                 </resource>
-                <resource id="Doroshko_WishReward::wheels" title="Wheel Management" sortOrder="10">
-                    <resource id="Doroshko_WishReward::wheel_add" title="Add Wheel" />
-                    <resource id="Doroshko_WishReward::wheel_edit" title="Edit Wheel" />
-                    <resource id="Doroshko_WishReward::wheel_delete" title="Delete Wheel" />
+                <resource id="Doroshko_SpinReward::wheels" title="Spin Reward Wheels" sortOrder="10">
+                    <resource id="Doroshko_SpinReward::wheel_add" title="Add Spin Reward Wheel" />
+                    <resource id="Doroshko_SpinReward::wheel_edit" title="Edit Spin Reward Wheel" />
+                    <resource id="Doroshko_SpinReward::wheel_delete" title="Delete Spin Reward Wheel" />
                 </resource>
             </resource>
         </resource>

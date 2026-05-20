@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace Doroshko\WishReward\Model\ResourceModel\Wheel;
+namespace Doroshko\SpinReward\Model\ResourceModel\Wheel;
 
 use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
-use Doroshko\WishReward\Api\Data\WheelInterface;
-use Doroshko\WishReward\Model\Wheel as WheelModel;
-use Doroshko\WishReward\Model\ResourceModel\Wheel as WheelResource;
+use Doroshko\SpinReward\Api\Data\WheelInterface;
+use Doroshko\SpinReward\Model\Wheel as WheelModel;
+use Doroshko\SpinReward\Model\ResourceModel\Wheel as WheelResource;
 
 class Collection extends AbstractCollection
 {

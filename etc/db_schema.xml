@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
-    <table name="wishreward_wheel" resource="default" engine="innodb" comment="Wish Reward Wheels of Fortune">
+    <table name="wishreward_wheel" resource="default" engine="innodb" comment="Spin Reward Wheels">
         <column xsi:type="int" name="wheel_id" unsigned="true" nullable="false" identity="true" comment="Wheel ID"/>
         <column xsi:type="varchar" name="title" nullable="false" length="255" comment="Wheel Title"/>
         <column xsi:type="smallint" name="is_active" nullable="false" default="1" comment="Is Active Flag"/>
@@ -51,7 +51,7 @@
         </index>
     </table>
 
-<table name="wishreward_spin_analytics" resource="default" engine="innodb" comment="WishReward Spin Analytics">
+<table name="wishreward_spin_analytics" resource="default" engine="innodb" comment="Spin Reward Spin Analytics">
     <column xsi:type="bigint" name="id" unsigned="true" nullable="false" identity="true" comment="Entry ID"/>
 
     <column xsi:type="int" name="wheel_id" unsigned="true" nullable="false" comment="Wheel ID"/>
@@ -68,6 +68,25 @@
     <column xsi:type="datetime" name="redeemed_at" nullable="true" comment="Coupon Redeemed At"/>
     <column xsi:type="varchar" name="coupon_code" nullable="true" length="64" comment="Coupon Code"/>
     <column xsi:type="int" name="order_id" unsigned="true" nullable="true" comment="Order ID"/>
+    <column xsi:type="varchar" name="order_increment_id" nullable="true" length="32" comment="Order Increment ID"/>
+    <column xsi:type="varchar" name="order_status" nullable="true" length="32" comment="Order Status"/>
+    <column xsi:type="int" name="store_id" unsigned="true" nullable="true" comment="Store ID"/>
+    <column xsi:type="int" name="website_id" unsigned="true" nullable="true" comment="Website ID"/>
+    <column xsi:type="varchar" name="spin_status" nullable="true" length="32" default="submitted" comment="Spin Status"/>
+    <column xsi:type="varchar" name="block_reason" nullable="true" length="128" comment="Block Reason"/>
+    <column xsi:type="varchar" name="sector_id" nullable="true" length="64" comment="Sector ID"/>
+    <column xsi:type="text" name="sector_probability_snapshot" nullable="true" comment="Sector Probability Snapshot"/>
+    <column xsi:type="varchar" name="ml_status" nullable="true" length="32" comment="Validation Status"/>
+    <column xsi:type="decimal" name="ml_score" nullable="true" precision="12" scale="6" comment="Validation Score"/>
+    <column xsi:type="varchar" name="ml_category" nullable="true" length="64" comment="Validation Category"/>
+    <column xsi:type="int" name="ml_duration_ms" nullable="true" comment="Validation Duration (ms)"/>
+    <column xsi:type="varchar" name="email_send_status" nullable="true" length="32" comment="Email Send Status"/>
+    <column xsi:type="varchar" name="email_error" nullable="true" length="255" comment="Email Error"/>
+    <column xsi:type="datetime" name="email_sent_at" nullable="true" comment="Email Sent At"/>
+    <column xsi:type="datetime" name="coupon_applied_at" nullable="true" comment="Coupon Applied At"/>
+    <column xsi:type="decimal" name="base_subtotal" nullable="true" precision="12" scale="4" comment="Order Subtotal"/>
+    <column xsi:type="decimal" name="base_discount_amount" nullable="true" precision="12" scale="4" comment="Order Discount Amount"/>
+    <column xsi:type="decimal" name="base_grand_total" nullable="true" precision="12" scale="4" comment="Order Grand Total"/>
 
     <column xsi:type="varchar" name="utm_source" nullable="true" length="64" comment="UTM Source"/>
     <column xsi:type="varchar" name="utm_medium" nullable="true" length="64" comment="UTM Medium"/>
@@ -90,8 +109,18 @@
     <index referenceId="IDX_SPIN_EMAIL" indexType="btree">
         <column name="email"/>
     </index>
+    <index referenceId="IDX_SPIN_EMAIL_WHEEL_DATE" indexType="btree">
+        <column name="email"/>
+        <column name="wheel_id"/>
+        <column name="spin_date"/>
+    </index>
     <index referenceId="IDX_SPIN_CUSTOMER_ID" indexType="btree">
         <column name="customer_id"/>
+    </index>
+    <index referenceId="IDX_SPIN_CUSTOMER_WHEEL_DATE" indexType="btree">
+        <column name="customer_id"/>
+        <column name="wheel_id"/>
+        <column name="spin_date"/>
     </index>
     <index referenceId="IDX_SPIN_DATE" indexType="btree">
         <column name="spin_date"/>
@@ -113,6 +142,113 @@
     </index>
     <index referenceId="IDX_SPIN_ORDER_ID" indexType="btree">
         <column name="order_id"/>
+    </index>
+    <index referenceId="IDX_SPIN_STATUS" indexType="btree">
+        <column name="spin_status"/>
+    </index>
+    <index referenceId="IDX_SPIN_BLOCK_REASON" indexType="btree">
+        <column name="block_reason"/>
+    </index>
+    <index referenceId="IDX_SPIN_ML_STATUS" indexType="btree">
+        <column name="ml_status"/>
+    </index>
+    <index referenceId="IDX_SPIN_STORE_ID" indexType="btree">
+        <column name="store_id"/>
+    </index>
+    <index referenceId="IDX_SPIN_WEBSITE_ID" indexType="btree">
+        <column name="website_id"/>
+    </index>
+    <index referenceId="IDX_SPIN_SECTOR_ID" indexType="btree">
+        <column name="sector_id"/>
+    </index>
+</table>
+
+<table name="wishreward_spin_event" resource="default" engine="innodb" comment="Spin Reward Spin Events">
+    <column xsi:type="bigint" name="event_id" unsigned="true" nullable="false" identity="true" comment="Event ID"/>
+    <column xsi:type="bigint" name="spin_id" unsigned="true" nullable="true" comment="Spin ID"/>
+    <column xsi:type="int" name="wheel_id" unsigned="true" nullable="false" comment="Wheel ID"/>
+    <column xsi:type="int" name="store_id" unsigned="true" nullable="true" comment="Store ID"/>
+    <column xsi:type="int" name="website_id" unsigned="true" nullable="true" comment="Website ID"/>
+    <column xsi:type="varchar" name="event_type" nullable="false" length="64" comment="Event Type"/>
+    <column xsi:type="int" name="event_value" nullable="false" default="1" comment="Event Value"/>
+    <column xsi:type="varchar" name="email_hash" nullable="true" length="64" comment="Email Hash"/>
+    <column xsi:type="varchar" name="ip_hash" nullable="true" length="64" comment="IP Hash"/>
+    <column xsi:type="varchar" name="session_hash" nullable="true" length="64" comment="Session Hash"/>
+    <column xsi:type="varchar" name="sector_id" nullable="true" length="64" comment="Sector ID"/>
+    <column xsi:type="varchar" name="sector_label" nullable="true" length="255" comment="Sector Label"/>
+    <column xsi:type="varchar" name="coupon_code_hash" nullable="true" length="64" comment="Coupon Code Hash"/>
+    <column xsi:type="int" name="order_id" unsigned="true" nullable="true" comment="Order ID"/>
+    <column xsi:type="varchar" name="order_increment_id" nullable="true" length="32" comment="Order Increment ID"/>
+    <column xsi:type="varchar" name="block_reason" nullable="true" length="128" comment="Block Reason"/>
+    <column xsi:type="varchar" name="ml_status" nullable="true" length="32" comment="Validation Status"/>
+    <column xsi:type="decimal" name="ml_score" nullable="true" precision="12" scale="6" comment="Validation Score"/>
+    <column xsi:type="varchar" name="ml_category" nullable="true" length="64" comment="Validation Category"/>
+    <column xsi:type="int" name="ml_duration_ms" nullable="true" comment="Validation Duration (ms)"/>
+    <column xsi:type="text" name="metadata_json" nullable="true" comment="Metadata JSON"/>
+    <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY">
+        <column name="event_id"/>
+    </constraint>
+    <index indexType="btree" referenceId="WISHREWARD_SPIN_EVENT_TYPE_IDX">
+        <column name="event_type"/>
+    </index>
+    <index indexType="btree" referenceId="WISHREWARD_SPIN_EVENT_WHEEL_IDX">
+        <column name="wheel_id"/>
+    </index>
+    <index indexType="btree" referenceId="WISHREWARD_SPIN_EVENT_STORE_IDX">
+        <column name="store_id"/>
+    </index>
+    <index indexType="btree" referenceId="WISHREWARD_SPIN_EVENT_SPIN_IDX">
+        <column name="spin_id"/>
+    </index>
+    <index indexType="btree" referenceId="WISHREWARD_SPIN_EVENT_DATE_IDX">
+        <column name="created_at"/>
+    </index>
+</table>
+
+<table name="wishreward_analytics_daily" resource="default" engine="innodb" comment="Spin Reward Daily Analytics Aggregates">
+    <column xsi:type="bigint" name="aggregate_id" unsigned="true" nullable="false" identity="true" comment="Aggregate ID"/>
+    <column xsi:type="date" name="aggregate_date" nullable="false" comment="Aggregate Date"/>
+    <column xsi:type="int" name="wheel_id" unsigned="true" nullable="false" comment="Wheel ID"/>
+    <column xsi:type="int" name="store_id" unsigned="true" nullable="true" comment="Store ID"/>
+    <column xsi:type="int" name="website_id" unsigned="true" nullable="true" comment="Website ID"/>
+    <column xsi:type="int" name="popup_impressions" nullable="false" default="0" comment="Popup Impressions"/>
+    <column xsi:type="int" name="cta_clicks" nullable="false" default="0" comment="CTA Clicks"/>
+    <column xsi:type="int" name="popup_opens" nullable="false" default="0" comment="Popup Opens"/>
+    <column xsi:type="int" name="spin_submits" nullable="false" default="0" comment="Spin Submits"/>
+    <column xsi:type="int" name="spin_validated" nullable="false" default="0" comment="Spin Validated"/>
+    <column xsi:type="int" name="ml_passed" nullable="false" default="0" comment="Validation Passed"/>
+    <column xsi:type="int" name="ml_rejected" nullable="false" default="0" comment="Validation Rejected"/>
+    <column xsi:type="int" name="wins" nullable="false" default="0" comment="Wins"/>
+    <column xsi:type="int" name="losses" nullable="false" default="0" comment="Losses"/>
+    <column xsi:type="int" name="coupons_generated" nullable="false" default="0" comment="Coupons Generated"/>
+    <column xsi:type="int" name="emails_sent" nullable="false" default="0" comment="Emails Sent"/>
+    <column xsi:type="int" name="emails_failed" nullable="false" default="0" comment="Emails Failed"/>
+    <column xsi:type="int" name="coupons_applied" nullable="false" default="0" comment="Coupons Applied"/>
+    <column xsi:type="int" name="orders_count" nullable="false" default="0" comment="Orders Count"/>
+    <column xsi:type="int" name="blocked_attempts" nullable="false" default="0" comment="Blocked Attempts"/>
+    <column xsi:type="int" name="limit_blocked" nullable="false" default="0" comment="Limit Blocked"/>
+    <column xsi:type="decimal" name="revenue" nullable="false" precision="12" scale="4" default="0.0000" comment="Revenue"/>
+    <column xsi:type="decimal" name="discount_amount" nullable="false" precision="12" scale="4" default="0.0000" comment="Discount Amount"/>
+    <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At"/>
+    <column xsi:type="timestamp" name="updated_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="true" comment="Updated At"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY">
+        <column name="aggregate_id"/>
+    </constraint>
+    <constraint xsi:type="unique" referenceId="WISHREWARD_ANALYTICS_DAILY_UNQ">
+        <column name="aggregate_date"/>
+        <column name="wheel_id"/>
+        <column name="store_id"/>
+        <column name="website_id"/>
+    </constraint>
+    <index indexType="btree" referenceId="WISHREWARD_ANALYTICS_DAILY_DATE_IDX">
+        <column name="aggregate_date"/>
+    </index>
+    <index indexType="btree" referenceId="WISHREWARD_ANALYTICS_DAILY_WHEEL_IDX">
+        <column name="wheel_id"/>
+    </index>
+    <index indexType="btree" referenceId="WISHREWARD_ANALYTICS_DAILY_STORE_IDX">
+        <column name="store_id"/>
     </index>
 </table>
 </schema>

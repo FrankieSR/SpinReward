@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Doroshko\WishReward\Api\Data;
+namespace Doroshko\SpinReward\Api\Data;
 
 interface WheelInterface
 {

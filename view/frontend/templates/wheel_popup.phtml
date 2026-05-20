@@ -1,7 +1,7 @@
 <?php
 
-/** @var \Doroshko\WishReward\Block\WheelPopup $block */
-/** @var \Doroshko\WishReward\ViewModel\WheelPopupViewModel $wheelPopupViewModel */
+/** @var \Doroshko\SpinReward\Block\WheelPopup $block */
+/** @var \Doroshko\SpinReward\ViewModel\WheelPopupViewModel $wheelPopupViewModel */
 
 $wheel = $block->getEligibleWheel();
 if (!$wheel) {
@@ -13,8 +13,14 @@ $escaper   = $block->getEscaper();
 
 $wheelPopupViewModel->setWheel($wheel);
 
+if (!$block->shouldRenderPopup()) {
+    return;
+}
+
 $wheelId        = (int)$wheelPopupViewModel->getWheelId();
 $ajaxUrl        = $escaper->escapeUrl($block->getUrl('wishreward/ajax/spinwheel'));
+$eventUrl       = $escaper->escapeUrl($block->getUrl('wishreward/ajax/event'));
+$completionKey  = $escaper->escapeJs((string)$wheelPopupViewModel->getCompletionKey());
 $wheelItems     = $wheelPopupViewModel->getWheelConfig() ? json_decode($wheelPopupViewModel->getWheelConfig(), true) : [];
 $rotationDur    = $wheelPopupViewModel->getRotationDuration() ?: 6000;
 
@@ -76,7 +82,7 @@ $isCustomerLoggedIn = $wheelPopupViewModel->isCustomerLoggedIn();
                     id="wishreward-form"
                     method="post"
                     class="wishreward__form"
-                    aria-label="Wheel of Fortune Form">
+                    aria-label="Spin Reward Form">
                     <input type="hidden" name="wheel_id" value="<?= $escaper->escapeHtmlAttr($wheelId) ?>" />
                     <input type="hidden" name="form_key" value="<?= $escaper->escapeHtmlAttr($block->getFormKey()) ?>"/>
 
@@ -198,14 +204,17 @@ $isCustomerLoggedIn = $wheelPopupViewModel->isCustomerLoggedIn();
 
 <script type="text/x-magento-init">
     {
-    "#wishreward": {
-        "Doroshko_WishReward/js/wheel-handler": {
-            "ajaxUrl": "<?= $escaper->escapeJs($ajaxUrl) ?>",
-            "wheelItems": <?= json_encode($wheelItems) ?>,
-            "rotationDuration": "<?= $escaper->escapeJs($rotationDur) ?>",
-            "attemptsPerUser":  "<?= $escaper->escapeJs($attemptsPerUser) ?>",
-            "attemptsPeriodUnit":  "<?= $escaper->escapeJs($attemptsPeriodUnit) ?>"
+        "#wishreward": {
+            "Doroshko_SpinReward/js/wheel-handler": {
+                "ajaxUrl": "<?= $escaper->escapeJs($ajaxUrl) ?>",
+                "eventUrl": "<?= $escaper->escapeJs($eventUrl) ?>",
+                "wheelId": "<?= $escaper->escapeJs((string)$wheelId) ?>",
+                "completionKey": "<?= $escaper->escapeJs($completionKey) ?>",
+                "wheelItems": <?= json_encode($wheelItems) ?>,
+                "rotationDuration": "<?= $escaper->escapeJs($rotationDur) ?>",
+                "attemptsPerUser": "<?= $escaper->escapeJs($attemptsPerUser) ?>",
+                "attemptsPeriodUnit": "<?= $escaper->escapeJs($attemptsPeriodUnit) ?>"
+            }
         }
     }
-}
 </script>

@@ -1,6 +1,6 @@
 <?php
-/** @var \Doroshko\WishReward\ViewModel\InitViewModel $initViewModel */
-/** @var \Doroshko\WishReward\Block\WheelPopup $block */
+/** @var \Doroshko\SpinReward\ViewModel\InitViewModel $initViewModel */
+/** @var \Doroshko\SpinReward\Block\WheelPopup $block */
 
 $wheel = $block->getEligibleWheel();
 if (!$wheel) {
@@ -8,26 +8,30 @@ if (!$wheel) {
 }
 
 $initViewModel = $block->getData('viewModel');
-$escaper   = $block->getEscaper();
+$escaper = $block->getEscaper();
 
 $initViewModel->setWheel($wheel);
 
-$triggerConfig      = $initViewModel->getTriggerConfig();
-$ctaPositionClass   = $escaper->escapeHtml($initViewModel->getCtaPosition());
-$ajaxUrl            = $escaper->escapeJs($initViewModel->getAjaxUrl());
-$wheelId            = $escaper->escapeJs((string)$initViewModel->getWheelId());
-$theme              = $escaper->escapeHtmlAttr($initViewModel->getPopupTheme());
+$triggerConfig = $initViewModel->getTriggerConfig();
+$bannerState = $initViewModel->getCompletionBannerState();
+$ctaPositionClass = $escaper->escapeHtml($initViewModel->getCtaPosition());
+$ajaxUrl = $escaper->escapeJs($initViewModel->getAjaxUrl());
+$eventUrl = $escaper->escapeJs($block->getUrl('wishreward/ajax/event'));
+$wheelId = $escaper->escapeJs((string)$initViewModel->getWheelId());
+$completionKey = $escaper->escapeJs((string)$initViewModel->getCompletionKey());
+$resultKey = $escaper->escapeJs((string)$initViewModel->getResultKey());
+$theme = $escaper->escapeHtmlAttr($initViewModel->getPopupTheme());
 
-$isCtaEnabled  = $initViewModel->getIsCtaEnabled();
-
-$canSpin = $initViewModel->canSpin();
+$isCtaEnabled = $initViewModel->getIsCtaEnabled();
+$isSpinCompleted = !empty($bannerState['completed']);
+$bannerResult = !empty($bannerState['result']) && is_array($bannerState['result']) ? $bannerState['result'] : [];
+$bannerMessage = $escaper->escapeHtml((string)($bannerResult['message'] ?? ''));
+$bannerCouponCode = $escaper->escapeHtml((string)($bannerResult['coupon_code'] ?? ''));
 ?>
 
-<?php if ($canSpin): ?>
-<div class="wishreward">
-    <?php if ($isCtaEnabled): ?>
-        <div class="wishreward__cta wishreward__cta--position_<?= $ctaPositionClass ?>"
-             id="wishreward-cta-wrapper">
+<div class="wishreward" id="wishreward">
+    <?php if ($isCtaEnabled && !$isSpinCompleted): ?>
+        <div class="wishreward__cta wishreward__cta--position_<?= $ctaPositionClass ?>" id="wishreward-cta-wrapper">
             <div class="wishreward__cta-inner">
                 <?php if ($wheel->getCtaImage()): ?>
                     <div class="wishreward__cta-image">
@@ -47,7 +51,7 @@ $canSpin = $initViewModel->canSpin();
 
                     <button
                         id="wishreward-cta-button"
-                        class="button button-primary  wishreward__cta-button"
+                        class="button button-primary wishreward__cta-button"
                         type="button"
                         aria-label="<?= $escaper->escapeHtmlAttr($wheel->getCtaButtonText() ?: __('Spin Now')) ?>">
                         <?= $escaper->escapeHtml($wheel->getCtaButtonText() ?: __('Spin Now')) ?>
@@ -57,37 +61,45 @@ $canSpin = $initViewModel->canSpin();
         </div>
     <?php endif; ?>
 
-    <div 
+    <div
         class="wishreward__closed wishreward__closed--position_<?= $ctaPositionClass ?> wishreward__closed--theme_<?= $theme ?>"
         id="wishreward-closed-wrapper"
-        style="display: none;">
-        <button class="wishreward__closed-button" id="wishreward-reopen-button" aria-label="Reopen">
+        data-banner-mode="<?= $escaper->escapeHtmlAttr($isSpinCompleted ? 'completed' : 'closed') ?>"
+        style="<?= $escaper->escapeHtmlAttr($isSpinCompleted ? 'display: flex;' : 'display: none;') ?>">
+        <button
+            class="wishreward__closed-button"
+            id="wishreward-reopen-button"
+            aria-label="Reopen"
+            style="<?= $escaper->escapeHtmlAttr($isSpinCompleted ? 'display:none;' : '') ?>">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
                 <path d="M256 73.82A182.175 182.175 0 0 0 73.82 255.992c0 100.616 81.563 182.188 182.18 182.188 100.61 0 182.18-81.572 182.18-182.188 0-100.61-81.571-182.172-182.18-182.172zm-10.204 275.037h-64.362a10.133 10.133 0 0 1-10.134-10.143v-67.798h74.487v77.94zm0-90.545h-74.751a3.843 3.843 0 0 1-3.841-3.832v-29.523a3.845 3.845 0 0 1 3.84-3.84h74.743v37.195zm-33.25-55.222c-13.025 0-23.58-8.947-23.58-19.977s10.555-19.978 23.58-19.978 36.449 39.955 36.449 39.955zm85.386-39.955c13.034 0 23.58 8.947 23.58 19.978s-10.554 19.977-23.58 19.977h-36.439s23.415-39.955 36.44-39.955zm42.636 175.58a10.139 10.139 0 0 1-10.134 10.142h-65.741v-77.941h74.75c.387 0 .747-.088 1.125-.115v67.914zm2.29-80.403h-78.165v-37.187h78.164a.427.427 0 0 1 .427.427v36.334a.427.427 0 0 1-.426.426z" data-name="Gift" />
             </svg>
         </button>
-        <button class="wishreward__closed-close" id="wishreward__closed-close" aria-label="Close" title="Close">&times;</button>
+
+        <div class="wishreward__closed-content" id="wishreward-banner-content" style="display:none;">
+            <p class="wishreward__closed-message" id="wishreward-banner-message"></p>
+            <p class="wishreward__closed-coupon-row" id="wishreward-banner-coupon-row" style="display:none;">
+                <span class="wishreward__closed-coupon-label"><?= $escaper->escapeHtml(__('Coupon code:')) ?></span>
+                <strong class="wishreward__closed-coupon" id="wishreward-banner-coupon"></strong>
+            </p>
+        </div>
+
+        <button class="wishreward__closed-close" id="wishreward-banner-close" aria-label="Close" title="Close">&times;</button>
     </div>
 
     <script type="text/x-magento-init">
         {
             ".wishreward": {
-                "Doroshko_WishReward/js/init": {
+                "Doroshko_SpinReward/js/init": {
                     "ajaxUrl": "<?= $escaper->escapeUrl($ajaxUrl)?>",
+                    "eventUrl": "<?= $escaper->escapeUrl($eventUrl)?>",
                     "wheelId": "<?= $escaper->escapeJs($wheelId) ?>",
+                    "completionKey": "<?= $escaper->escapeJs($completionKey) ?>",
+                    "resultKey": "<?= $escaper->escapeJs($resultKey) ?>",
+                    "bannerState": <?= /* @noEscape */ json_encode($bannerState) ?>,
                     "triggerConfig": <?= /* @noEscape */ json_encode($triggerConfig) ?>
                 }
             }
         }
     </script>
-
-    <script>
-        require(['jquery', 'domReady!'], function($) {
-            $(document).on('click', '#wishreward__closed-close', function(e) {
-                e.preventDefault();
-                $(this).closest('#wishreward-reopen-button').hide();
-            });
-        });
-    </script>
 </div>
-<?php endif; ?>

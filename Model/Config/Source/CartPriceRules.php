@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Doroshko\WishReward\Model\Config\Source;
+namespace Doroshko\SpinReward\Model\Config\Source;
 
 use Magento\Framework\Data\OptionSourceInterface;
 use Magento\SalesRule\Model\ResourceModel\Rule\CollectionFactory as RuleCollectionFactory;
