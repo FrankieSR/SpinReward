@@ -188,9 +188,7 @@ define(['jquery', 'jquery/ui'], function ($) {
             const x = cx + textRadius * Math.cos((angle * Math.PI) / 180);
             const y = cy + textRadius * Math.sin((angle * Math.PI) / 180);
 
-            // Create SVG text element
             const textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            console.log(item.textColor, 'item.textColor');
             textElement.setAttribute('x', x);
             textElement.setAttribute('y', y);
             textElement.setAttribute('text-anchor', 'middle');

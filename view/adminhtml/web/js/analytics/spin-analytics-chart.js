@@ -28,7 +28,6 @@ define(['uiComponent', 'chartJs', 'Magento_Ui/js/lib/view/utils/async'], functio
         },
 
         onDataChange: function(items) {
-            console.log(items, 'items spin-analytics-chart');
             if (items && items.length > 0) {
                 this.items(items);
                 this.loadChartData();

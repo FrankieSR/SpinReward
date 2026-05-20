@@ -95,9 +95,7 @@ define([
                         expiresAt: expiresAt
                     }));
                 }
-            } catch (e) {
-                // Ignore storage failures; cookie fallback now comes from backend.
-            }
+            } catch (e) {}
         }
 
         function init() {
@@ -191,9 +189,8 @@ define([
 
             $.post(config.ajaxUrl, postData)
                 .done(function (response) {
-                    // canSpin(email) ? $(elements.spinMoreButton).show() : $(elements.spinMoreButton).hide();
                     $(elements.spinMoreButton).on('click', handleClickSpinMore);
-                    
+
                     onSpinSuccess(response, email);
             })
             .fail(onSpinError)
